@@ -12,9 +12,9 @@ const Q = require('q');
 const fs = require('fs');
 
 const control = require('./control');
-const Engine = require('./engine');
-const Tier = require('./engine/tier_manager').Tier;
-const Frontend = require('./frontend');
+const Engine = require('thingengine-core');
+const Tier = require('thingpedia').Tier;
+const Frontend = require('./frontend/frontend');
 
 const JavaAPI = require('./java_api');
 

@@ -11,7 +11,11 @@
 const Q = require('q');
 const fs = require('fs');
 
-const sql = require('./engine/db/sql');
+const ThingPediaClient = require('thingpedia-client');
+
+// FIXME
+const sql = require('thingengine-core/lib/db/sql');
+
 const JavaAPI = require('./java_api');
 
 var _unzipApi = JavaAPI.makeJavaAPI('Unzip', ['unzip'], []);
@@ -124,6 +128,9 @@ module.exports = {
             // We have a notify API implemented
             return true;
 
+        case 'thingpedia-client':
+            return true;
+
         default:
             return false;
         }
@@ -142,6 +149,9 @@ module.exports = {
         case 'code-download':
             // We have the support to download code
             return _unzipApi;
+
+        case 'thingpedia-client':
+            return new ThingPediaClient.ClientHttp(_prefs.get('developer-key'));
 
         default:
             return null;
