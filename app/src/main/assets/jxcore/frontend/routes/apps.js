@@ -10,7 +10,6 @@ const Q = require('q');
 const express = require('express');
 var router = express.Router();
 
-const user = require('../util/user');
 const feeds = require('../../shared/util/feeds');
 
 const ThingTalk = require('thingtalk');
@@ -32,7 +31,7 @@ function appsList(req, res, next, message) {
                               apps: info });
 }
 
-router.get('/', user.redirectLogIn, function(req, res, next) {
+router.get('/', function(req, res, next) {
     appsList(req, res, next, '');
 });
 
@@ -50,14 +49,14 @@ function appsCreate(error, req, res) {
     });
 }
 
-router.get('/create', user.redirectLogIn, function(req, res, next) {
+router.get('/create', function(req, res, next) {
     appsCreate(undefined, req, res).catch(function(e) {
         res.status(400).render('error', { page_title: "ThingEngine - Error",
                                           message: e.message });
     }).done();
 });
 
-router.post('/create', user.requireLogIn, function(req, res, next) {
+router.post('/create', function(req, res, next) {
     Q.try(function() {
         var code = req.body.code;
         var state, tier;
@@ -94,7 +93,7 @@ router.post('/create', user.requireLogIn, function(req, res, next) {
     }).done();
 });
 
-router.post('/delete', user.requireLogIn, function(req, res, next) {
+router.post('/delete', function(req, res, next) {
     try {
         var engine = req.app.engine;
 
@@ -137,7 +136,7 @@ router.get('/:id/show', user.redirectLogIn, function(req, res, next) {
                                     params: JSON.stringify(app.state) });
 });
 
-router.post('/:id/update', user.requireLogIn, function(req, res, next) {
+router.post('/:id/update', function(req, res, next) {
     var engine = req.app.engine;
 
     var app = engine.apps.getApp(req.params.id);
