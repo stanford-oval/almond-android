@@ -83,7 +83,7 @@ function runEngine() {
             },
 
             addApp: function(serializedApp, tier) {
-                engine.apps.loadOneApp(serializedApp, tier, true);
+                engine.apps.loadOneApp(serializedApp, {}, undefined, tier, null, null, true).done();
             },
 
             // For testing only!
@@ -100,43 +100,6 @@ function runEngine() {
 
             removeDevice: function(deviceId) {
                 return engine.devices.removeDevice(engine.devices.getDevice(deviceId));
-            },
-
-            shareDevice: function(groupId, deviceId) {
-                var group = engine.devices.getDevice(groupId);
-                var feed = engine.messaging.getFeed(group.feedId);
-                var device = engine.devices.getDevice(deviceId);
-
-                return Q.try(function() {
-                    return feed.open();
-                }).then(function() {
-                    var json = { groupId: device.uniqueId,
-                                 groupToken: engine.subscriptions.makeAccessToken(device.uniqueId),
-                                 isGroup: device.hasKind('group') };
-                    return feed.sendRaw({ type: 'rdl', noun: 'device',
-                                          displayTitle: device.name,
-                                          displayText: device.description,
-                                          callback: 'https://thingengine.stanford.edu/omlet/callback',
-                                          webCallback: 'https://thingengine.stanford.edu/omlet/web',
-                                          json: JSON.stringify(json)
-                                        });
-                }).finally(function() {
-                    feed.close();
-                });
-            },
-
-            injectTableInsert: function(table, value) {
-                var device = engine.devices.getDevice(table);
-                var table = device.table;
-                var collection = table.getCollection('data');
-                var previous = collection.findObject(value);
-                if (previous) {
-                    for (var name in value)
-                        previous[name] = value[name];
-                    collection.update(previous);
-                } else {
-                    collection.insert(value);
-                }
             },
         });
 
