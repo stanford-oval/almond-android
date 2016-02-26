@@ -14,7 +14,6 @@ const fs = require('fs');
 const control = require('./control');
 const Engine = require('thingengine-core');
 const Tier = require('thingpedia').Tier;
-const Frontend = require('./frontend/frontend');
 
 const JavaAPI = require('./java_api');
 
@@ -28,8 +27,6 @@ function runEngine() {
         console.log('Creating engine...');
 
         var engine = new Engine();
-        var frontend = new Frontend();
-        frontend.setEngine(engine);
 
         var engineRunning = false;
         var earlyStop = false;
@@ -109,13 +106,13 @@ function runEngine() {
             // and execute on our thread
             JXMobile('controlReady').callNative();
 
-            return Q.all([engine.open(), frontend.open()]);
+            return engine.open();
         }).then(function() {
             engineRunning = true;
             if (earlyStop)
-                return Q.all([engine.close(), frontend.close()]);
+                return engine.close();
             return engine.run().finally(function() {
-                return Q.all([engine.close(), frontend.close()]);
+                return engine.close();
             });
         });
     }).catch(function(error) {

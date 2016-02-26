@@ -192,21 +192,4 @@ public class ControlChannel implements AutoCloseable, Closeable {
             return false;
         }
     }
-
-    public String createOmletFeed() {
-        try {
-            return (String)expectReply(sendCall("createOmletFeed"));
-        } catch(Exception e) {
-            Log.e(EngineService.LOG_TAG, "Unexpected exception in 'createOmletFeed' command", e);
-            return null;
-        }
-    }
-
-    public void injectTableInsert(String table, JSONObject o) {
-        try {
-            sendCall("injectTableInsert", table, o);
-        } catch(Exception e) {
-            Log.e(EngineService.LOG_TAG, "Unexpected exception in 'injectTableInsert' command", e);
-        }
-    }
 }

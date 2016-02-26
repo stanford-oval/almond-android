@@ -1,9 +1,6 @@
 [submodule "jxcore"]
 	path = jxcore
 	url = https://github.com/jxcore/jxcore
-[submodule "app/src/main/assets/jxcore/shared"]
-	path = app/src/main/assets/jxcore/shared
-	url = https://github.com/Stanford-IoT-Lab/thingengine-platform-shared.git
 [submodule "app/src/main/assets/jxcore/node_modules/thingengine-core"]
 	path = app/src/main/assets/jxcore/node_modules/thingengine-core
 	url = https://github.com/Stanford-IoT-Lab/thingengine-core.git
