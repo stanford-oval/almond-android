@@ -47,7 +47,7 @@ fs.statSync = function(p) {
     for (symlink in _virtualSymlinks) {
         if (p.startsWith(symlink + '/')) {
             var relative = p.substr(symlink.length);
-            console.log('found', _virtualSymlinks[symlink] + relative);
+            //console.log('found', _virtualSymlinks[symlink] + relative);
             return fs.statSync(_virtualSymlinks[symlink] + relative);
         }
     }

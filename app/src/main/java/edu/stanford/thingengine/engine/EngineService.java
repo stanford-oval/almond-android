@@ -72,7 +72,8 @@ public class EngineService extends Service {
         Log.i(LOG_TAG, "Destroying service");
         try {
             if (engineThread != null) {
-                control.sendStop();
+                if (control != null)
+                    control.sendStop();
 
                 try {
                     // give the thread 10 seconds to die
@@ -81,7 +82,8 @@ public class EngineService extends Service {
                     Log.e(LOG_TAG, "InterruptedException while destroying the nodejs thread", e);
                 }
                 engineThread = null;
-                control.close();
+                if (control != null)
+                    control.close();
             }
         } catch(IOException e) {
             Log.e(LOG_TAG, "IOException while destroying the nodejs thread", e);

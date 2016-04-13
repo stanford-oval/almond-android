@@ -25,4 +25,11 @@ node_modules/statuses/
 node_modules/type-is/
 node_modules/unpipe/
 node_modules/utils-merge/
-
+node_modules/adt/
+node_modules/deep-equal/
+node_modules/immutable/
+node_modules/node-uuid/
+node_modules/oauth/
+node_modules/options/
+node_modules/tmp/
+node_modules/ultron/
