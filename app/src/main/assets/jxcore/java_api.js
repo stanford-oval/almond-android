@@ -6,7 +6,6 @@
 //
 // See COPYING for details
 
-const lang = require('lang');
 const Q = require('q');
 
 var asyncCallbacks = {};

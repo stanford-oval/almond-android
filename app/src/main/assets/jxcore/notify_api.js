@@ -6,7 +6,6 @@
 //
 // See COPYING for details
 
-const lang = require('lang');
 const Q = require('q');
 
 const JavaAPI = require('./java_api');
