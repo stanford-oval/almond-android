@@ -108,6 +108,22 @@ module.exports = {
 
     type: 'android',
 
+    // Check if we need to load and run the given thingengine-module on
+    // this platform
+    // (eg we don't need discovery on the cloud, and we don't need graphdb,
+    // messaging or the apps on the phone client)
+    hasFeature: function(feature) {
+        switch(feature) {
+        case 'graphdb':
+        case 'messaging':
+        case 'apps':
+            return false;
+
+        default:
+            return true;
+        }
+    },
+
     // Check if this platform has the required capability
     // (eg. long running, big storage, reliable connectivity, server
     // connectivity, stable IP, local device discovery, bluetooth, etc.)
