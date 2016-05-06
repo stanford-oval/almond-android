@@ -5,12 +5,12 @@
 // Copyright 2015 Giovanni Campagna <gcampagn@cs.stanford.edu>
 //
 // See COPYING for details
+"use strict";
 
 console.log('ThingEngine-Android starting up...');
 
 const Q = require('q');
 const fs = require('fs');
-const lang = require('lang');
 
 const ControlChannel = require('./control');
 const Engine = require('thingengine-core');
@@ -22,30 +22,27 @@ var _engine;
 var _running;
 var _stopped;
 
-const AppControlChannel = new lang.Class({
-    Name: 'AppControlChannel',
-    Extends: ControlChannel,
-
+class AppControlChannel extends ControlChannel {
     // handle control methods here...
 
-    foo: function(int) {
+    foo(int) {
         console.log('Foo called on control channel with value ' + int);
         return int;
-    },
+    }
 
-    invokeCallback: function(callbackId, error, value) {
+    invokeCallback(callbackId, error, value) {
         JavaAPI.invokeCallback(callbackId, error, value);
-    },
+    }
 
-    stop: function() {
+    stop() {
         if (_running)
             _engine.stop();
         else
             _stop = true;
         this.close();
-    },
+    }
 
-    setCloudId: function(cloudId, authToken) {
+    setCloudId(cloudId, authToken) {
         if (_engine.devices.hasDevice('thingengine-own-cloud'))
             return false;
         if (!platform.setAuthToken(authToken))
@@ -56,9 +53,9 @@ const AppControlChannel = new lang.Class({
                                         cloudId: cloudId,
                                         own: true }, true).done();
         return true;
-    },
+    }
 
-    setServerAddress: function(serverHost, serverPort, authToken) {
+    setServerAddress(serverHost, serverPort, authToken) {
         if (_engine.devices.hasDevice('thingengine-own-server'))
             return false;
         if (authToken !== null) {
@@ -73,7 +70,7 @@ const AppControlChannel = new lang.Class({
                                         own: true }, true).done();
         return true;
     }
-})
+}
 
 function runEngine() {
     Q.longStackSupport = true;

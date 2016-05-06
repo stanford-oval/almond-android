@@ -5,6 +5,7 @@
 // Copyright 2015 Giovanni Campagna <gcampagn@cs.stanford.edu>
 //
 // See COPYING for details
+"use strict";
 
 const Q = require('q');
 const fs = require('fs');
@@ -13,19 +14,17 @@ const lang = require('lang');
 
 const JsonDatagramSocket = require('./json_datagram_socket');
 
-module.exports = new lang.Class({
-    Name: 'ControlChannel',
-
-    _init: function() {
+module.exports = class ControlChannel {
+    constructor() {
         this._server = net.createServer({ allowHalfOpen: true });
 
         this._server.on('connection', this._handleConnection.bind(this));
         this._closeOk = true;
         this._socket = null;
         this._partialMessage = '';
-    },
+    }
 
-    open: function() {
+    open() {
         var controlPath = platform.getWritableDir() + '/control';
         try {
             fs.unlinkSync(controlPath);
@@ -34,16 +33,16 @@ module.exports = new lang.Class({
                 throw e;
         }
         return Q.ninvoke(this._server, 'listen', controlPath);
-    },
+    }
 
-    close: function() {
+    close() {
         this._closeOk = true;
         this._socket.end();
         this._socket = null;
         this._server.close();
-    },
+    }
 
-    _handleConnection: function(socket) {
+    _handleConnection(socket) {
         if (this._socket != null) {
             console.error('Unexpected new connection on communication channel');
             this._socket.end();
@@ -69,9 +68,9 @@ module.exports = new lang.Class({
             this._handleMessage(data);
         }.bind(this));
         this._closeOk = false;
-    },
+    }
 
-    _handleMessage: function(msg) {
+    _handleMessage(msg) {
         if (!msg.method || !msg.args) {
             console.error('Malformed message on control channel');
             return;
@@ -85,5 +84,5 @@ module.exports = new lang.Class({
                 return Q.ninvoke(this._socket, 'write', {id:msg.replyId, error:error.message});
         }.bind(this)).done();
     }
-});
+}
 

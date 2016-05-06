@@ -14,7 +14,7 @@ const fs = require('fs');
 const ThingPediaClient = require('thingpedia-client');
 
 // FIXME
-const sql = require('thingengine-core/lib/db/sql');
+const sql = require('thingengine-core/lib/util/sql');
 
 const JavaAPI = require('./java_api');
 
@@ -102,7 +102,7 @@ module.exports = {
             safeMkdirSync(cacheDir);
 
             return sql.ensureSchema(filesDir + '/sqlite.db',
-                                    'schema.sql');
+                                    '../data/schema.sql');
         });
     },
 
