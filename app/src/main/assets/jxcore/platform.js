@@ -203,6 +203,10 @@ module.exports = {
         return filesDir + '/sqlite.db';
     },
 
+    getGraphDB() {
+        return filesDir + '/rdf.db';
+    },
+
     // Stop the main loop and exit
     // (In Android, this only stops the node.js thread)
     // This function should be called by the platform integration
