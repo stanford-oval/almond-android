@@ -48,7 +48,7 @@ class AppControlChannel extends ControlChannel {
         if (!platform.setAuthToken(authToken))
             return false;
 
-        _engine.devices.loadOneDevice({ kind: 'thingengine',
+        _engine.devices.loadOneDevice({ kind: 'org.thingpedia.builtin.thingengine',
                                         tier: Tier.CLOUD,
                                         cloudId: cloudId,
                                         own: true }, true).done();
@@ -63,7 +63,7 @@ class AppControlChannel extends ControlChannel {
                 return false;
         }
 
-        _engine.devices.loadOneDevice({ kind: 'thingengine',
+        _engine.devices.loadOneDevice({ kind: 'org.thingpedia.builtin.thingengine',
                                         tier: Tier.SERVER,
                                         host: serverHost,
                                         port: serverPort,

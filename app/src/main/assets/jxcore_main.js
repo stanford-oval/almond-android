@@ -393,7 +393,14 @@ if (isAndroid) {
 
 process.on('uncaughtException', function (e) {
     Error.captureStackTrace(e);
-    console.error(e.stack);
+    if (e instanceof SyntaxError) {
+        console.error(e.fileName);
+        console.error(e.lineNumber);
+    }
+    if (Array.isArray(e.stack))
+        e.stack.forEach(console.error);
+    else
+        console.error(e.stack);
     JXMobile('OnError').callNative(e.message, JSON.stringify(e.stack));
 });
 

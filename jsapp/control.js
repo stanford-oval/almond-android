@@ -10,7 +10,6 @@
 const Q = require('q');
 const fs = require('fs');
 const net = require('net');
-const lang = require('lang');
 
 const JsonDatagramSocket = require('./json_datagram_socket');
 
@@ -48,7 +47,7 @@ module.exports = class ControlChannel {
             this._socket.end();
         }
 
-        var jsonSocket = new JsonDatagramSocket(socket, platform.encoding);
+        var jsonSocket = new JsonDatagramSocket(socket, socket, platform.encoding);
         this._socket = jsonSocket;
         this._socket.on('end', function() {
             if (this._socket != jsonSocket)

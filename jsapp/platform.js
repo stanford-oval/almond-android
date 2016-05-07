@@ -44,7 +44,7 @@ var _originalLStatSync = fs.lstatSync;
 var _virtualSymlinks = {};
 var _virtualSymlinksStat = {};
 fs.statSync = function(p) {
-    for (symlink in _virtualSymlinks) {
+    for (var symlink in _virtualSymlinks) {
         if (p.startsWith(symlink + '/')) {
             var relative = p.substr(symlink.length);
             //console.log('found', _virtualSymlinks[symlink] + relative);
@@ -55,7 +55,7 @@ fs.statSync = function(p) {
     return _originalStatSync(p);
 };
 fs.lstatSync = function(p) {
-    for (symlink in _virtualSymlinks) {
+    for (var symlink in _virtualSymlinks) {
         if (p === symlink) {
             if (_virtualSymlinksStat.hasOwnProperty(p))
                 return _virtualSymlinksStat[p];
@@ -73,7 +73,7 @@ fs.lstatSync = function(p) {
     return _originalLStatSync(p);
 };
 fs.realpathSync = function(p, cache) {
-    for (symlink in _virtualSymlinks) {
+    for (var symlink in _virtualSymlinks) {
         if (p.startsWith(symlink + '/')) {
             var relative = p.substr(symlink.length);
             return fs.realpathSync(_virtualSymlinks[symlink] + relative, cache);
@@ -117,6 +117,7 @@ module.exports = {
         case 'graphdb':
         case 'messaging':
         case 'apps':
+        case 'ui':
             return false;
 
         default:

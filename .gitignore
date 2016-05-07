@@ -6,3 +6,5 @@
 .DS_Store
 /build
 /captures
+node_modules/
+app/src/main/assets/jxcore/
