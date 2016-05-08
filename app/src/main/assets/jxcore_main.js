@@ -212,166 +212,185 @@ if (isAndroid) {
     // patch execPath to APK folder
     process.execPath = root;
 
-    try {
-      // force create www/jxcore sub folder so we can write into cwd
-      if (!fs.existsSync(process.userPath)) {
-        fs.mkdir(process.userPath);
-        if (!fs.existsSync(root)) {
-          fs.mkdir(root);
+    function createRealPath(pd) {
+          var arr = [ pd, pd + "/jxcore" ];
+
+          for (var i = 0; i < 2; i++) {
+            try {
+              if (!fs.existsSync(arr[i])) fs.mkdirSync(arr[i]);
+            } catch (e) {
+              console.error("Permission issues ? ", arr[i], e)
+            }
+          }
         }
-      }
-    } catch (e) {
-      console.error("Problem creating assets root at ", root);
-      console.error("You may have a problem with writing files");
-      console.error("Original error was", e);
-    }
+
+        createRealPath(process.userPath);
+
+        var sroot = root;
+        var hasRootLink = false;
+        if (root.indexOf('/data/user/') === 0) {
+          var pd = process.userPath.replace(/\/data\/user\/[0-9]+\//, "/data/data/");
+          createRealPath(pd);
+          sroot = root.replace(/\/data\/user\/[0-9]+\//, "/data/data/");
+          hasRootLink = true;
+        }
 
     var jxcore_root;
 
-    var prepVirtualDirs = function () {
-      var _ = {};
-      for (var o in folders) {
-        var sub = o.split('/');
-        var last = _;
-        for (var i in sub) {
-          var loc = sub[i];
-          if (!last.hasOwnProperty(loc)) last[loc] = {};
-          last = last[loc];
-        }
-        last['!s'] = folders[o];
-      }
+    var prepVirtualDirs = function() {
+          var _ = {};
+          for (var o in folders) {
+            var sub = o.split('/');
+            var last = _;
+            for (var i = 0, _ln = sub.length; i < _ln; i++) {
+              var loc = sub[i];
+              if (!last.hasOwnProperty(loc)) last[loc] = {};
+              last = last[loc];
+            }
 
-      folders = {};
-      var sp = root.split('/');
-      if (sp[0] === '') sp.shift();
-      jxcore_root = folders;
-      for (var o in sp) {
-        if (sp[o] === 'jxcore')
-          continue;
+            last['!s'] = folders[o];
+          }
 
-        jxcore_root[sp[o]] = {};
-        jxcore_root = jxcore_root[sp[o]];
-      }
+          folders = {};
+          var sp = sroot.split('/');
+          if (sp[0] === '') sp.shift();
+          jxcore_root = folders;
+          for (var o = 0, _ln = sp.length; o < _ln; o++) {
+            var spo = sp[o];
+            if (spo === 'jxcore') continue;
 
-      jxcore_root['jxcore'] = _; // assets/www/jxcore -> /
-      jxcore_root = _;
-    };
+            jxcore_root[spo] = {};
+            jxcore_root = jxcore_root[spo];
+          }
 
-    prepVirtualDirs();
+          jxcore_root['jxcore'] = _;  // assets/jxcore -> /
+          jxcore_root = _;
+        };
 
-    var findIn = function (what, where) {
-      var last = where;
-      for (var o in what) {
-        var subject = what[o];
-        if (!last[subject]) return;
+        prepVirtualDirs();
 
-        last = last[subject];
-      }
+        var findIn = function(what, where) {
+          var last = where;
+          for (var o in what) {
+            var subject = what[o];
+            if (!last[subject]) return;
 
-      return last;
-    };
+            last = last[subject];
+          }
 
-    var getLast = function (pathname) {
-      while (pathname[0] == '/')
-        pathname = pathname.substr(1);
+          return last;
+        };
 
-      while (pathname[pathname.length - 1] == '/')
-        pathname = pathname.substr(0, pathname.length - 1);
+        var getLast = function(pathname) {
+          while (pathname[0] == '/') pathname = pathname.substr(1);
 
-      var dirs = pathname.split('/');
+          while (pathname[pathname.length - 1] == '/')
+            pathname = pathname.substr(0, pathname.length - 1);
 
-      var res = findIn(dirs, jxcore_root);
-      if (!res) res = findIn(dirs, folders);
-      return res;
-    };
+          var dirs = pathname.split('/');
 
-    var stat_archive = {};
-    var existssync = function (pathname) {
-      var n = pathname.indexOf(root);
-      if (n === 0 || n === -1) {
-        if (n === 0) {
-          pathname = pathname.replace(root, '');
-        }
+          var res = findIn(dirs, jxcore_root);
+          if (!res) res = findIn(dirs, folders);
+          return res;
+        };
 
-        var last;
-        if (pathname !== '') {
-          last = getLast(pathname);
-          if (!last) return false;
-        } else {
-          last = jxcore_root;
-        }
+        var stat_archive = {};
+        var existssync = function(pathname) {
+          var n = pathname.indexOf(root);
+          if (hasRootLink && n == -1) n = pathname.indexOf(sroot);
+          if (n === 0 || n === -1) {
+            if (n === 0) {
+              pathname = pathname.replace(root, '');
+              if (hasRootLink) pathname = pathname.replace(sroot, '');
+            }
 
-        var result;
-        // cache result and send the same again
-        // to keep same ino number for each file
-        // a node module may use caching for dev:ino
-        // combinations
-        if (stat_archive.hasOwnProperty(pathname))
-          return stat_archive[pathname];
+            var last;
+            if (pathname !== '') {
+              last = getLast(pathname);
+              if (!last) return false;
+            } else {
+              last = jxcore_root;
+            }
 
-        if (typeof last['!s'] === 'undefined') {
-          result = { // mark as a folder
-            size: 340,
-            mode: 16877,
-            ino: fs.virtualFiles.getNewIno()
-          };
-        } else {
-          result = {
-            size: last['!s'],
-            mode: 33188,
-            ino: fs.virtualFiles.getNewIno()
-          };
-        }
+            var result;
+            // cache result and send the same again
+            // to keep same ino number for each file
+            // a node module may use caching for dev:ino
+            // combinations
+            if (stat_archive.hasOwnProperty(pathname))
+              return stat_archive[pathname];
 
-        stat_archive[pathname] = result;
-        return result;
-      }
-    };
+            if (typeof last['!s'] === 'undefined') {
+              result = { // mark as a folder
+                size : 340,
+                mode : 16877,
+                ino : fs.virtualFiles.getNewIno()
+              };
+            } else {
+              result = {
+                size : last['!s'],
+                mode : 33188,
+                ino : fs.virtualFiles.getNewIno()
+              };
+            }
 
-    var readfilesync = function (pathname) {
-        if (!existssync(pathname)) {
-            //var error = new Error(pathname + " does not exist");
-            //error.code = 'ENOENT';
-            //throw error;
-            return '';
-        }
+            stat_archive[pathname] = result;
+            return result;
+          }
+        };
 
-      var n = pathname.indexOf(root);
-      if (n === 0) {
-        pathname = pathname.replace(root, "");
-        pathname = path.join('jxcore/', pathname);
-        return process.natives.assetReadSync(pathname);
-      }
-    };
+        var readfilesync = function(pathname) {
+          if (!existssync(pathname)) {
+            var e = new Error(pathname + " does not exist");
+            e.code = 'ENOENT';
+            throw e;
+          }
 
-    var readdirsync = function (pathname) {
-      var n = pathname.indexOf(root);
-      if (n === 0 || n === -1) {
-        var last = getLast(pathname);
-        if (!last || typeof last['!s'] !== 'undefined') return null;
+          var rt = root;
+          var n = pathname.indexOf(rt);
 
-        var arr = [];
-        for (var o in last) {
-          var item = last[o];
-          if (item && o != '!s') arr.push(o);
-        }
-        return arr;
-      }
+          if (n != 0 && hasRootLink) {
+            n = pathname.indexOf(sroot);
+            rt = sroot;
+          }
 
-      return null;
-    };
+          if (n === 0) {
+            pathname = pathname.replace(rt, "");
+            pathname = path.join('jxcore/', pathname);
+            return process.natives.assetReadSync(pathname);
+          }
+        };
 
-    var extension = {
-      readFileSync: readfilesync,
-      readDirSync: readdirsync,
-      existsSync: existssync
-    };
+        var readdirsync = function(pathname) {
+          var rt = pathname.indexOf('/data/') === 0 ? (hasRootLink ? sroot : root)
+                                                    : root;
+          var n = pathname.indexOf(rt);
+          if (n === 0 || n === -1) {
+            var last = getLast(pathname);
+            if (!last || typeof last['!s'] !== 'undefined') return null;
 
-    fs.setExtension("jxcore-java", extension);
-    var node_module = require('module');
+            var arr = [];
+            for (var o in last) {
+              var item = last[o];
+              if (item && o != '!s') arr.push(o);
+            }
+            return arr;
+          }
 
-    node_module.addGlobalPath(process.execPath);
-    node_module.addGlobalPath(process.userPath);
+          return null;
+        };
+
+        var extension = {
+          readFileSync : readfilesync,
+          readDirSync : readdirsync,
+          existsSync : existssync
+        };
+
+        fs.setExtension("jxcore-java", extension);
+        var node_module = require('module');
+
+        node_module.addGlobalPath(process.execPath);
+        node_module.addGlobalPath(process.userPath);
   };
 
   process.registerAssets();
@@ -392,15 +411,13 @@ if (isAndroid) {
 }
 
 process.on('uncaughtException', function (e) {
-    Error.captureStackTrace(e);
+    if (!e.stack)
+        Error.captureStackTrace(e);
     if (e instanceof SyntaxError) {
         console.error(e.fileName);
         console.error(e.lineNumber);
     }
-    if (Array.isArray(e.stack))
-        e.stack.forEach(console.error);
-    else
-        console.error(e.stack);
+    console.error(e.stack);
     JXMobile('OnError').callNative(e.message, JSON.stringify(e.stack));
 });
 

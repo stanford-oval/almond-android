@@ -1,6 +1,8 @@
 package edu.stanford.thingengine.engine;
 
 import android.content.Context;
+import android.os.Handler;
+import android.os.HandlerThread;
 import android.util.Log;
 
 import java.io.IOException;
@@ -17,10 +19,12 @@ public class EngineThread extends Thread {
     private final Context context;
     private final Lock initLock;
     private final Condition initCondition;
+    private final HandlerThread worker;
     private boolean controlReady;
     private boolean isLocked;
     private boolean broken;
     private volatile ControlChannel control;
+    private Handler workerHandler;
 
     public EngineThread(Context context, Lock initLock, Condition initCondition) {
         this.context = context;
@@ -29,6 +33,7 @@ public class EngineThread extends Thread {
         controlReady = false;
         broken = false;
         isLocked = false;
+        worker = new HandlerThread("EngineWorker");
     }
 
     public boolean isControlReady() {
@@ -45,6 +50,9 @@ public class EngineThread extends Thread {
 
     @Override
     public void run() {
+        worker.start();
+        workerHandler = new Handler(worker.getLooper());
+
         jxcore.Initialize(context.getApplicationContext());
 
         try {
@@ -57,7 +65,7 @@ public class EngineThread extends Thread {
                     try {
                         control = new ControlChannel(context);
                     } catch(IOException e) {
-                        Log.e(EngineService.LOG_TAG, "Failed to acquire control channel!");
+                        Log.e(EngineService.LOG_TAG, "Failed to acquire control channel!", e);
                     }
                     initCondition.signalAll();
                     initLock.unlock();
@@ -65,6 +73,7 @@ public class EngineThread extends Thread {
 
                     new NotifyAPI(context, control);
                     new UnzipAPI(control);
+                    new GpsAPI(workerHandler, context, control);
                 }
             });
 
@@ -83,6 +92,7 @@ public class EngineThread extends Thread {
         } finally {
             if (isLocked)
                 initLock.unlock();
+            worker.quit();
         }
         jxcore.StopEngine();
     }

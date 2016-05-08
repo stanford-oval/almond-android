@@ -22,12 +22,16 @@ public abstract class JavascriptAPI {
         this.control = control;
     }
 
+    protected ControlChannel getControl() {
+        return this.control;
+    }
+
     private void sendCallback(String callback, String error, Object value) {
         control.sendInvokeCallback(callback, error, value);
     }
 
-    public void invokeAsync(String callback, String error, Object value) {
-        sendCallback(name + "_" + callback, error, value);
+    public void invokeAsync(String callback, Object value) {
+        sendCallback(name + "_" + callback, null, value);
     }
 
     public void registerAsync(String callback, final GenericCall call) {

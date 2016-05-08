@@ -11,7 +11,7 @@ const Q = require('q');
 var asyncCallbacks = {};
 var eventCallbacks = {};
 
-module.exports.makeJavaAPI = function makeJavaAPI(klass, asyncMethods, syncMethods) {
+module.exports.makeJavaAPI = function makeJavaAPI(klass, asyncMethods, syncMethods, events) {
     var obj = {
         registerCallback: function(callbackName, callback) {
             eventCallbacks[klass + '_' + callbackName] = callback;
@@ -35,6 +35,21 @@ module.exports.makeJavaAPI = function makeJavaAPI(klass, asyncMethods, syncMetho
             var call = JXMobile(klass + '_' + method);
             return Q.npost(call, 'callNative', arguments);
         }
+    });
+    events.forEach(function(event) {
+        Object.defineProperty(obj, event, {
+            configurable: true,
+            enumerable: true,
+            get() {
+                return eventCallbacks[klass + '_' + callbackName];
+            },
+            set(callback) {
+                if (callback !== null)
+                    this.registerCallback(event, callback);
+                else
+                    this.unregisterCallback(event);
+            }
+        });
     });
 
     return obj;

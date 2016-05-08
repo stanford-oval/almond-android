@@ -199,6 +199,11 @@ public class WebUIActivity extends Activity {
         engine.stop(this);
     }
 
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent intent) {
+        engine.onActivityResult(requestCode, resultCode, intent);
+    }
+
     private void doSetServerAddress(final String host, final int port, final String authToken) {
         final ControlBinder control = engine.getControl();
         if (control == null)

@@ -14,9 +14,11 @@ BABEL_IGNORE = \
 	jsapp/node_modules/lokijs/benchmark/nedb.js \
 	jsapp/node_modules/*/test/*
 
-install-js:
+node_modules/babel-preset-es2015:
 	test -d ./node_modules || mkdir ./node_modules
 	npm install babel babel-preset-es2015
+
+install-js: node_modules/babel-preset-es2015
 	./node_modules/.bin/babel --preset es2015 --ignore $(subst $(space),$(comma),$(BABEL_IGNORE)) -D -d $(jxcoredir) ./jsapp/
 	find $(jxcoredir)/ -name .bin -type d -exec rm -fr '{}' ';'
 	find $(jxcoredir)/ -type f \! -name \*.js \! -name \*.json \! -name \*.sql \! -name \*.cert \! -iname \*LICENSE\* \! -iname \*COPYING\* \! -iname \*README\* -delete

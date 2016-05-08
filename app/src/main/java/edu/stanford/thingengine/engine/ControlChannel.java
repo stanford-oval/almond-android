@@ -33,6 +33,8 @@ public class ControlChannel implements AutoCloseable, Closeable {
     private final Writer controlWriter;
     private final LinkedList<Reply> queuedReplies;
 
+    private volatile InteractionCallback callback;
+
     private static class Reply {
         private final String replyId;
         private final Object result;
@@ -64,6 +66,14 @@ public class ControlChannel implements AutoCloseable, Closeable {
         synchronized (controlWriter) {
             controlWriter.close();
         }
+    }
+
+    public void setInteractionCallback(InteractionCallback callback) {
+        this.callback = callback;
+    }
+
+    public InteractionCallback getInteractionCallback() {
+        return this.callback;
     }
 
     private String sendCall(String method, Object... arguments) throws IOException {

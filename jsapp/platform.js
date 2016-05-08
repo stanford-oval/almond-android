@@ -18,8 +18,9 @@ const sql = require('thingengine-core/lib/util/sql');
 
 const JavaAPI = require('./java_api');
 
-var _unzipApi = JavaAPI.makeJavaAPI('Unzip', ['unzip'], []);
-const _notifyApi = require('./notify_api');
+const _unzipApi = JavaAPI.makeJavaAPI('Unzip', ['unzip'], [], []);
+const _gpsApi = JavaAPI.makeJavaAPI('Gps', ['start', 'stop'], [], ['onlocationchanged']);
+const _notifyApi = JavaAPI.makeJavaAPI('Notify', [], ['showMessage'], []);
 
 var filesDir = null;
 var cacheDir = null;
@@ -141,8 +142,11 @@ module.exports = {
             // We can use the Android APIs if we need to
             return true;
 
+        // We can use the phone capabilities
+        case 'notify':
+        case 'gps':
+        // for compat
         case 'notify-api':
-            // We have a notify API implemented
             return true;
 
         case 'thingpedia-client':
@@ -160,8 +164,11 @@ module.exports = {
     getCapability: function(cap) {
         switch(cap) {
         case 'notify-api':
-            // We have a notify API implemented
+        case 'notify':
             return _notifyApi;
+
+        case 'gps':
+            return _gpsApi;
 
         case 'code-download':
             // We have the support to download code
@@ -212,6 +219,11 @@ module.exports = {
 
     // Make a symlink potentially to a file that does not exist physically
     makeVirtualSymlink: function(file, link) {
+        _virtualSymlinks[link] = file;
+        // fix some brokenness in Android 6
+        // not sure what's going on but half of the code sees paths
+        // with /data/data and the other half with /data/user/0
+        link = link.replace(/\/data\/user\/[0-9]+\//, "/data/data/");
         _virtualSymlinks[link] = file;
     },
 
