@@ -11,8 +11,6 @@
 const Q = require('q');
 const fs = require('fs');
 
-const ThingPediaClient = require('thingpedia-client');
-
 // FIXME
 const sql = require('thingengine-core/lib/util/sql');
 
@@ -21,6 +19,7 @@ const JavaAPI = require('./java_api');
 const _unzipApi = JavaAPI.makeJavaAPI('Unzip', ['unzip'], [], []);
 const _gpsApi = JavaAPI.makeJavaAPI('Gps', ['start', 'stop'], [], ['onlocationchanged']);
 const _notifyApi = JavaAPI.makeJavaAPI('Notify', [], ['showMessage'], []);
+const _audioManagerApi = JavaAPI.makeJavaAPI('AudioManager', [], ['setRingerMode'], []);
 
 var filesDir = null;
 var cacheDir = null;
@@ -145,11 +144,9 @@ module.exports = {
         // We can use the phone capabilities
         case 'notify':
         case 'gps':
+        case 'audio-manager':
         // for compat
         case 'notify-api':
-            return true;
-
-        case 'thingpedia-client':
             return true;
 
         default:
@@ -170,12 +167,12 @@ module.exports = {
         case 'gps':
             return _gpsApi;
 
+        case 'audio-manager':
+            return _audioManagerApi;
+
         case 'code-download':
             // We have the support to download code
             return _unzipApi;
-
-        case 'thingpedia-client':
-            return new ThingPediaClient.ClientHttp(_prefs.get('developer-key'));
 
         default:
             return null;
@@ -232,7 +229,7 @@ module.exports = {
         return filesDir + '/sqlite.db';
     },
 
-    getGraphDB() {
+    getGraphDB: function() {
         return filesDir + '/rdf.db';
     },
 

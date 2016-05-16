@@ -1,4 +1,4 @@
-package edu.stanford.thingengine.engine;
+package edu.stanford.thingengine.engine.jsapi;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -6,6 +6,9 @@ import android.content.SharedPreferences;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONTokener;
+
+import edu.stanford.thingengine.engine.ControlChannel;
+import edu.stanford.thingengine.engine.jsapi.JavascriptAPI;
 
 /**
  * Created by gcampagn on 10/26/15.

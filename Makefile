@@ -12,7 +12,8 @@ BABEL_IGNORE = \
 	jsapp/node_modules/adt/macros/index.js \
 	jsapp/node_modules/errno/cli.js \
 	jsapp/node_modules/lokijs/benchmark/nedb.js \
-	jsapp/node_modules/*/test/*
+	jsapp/node_modules/*/test/* \
+	jsapp/node_modules/thingengine-core/lib/devices/thingpedia/builtins/omlet/omletrdf.js
 
 node_modules/babel-preset-es2015:
 	test -d ./node_modules || mkdir ./node_modules

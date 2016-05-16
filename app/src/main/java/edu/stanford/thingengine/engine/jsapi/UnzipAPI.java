@@ -1,4 +1,6 @@
-package edu.stanford.thingengine.engine;
+package edu.stanford.thingengine.engine.jsapi;
+
+import edu.stanford.thingengine.engine.ControlChannel;
 
 /**
  * Created by gcampagn on 12/1/15.

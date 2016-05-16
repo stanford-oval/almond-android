@@ -1,4 +1,4 @@
-package edu.stanford.thingengine.engine;
+package edu.stanford.thingengine.engine.jsapi;
 
 import android.content.Context;
 import android.location.Location;
@@ -22,6 +22,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+
+import edu.stanford.thingengine.engine.ControlChannel;
+import edu.stanford.thingengine.engine.InteractionCallback;
 
 /**
  * Created by gcampagn on 5/6/16.

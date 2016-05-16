@@ -1,9 +1,10 @@
-package edu.stanford.thingengine.engine;
+package edu.stanford.thingengine.engine.jsapi;
 
 import android.os.AsyncTask;
 
 import java.util.ArrayList;
 
+import edu.stanford.thingengine.engine.ControlChannel;
 import io.jxcore.node.jxcore;
 
 /**

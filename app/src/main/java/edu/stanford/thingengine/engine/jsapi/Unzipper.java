@@ -1,4 +1,4 @@
-package edu.stanford.thingengine.engine;
+package edu.stanford.thingengine.engine.jsapi;
 
 import java.io.BufferedOutputStream;
 import java.io.EOFException;
