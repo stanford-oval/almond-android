@@ -20,6 +20,7 @@ const _unzipApi = JavaAPI.makeJavaAPI('Unzip', ['unzip'], [], []);
 const _gpsApi = JavaAPI.makeJavaAPI('Gps', ['start', 'stop'], [], ['onlocationchanged']);
 const _notifyApi = JavaAPI.makeJavaAPI('Notify', [], ['showMessage'], []);
 const _audioManagerApi = JavaAPI.makeJavaAPI('AudioManager', [], ['setRingerMode'], []);
+const _smsApi = JavaAPI.makeJavaAPI('Sms', ['start', 'stop', 'sendMessage'], [], ['onsmsreceived']);
 
 var filesDir = null;
 var cacheDir = null;
@@ -145,6 +146,7 @@ module.exports = {
         case 'notify':
         case 'gps':
         case 'audio-manager':
+        case 'sms':
         // for compat
         case 'notify-api':
             return true;
@@ -169,6 +171,9 @@ module.exports = {
 
         case 'audio-manager':
             return _audioManagerApi;
+
+        case 'sms':
+            return _smsApi;
 
         case 'code-download':
             // We have the support to download code

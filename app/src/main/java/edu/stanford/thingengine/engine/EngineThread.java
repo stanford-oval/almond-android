@@ -14,6 +14,7 @@ import edu.stanford.thingengine.engine.jsapi.AudioManagerAPI;
 import edu.stanford.thingengine.engine.jsapi.GpsAPI;
 import edu.stanford.thingengine.engine.jsapi.JSSharedPreferences;
 import edu.stanford.thingengine.engine.jsapi.NotifyAPI;
+import edu.stanford.thingengine.engine.jsapi.SmsAPI;
 import edu.stanford.thingengine.engine.jsapi.UnzipAPI;
 import io.jxcore.node.jxcore;
 
@@ -80,6 +81,7 @@ public class EngineThread extends Thread {
                     new UnzipAPI(control);
                     new GpsAPI(workerHandler, context, control);
                     new AudioManagerAPI(context, control);
+                    new SmsAPI(workerHandler, context, control);
                 }
             });
 
