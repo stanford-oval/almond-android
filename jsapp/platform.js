@@ -116,8 +116,6 @@ module.exports = {
     hasFeature: function(feature) {
         switch(feature) {
         case 'graphdb':
-        case 'messaging':
-        case 'apps':
         case 'ui':
             return false;
 
