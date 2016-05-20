@@ -21,8 +21,7 @@ function appsList(req, res, next, message) {
     var apps = engine.apps.getAllApps();
     var info = apps.map(function(a) {
         return { uniqueId: a.uniqueId, name: a.name || "Some app",
-                 running: a.isRunning, enabled: a.isEnabled,
-                 currentTier: a.currentTier };
+                 running: a.isRunning, enabled: a.isEnabled };
     });
 
     res.render('apps_list', { page_title: 'ThingEngine - installed apps',
@@ -42,7 +41,6 @@ function appsCreate(error, req, res) {
                                     error: error,
                                     code: req.body.code,
                                     parameters: req.body.params || '{}',
-                                    tier: req.body.tier || 'server',
                                     omlet: { feeds: feeds,
                                              feedId: req.body.feedId }
                                   });
@@ -59,7 +57,7 @@ router.get('/create', function(req, res, next) {
 router.post('/create', function(req, res, next) {
     Q.try(function() {
         var code = req.body.code;
-        var state, tier;
+        var state;
         return Q.try(function() {
             // sanity check the app
             var compiler = new AppCompiler();
@@ -74,14 +72,10 @@ router.post('/create', function(req, res, next) {
                 } else {
                     delete state.$F;
                 }
-
-                tier = req.body.tier;
-                if (tier !== 'server' && tier !== 'cloud' && tier !== 'phone')
-                    throw new Error('No such tier ' + tier);
             });
         }).then(function() {
             var engine = req.app.engine;
-            return engine.apps.loadOneApp(code, state, undefined, tier, null, null, true).then(function() {
+            return engine.apps.loadOneApp(code, state, undefined, undefined, null, null, true).then(function() {
                 appsList(req, res, next, "Application successfully created");
             });
         }).catch(function(e) {
@@ -158,7 +152,7 @@ router.post('/:id/update', function(req, res, next) {
                 state = JSON.parse(req.body.params);
             });
         }).then(function() {
-            return engine.apps.loadOneApp(code, state, req.params.id, app.currentTier, null, null, true).then(function() {
+            return engine.apps.loadOneApp(code, state, req.params.id, undefined, null, null, true).then(function() {
                 appsList(req, res, next, "Application successfully updated");
             });
         }).catch(function(e) {
