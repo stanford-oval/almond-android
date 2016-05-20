@@ -15,4 +15,4 @@
 	url = https://github.com/Stanford-Mobisocial-IoT-Lab/ThingTalk.git
 [submodule "jsapp/shared"]
 	path = jsapp/shared
-	url = https://github.com/Stanford-Mobisocial-IoT-Lab/thingengine-platform-shared.git
+	url = https://github.com/Stanford-Mobisocial-IoT-Lab/thingengine-platform-shared
