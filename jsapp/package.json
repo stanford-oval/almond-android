@@ -8,7 +8,6 @@
     "errorhandler": "~1.4.2",
     "express": "~4.13.3",
     "express-session": "~1.11.3",
-    "jade": "*",
     "morgan": "~1.6.1",
     "omlib": "https://github.com/Stanford-Mobisocial-IoT-Lab/omclient/tarball/master",
     "q": "~1.4.0"
