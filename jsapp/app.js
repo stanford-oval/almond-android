@@ -7,6 +7,8 @@
 // See COPYING for details
 "use strict";
 
+require('babel-polyfill');
+
 console.log('ThingEngine-Android starting up...');
 
 const Q = require('q');
