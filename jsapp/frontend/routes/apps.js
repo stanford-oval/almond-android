@@ -112,7 +112,7 @@ router.post('/delete', function(req, res, next) {
     }
 });
 
-router.get('/:id/show', user.redirectLogIn, function(req, res, next) {
+router.get('/:id/show', function(req, res, next) {
     var engine = req.app.engine;
 
     var app = engine.apps.getApp(req.params.id);
