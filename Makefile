@@ -16,7 +16,7 @@ BABEL_IGNORE = \
 
 node_modules/babel-preset-es2015:
 	test -d ./node_modules || mkdir ./node_modules
-	npm install babel babel-preset-es2015
+	npm install babel-cli babel-preset-es2015
 
 $(jxcoredir): node_modules/babel-preset-es2015
 	./node_modules/.bin/babel --preset es2015 --ignore $(subst $(space),$(comma),$(BABEL_IGNORE)) -D -d $(jxcoredir) ./jsapp/
