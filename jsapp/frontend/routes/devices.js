@@ -12,50 +12,43 @@ const express = require('express');
 var router = express.Router();
 
 router.get('/create', function(req, res, next) {
-    if (req.query.class && ['online', 'physical'].indexOf(req.query.class) < 0) {
-        res.status(404).render('error', { page_title: "ThingEngine - Error",
+    if (req.query.class && ['online', 'physical', 'data'].indexOf(req.query.class) < 0) {
+        res.status(404).render('error', { page_title: "ThingPedia - Error",
                                           message: "Invalid device class" });
         return;
     }
 
-    var online = req.query.class === 'online';
-
     res.render('devices_create', { page_title: 'ThingEngine - configure device',
                                    csrfToken: req.csrfToken(),
-                                   onlineAccounts: online,
+                                   developerKey: platform.getDeveloperKey(),
+                                   klass: req.query.class,
+                                   ownTier: 'phone',
                                  });
 });
 
 router.post('/create', function(req, res, next) {
-    if (req.query.class && ['online', 'physical'].indexOf(req.query.class) < 0) {
-        res.status(404).render('error', { page_title: "ThingEngine - Error",
-                                          message: "Invalid device class" });
-        return;
-    }
-
     var engine = req.app.engine;
     var devices = engine.devices;
 
-    try {
+    Q.try(function() {
         if (typeof req.body['kind'] !== 'string' ||
             req.body['kind'].length == 0)
             throw new Error("You must choose one kind of device");
 
         delete req.body['_csrf'];
 
-        devices.loadOneDevice(req.body, true).then(function() {
-            if (req.session['device-redirect-to'])
-                res.redirect(req.session['device-redirect-to']);
-            else
-                res.redirect('/devices?class=' + (req.query.class || 'physical'));
-        }).catch(function(e) {
-            res.status(400).render('error', { page_title: "ThingEngine - Error",
-                                              message: e.message });
-        }).done();
-    } catch(e) {
+        return devices.loadOneDevice(req.body, true);
+    }).then(function() {
+        if (req.session['device-redirect-to']) {
+            res.redirect(303, req.session['device-redirect-to']);
+            delete req.session['device-redirect-to'];
+        } else {
+            res.redirect(303, '/apps');
+        }
+    }).catch(function(e) {
         res.status(400).render('error', { page_title: "ThingEngine - Error",
                                           message: e.message });
-    }
+    }).done();
 });
 
 router.post('/delete', function(req, res, next) {
@@ -81,7 +74,12 @@ router.post('/delete', function(req, res, next) {
         }
 
         engine.devices.removeDevice(device);
-        res.redirect('/devices?class=' + (req.query.class || 'physical'));
+        if (req.session['device-redirect-to']) {
+            res.redirect(303, req.session['device-redirect-to']);
+            delete req.session['device-redirect-to'];
+        } else {
+            res.redirect(303, '/apps');
+        }
     } catch(e) {
         res.status(400).render('error', { page_title: "ThingEngine - Error",
                                           message: e.message });
