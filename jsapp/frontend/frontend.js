@@ -13,6 +13,7 @@ const bodyParser = require('body-parser');
 const session = require('express-session');
 const errorHandler = require('errorhandler');
 const csurf = require('csurf');
+const connect_flash = require('connect-flash');
 
 function Frontend() {
     this._init.apply(this, arguments);
@@ -32,6 +33,7 @@ Frontend.prototype._init = function _init() {
     this._app.use(session({ resave: false,
                             saveUninitialized: false,
                             secret: 'badgersbadgersbadgers' }));
+    this._app.use(connect_flash());
     this._app.use(express.static(path.join(__dirname, 'public')));
     this._app.use(csurf());
 

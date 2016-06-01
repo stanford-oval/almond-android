@@ -11,44 +11,6 @@ const Q = require('q');
 const express = require('express');
 var router = express.Router();
 
-router.get('/', function(req, res, next) {
-    if (req.query.class && ['online', 'physical'].indexOf(req.query.class) < 0) {
-        res.status(404).render('error', { page_title: "ThingEngine - Error",
-                                          message: "Invalid device class" });
-        return;
-    }
-
-    var online = req.query.class === 'online';
-
-    var engine = req.app.engine;
-
-    var devices = engine.devices.getAllDevices().filter(function(d) {
-        if (d.hasKind('thingengine-system'))
-            return false;
-
-        if (online)
-            return d.hasKind('online-account');
-        else
-            return !d.hasKind('online-account');
-    });
-    Q.all(devices.map(function(d) {
-        return Q(d.checkAvailable()).then(function(avail) {
-            return { uniqueId: d.uniqueId, name: d.name || "Unknown device",
-                     description: d.description || "Description not available",
-                     ownerTier: d.ownerTier,
-                     available: avail };
-        });
-    })).then(function(info) {
-        res.render('devices_list', { page_title: 'ThingEngine - configured devices',
-                                     csrfToken: req.csrfToken(),
-                                     onlineAccounts: online,
-                                     devices: info });
-    }).catch(function(e) {
-        res.status(400).render('error', { page_title: "ThingEngine - Error",
-                                          message: e.message });
-    }).done();
-});
-
 router.get('/create', function(req, res, next) {
     if (req.query.class && ['online', 'physical'].indexOf(req.query.class) < 0) {
         res.status(404).render('error', { page_title: "ThingEngine - Error",
