@@ -12,6 +12,7 @@ const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
 const session = require('express-session');
 const errorHandler = require('errorhandler');
+const csurf = require('csurf');
 
 function Frontend() {
     this._init.apply(this, arguments);
@@ -32,6 +33,7 @@ Frontend.prototype._init = function _init() {
                             saveUninitialized: false,
                             secret: 'badgersbadgersbadgers' }));
     this._app.use(express.static(path.join(__dirname, 'public')));
+    this._app.use(csurf());
 
     // development only
     if ('development' == this._app.get('env')) {
