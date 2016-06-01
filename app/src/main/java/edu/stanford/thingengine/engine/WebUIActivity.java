@@ -327,4 +327,13 @@ public class WebUIActivity extends Activity {
 
         return super.onOptionsItemSelected(item);
     }
+
+    @Override
+    public void onBackPressed() {
+        WebView view = (WebView) findViewById(R.id.webView);
+        if (view.canGoBack())
+            view.goBack();
+        else
+            super.onBackPressed();
+    }
 }
