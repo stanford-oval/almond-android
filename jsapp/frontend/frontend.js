@@ -14,6 +14,7 @@ const session = require('express-session');
 const errorHandler = require('errorhandler');
 const csurf = require('csurf');
 const connect_flash = require('connect-flash');
+const expressWs = require('express-ws');
 
 function Frontend() {
     this._init.apply(this, arguments);
@@ -22,6 +23,7 @@ function Frontend() {
 Frontend.prototype._init = function _init() {
     // all environments
     this._app = express();
+    expressWs(this._app);
 
     this._app.set('port', process.env.PORT || 3000);
     this._app.set('views', path.join(__dirname, 'views'));
@@ -46,6 +48,7 @@ Frontend.prototype._init = function _init() {
     this._app.use('/', require('./routes/index'));
     this._app.use('/apps', require('./routes/apps'));
     this._app.use('/devices', require('./routes/devices'));
+    require('./routes/assistant')(this._app);
 }
 
 var server = null;

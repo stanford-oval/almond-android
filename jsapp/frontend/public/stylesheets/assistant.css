@@ -1,0 +1,25 @@
+#sabrina-placeholder > * {
+    display: block;
+    max-width: 70%;
+    border-radius: 5px;
+}
+
+#sabrina-placeholder > img {
+    padding: 6px;
+}
+
+#sabrina-placeholder > p {
+    padding: 2px 6px;
+}
+
+#sabrina-placeholder > .sabrina-says {
+    margin-right: auto;
+    background-color: aqua;
+    text-align: left;
+}
+
+#sabrina-placeholder > .user-says {
+    margin-left: auto;
+    background-color: coral;
+    text-align: right;
+}

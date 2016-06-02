@@ -1,0 +1,19 @@
+extends layout
+
+block page_name
+  | Sabrina
+
+block scripts
+  script(src='/javascripts/assistant.js')
+
+block styles
+  link(rel='stylesheet', href='/stylesheets/assistant.css')
+
+block content
+  div#sabrina-placeholder
+
+  form#input-form
+    div.form-group
+      label(for='input-text').sr-only
+        Command
+      input(type='text').form-control#input-text

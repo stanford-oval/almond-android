@@ -18,6 +18,7 @@ const ControlChannel = require('./control');
 const Engine = require('thingengine-core');
 const Tier = require('thingpedia').Tier;
 const Frontend = require('./frontend/frontend');
+const AssistantDispatcher = require('./assistant/dispatcher');
 
 const JavaAPI = require('./java_api');
 
@@ -88,6 +89,7 @@ function runEngine() {
         _engine = new Engine(global.platform);
         _frontend = new Frontend();
         _frontend.setEngine(_engine);
+        var ad = new AssistantDispatcher(_engine);
         var controlChannel = new AppControlChannel();
 
         return controlChannel.open().then(function() {
@@ -96,13 +98,13 @@ function runEngine() {
             // and execute on our thread
             JXMobile('controlReady').callNative();
 
-            return Q.all([_engine.open(), _frontend.open()]);
+            return Q.all([_engine.open(), _frontend.open(), ad.start()]);
         }).then(function() {
             _running = true;
             if (_stopped)
-                return Q.all([_engine.close(), _frontend.close()]);
+                return Q.all([_engine.close(), _frontend.close(), ad.stop()]);
             return _engine.run().finally(function() {
-                return Q.all([_engine.close(), _frontend.close()]);
+                return Q.all([_engine.close(), _frontend.close(), ad.stop()]);
             });
         });
     }).catch(function(error) {
