@@ -15,6 +15,7 @@ const fs = require('fs');
 const sql = require('thingengine-core/lib/util/sql');
 
 const JavaAPI = require('./java_api');
+const AssistantDispatcher = require('./assistant/dispatcher');
 
 const _unzipApi = JavaAPI.makeJavaAPI('Unzip', ['unzip'], [], []);
 const _gpsApi = JavaAPI.makeJavaAPI('Gps', ['start', 'stop'], [], ['onlocationchanged']);
@@ -148,6 +149,9 @@ module.exports = {
         case 'notify-api':
             return true;
 
+        case 'assistant':
+            return true;
+
         default:
             return false;
         }
@@ -175,6 +179,9 @@ module.exports = {
         case 'code-download':
             // We have the support to download code
             return _unzipApi;
+
+        case 'assistant':
+            return AssistantDispatcher.get().getConversation();
 
         default:
             return null;

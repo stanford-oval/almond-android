@@ -43,6 +43,11 @@ module.exports = class AssistantDispatcher {
         this._sempre.stop();
     }
 
+    getConversation() {
+        this._ensureConversation
+        return this._conversation;
+    }
+
     setSocket(ws) {
         if (this._socket !== null)
             this._socket.close();
