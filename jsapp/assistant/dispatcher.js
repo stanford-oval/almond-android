@@ -60,9 +60,9 @@ module.exports = class AssistantDispatcher {
         });
 
         ws.on('message', (msg) => this._handleMessage(msg));
-        //FIXME
-        //for (var msg of this._history)
-        //    ws.send(JSON.stringify(msg));
+
+        for (var msg of this._history)
+            ws.send(JSON.stringify(msg));
 
         this._ensureConversation();
     }

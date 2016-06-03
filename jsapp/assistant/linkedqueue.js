@@ -42,7 +42,7 @@ module.exports = class LinkedQueue {
     }
 
     [Symbol.iterator]() {
-        return new ListIterator(this.head);
+        return new ListForwardIterator(this.head);
     }
 
     push(data) {
