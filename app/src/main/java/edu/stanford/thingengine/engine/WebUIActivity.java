@@ -143,13 +143,19 @@ public class WebUIActivity extends Activity {
         initAuthInfo();
         AutoStarter.startService(this);
 
-        WebView view = (WebView)findViewById(R.id.webView);
+        WebView view = (WebView) findViewById(R.id.webView);
         view.addJavascriptInterface(this, "Android");
         view.getSettings().setJavaScriptEnabled(true);
         //view.loadUrl("https://thingengine.stanford.edu/?auth=app");
         view.setWebChromeClient(new WebChromeClient());
         view.setWebViewClient(new WebViewClient());
-        view.loadUrl("http://127.0.0.1:3000");
+        view.loadUrl("about:blank");
+    }
+
+    public void onFrontendReady() {
+        WebView view = (WebView) findViewById(R.id.webView);
+        if ("about:blank".equals(view.getUrl()))
+            view.loadUrl("http://127.0.0.1:3000");
     }
 
     private void showConfirmDialog(boolean success) {
@@ -192,6 +198,8 @@ public class WebUIActivity extends Activity {
     public void onResume() {
         super.onResume();
         engine.start(this);
+        if (engine.getControl().isFrontendReady())
+            this.onFrontendReady();
     }
 
     @Override

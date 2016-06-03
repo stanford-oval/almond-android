@@ -6,7 +6,5 @@ package edu.stanford.thingengine.engine;
 
 
 interface IThingEngine {
-    int foo(int i);
-
     void runDeviceDiscovery();
 }

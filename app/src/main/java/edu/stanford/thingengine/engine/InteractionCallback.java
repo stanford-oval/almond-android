@@ -7,4 +7,5 @@ import com.google.android.gms.common.api.Status;
  */
 public interface InteractionCallback {
     boolean resolveResult(Status status) throws InterruptedException;
+    void frontendReady();
 }

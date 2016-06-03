@@ -4,14 +4,16 @@ package edu.stanford.thingengine.engine;
  * Created by gcampagn on 8/16/15.
  */
 public class ControlBinder extends IThingEngine.Stub {
+    private final EngineService service;
     private final ControlChannel channel;
 
-    public ControlBinder(ControlChannel channel) {
+    public ControlBinder(EngineService service, ControlChannel channel) {
+        this.service = service;
         this.channel = channel;
     }
 
-    public int foo(int value) {
-        return channel.sendFoo(value);
+    public boolean isFrontendReady() {
+        return this.service.isFrontendReady();
     }
 
     public void runDeviceDiscovery() {}

@@ -1,14 +1,11 @@
 package edu.stanford.thingengine.engine;
 
-import android.content.Context;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.util.Log;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.concurrent.locks.Condition;
-import java.util.concurrent.locks.Lock;
 
 import edu.stanford.thingengine.engine.jsapi.AudioManagerAPI;
 import edu.stanford.thingengine.engine.jsapi.GpsAPI;
@@ -22,48 +19,23 @@ import io.jxcore.node.jxcore;
  * Created by gcampagn on 8/8/15.
  */
 public class EngineThread extends Thread {
-    private final Context context;
-    private final Lock initLock;
-    private final Condition initCondition;
-    private final HandlerThread worker;
-    private boolean controlReady;
-    private boolean isLocked;
-    private boolean broken;
-    private volatile ControlChannel control;
-    private Handler workerHandler;
+    private final EngineService context;
+    private ControlChannel control;
+    private boolean controlReady = false;
 
-    public EngineThread(Context context, Lock initLock, Condition initCondition) {
+    public EngineThread(EngineService context) {
         this.context = context;
-        this.initLock = initLock;
-        this.initCondition = initCondition;
-        controlReady = false;
-        broken = false;
-        isLocked = false;
-        worker = new HandlerThread("EngineWorker");
-    }
-
-    public boolean isControlReady() {
-        return controlReady;
-    }
-
-    public boolean isBroken() {
-        return broken;
-    }
-
-    public ControlChannel getControlChannel() {
-        return control;
     }
 
     @Override
     public void run() {
+        final HandlerThread worker = new HandlerThread("EngineWorker");
         worker.start();
-        workerHandler = new Handler(worker.getLooper());
+        final Handler workerHandler = new Handler(worker.getLooper());
 
         jxcore.Initialize(context.getApplicationContext());
 
         try {
-            initLock.lock();
-            isLocked = true;
             jxcore.RegisterMethod("controlReady", new jxcore.JXcoreCallback() {
                 @Override
                 public void Receiver(ArrayList<Object> params, String callbackId) {
@@ -72,16 +44,21 @@ public class EngineThread extends Thread {
                         control = new ControlChannel(context);
                     } catch(IOException e) {
                         Log.e(EngineService.LOG_TAG, "Failed to acquire control channel!", e);
+                        return;
                     }
-                    initCondition.signalAll();
-                    initLock.unlock();
-                    isLocked = false;
+                    context.controlReady(control);
 
                     new NotifyAPI(context, control);
                     new UnzipAPI(control);
                     new GpsAPI(workerHandler, context, control);
                     new AudioManagerAPI(context, control);
                     new SmsAPI(workerHandler, context, control);
+                }
+            });
+            jxcore.RegisterMethod("frontendReady", new jxcore.JXcoreCallback() {
+                @Override
+                public void Receiver(ArrayList<Object> params, String callbackId) {
+                    context.frontendReady();
                 }
             });
 
@@ -94,12 +71,9 @@ public class EngineThread extends Thread {
             if (!controlReady) {
                 Log.e(EngineService.LOG_TAG, "Engine failed to signal control ready!");
                 controlReady = true;
-                broken = true;
-                initCondition.signalAll();
+                context.engineBroken();
             }
         } finally {
-            if (isLocked)
-                initLock.unlock();
             worker.quit();
         }
         jxcore.StopEngine();

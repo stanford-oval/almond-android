@@ -163,15 +163,6 @@ public class ControlChannel implements AutoCloseable, Closeable {
             return reply.result;
     }
 
-    public int sendFoo(int value) {
-        try {
-            return (Integer) expectReply(sendCall("foo", value));
-        } catch(Exception e) {
-            Log.e(EngineService.LOG_TAG, "Unexpected exception in 'foo' command", e);
-            throw new RuntimeException(e);
-        }
-    }
-
     public void sendStop() throws IOException {
         sendCall("stop");
     }

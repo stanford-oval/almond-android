@@ -30,11 +30,6 @@ var _stopped;
 class AppControlChannel extends ControlChannel {
     // handle control methods here...
 
-    foo(int) {
-        console.log('Foo called on control channel with value ' + int);
-        return int;
-    }
-
     invokeCallback(callbackId, error, value) {
         JavaAPI.invokeCallback(callbackId, error, value);
     }
@@ -100,6 +95,8 @@ function runEngine() {
 
             return Q.all([_engine.open(), _frontend.open(), ad.start()]);
         }).then(function() {
+            JXMobile('frontendReady').callNative();
+
             _running = true;
             if (_stopped)
                 return Q.all([_engine.close(), _frontend.close(), ad.stop()]);

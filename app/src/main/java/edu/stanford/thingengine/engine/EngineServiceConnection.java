@@ -14,11 +14,27 @@ import com.google.android.gms.common.api.Status;
  */
 
 public class EngineServiceConnection implements ServiceConnection, InteractionCallback {
-    private volatile Activity parent;
+    private volatile WebUIActivity parent;
     private volatile ControlBinder binder;
 
     private boolean interacting = false;
     private boolean interacted = false;
+
+    @Override
+    public void frontendReady() {
+        Activity currentParent = parent;
+        if (currentParent == null)
+            return;
+        currentParent.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                WebUIActivity currentParent = parent;
+                if (currentParent == null)
+                    return;
+                currentParent.onFrontendReady();
+            }
+        });
+    }
 
     @Override
     public boolean resolveResult(final Status status) throws InterruptedException {
@@ -76,7 +92,7 @@ public class EngineServiceConnection implements ServiceConnection, InteractionCa
         binder = null;
     }
 
-    public void start(Activity ctx) {
+    public void start(WebUIActivity ctx) {
         parent = ctx;
         Intent intent = new Intent(ctx, EngineService.class);
         ctx.bindService(intent, this, Context.BIND_AUTO_CREATE | Context.BIND_ADJUST_WITH_ACTIVITY);
