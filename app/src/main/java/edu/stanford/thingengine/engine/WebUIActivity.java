@@ -198,8 +198,6 @@ public class WebUIActivity extends Activity {
     public void onResume() {
         super.onResume();
         engine.start(this);
-        if (engine.getControl().isFrontendReady())
-            this.onFrontendReady();
     }
 
     @Override

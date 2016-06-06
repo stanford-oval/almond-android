@@ -85,6 +85,8 @@ public class EngineServiceConnection implements ServiceConnection, InteractionCa
     public void onServiceConnected(ComponentName name, IBinder service) {
         binder = (ControlBinder)service;
         binder.setInteractionCallback(this);
+        if (binder.isFrontendReady())
+            this.frontendReady();
     }
 
     @Override

@@ -31,7 +31,7 @@ all-js: $(jxcoredir)
 	cd $(jxcoredir)/ ; npm dedupe --no-bin-links
 	rm -fr $(jxcoredir)/node_modules/sabrina/node_modules/thingtalk
 	find $(jxcoredir)/ -name .bin -type d -exec rm -fr '{}' ';'
-	find $(jxcoredir)/ -type f \! -name \*.js \! -name \*.json \! -name \*.sql \! -name \*.cert \! -iname \*LICENSE\* \! -iname \*COPYING\* \! -iname \*README\* -delete
+	find $(jxcoredir)/ -type f \! -name \*.js \! -name \*.json \! -name \*.jade  \! -name \*.css \! -name \*.sql \! -name \*.cert \! -iname \*LICENSE\* \! -iname \*COPYING\* \! -iname \*README\* -delete
 	find $(jxcoredir)/ -type d -empty -delete
 
 clean-js:
