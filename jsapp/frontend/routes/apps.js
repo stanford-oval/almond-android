@@ -21,7 +21,7 @@ function getAllApps(engine) {
 
     return Q.all(apps.map(function(a) {
         return Q.try(function() {
-            if (state.$F) {
+            if (a.state.$F) {
                 return engine.messaging.getFeedMeta(state.$F).then(function(f) {
                     return feeds.getFeedName(engine, f, true);
                 });
@@ -170,7 +170,7 @@ router.post('/delete', function(req, res, next) {
     }).catch(function(e) {
         res.status(400).render('error', { page_title: "ThingEngine - Error",
                                           message: e.message + '\n' + e.stack });
-    }).doe();
+    }).done();
 });
 
 router.get('/:id/results', function(req, res, next) {
