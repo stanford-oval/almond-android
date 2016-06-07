@@ -61,8 +61,13 @@ module.exports = class AssistantDispatcher {
 
         ws.on('message', (msg) => this._handleMessage(msg));
 
-        for (var msg of this._history)
-            ws.send(JSON.stringify(msg));
+        try {
+            for (var msg of this._history)
+                ws.send(JSON.stringify(msg));
+        } catch(e) {
+            console.error("Failed to send history: " + e.message);
+            console.error(e.stack);
+        }
 
         this._ensureConversation();
     }
@@ -73,9 +78,6 @@ module.exports = class AssistantDispatcher {
 
         this._conversation = new Conversation(this.engine, this);
         this._conversation.start();
-
-        if (this._conversation === null)
-            console.log('lul wut');
     }
 
     _onHiddenMessage(json) {
@@ -85,9 +87,7 @@ module.exports = class AssistantDispatcher {
     }
 
     _onTextMessage(text) {
-        console.log('this._conversation before', this._conversation);
         this.analyze(text).then(function(analyzed) {
-            console.log('this._conversation after', this._conversation);
             this._conversation.handleCommand(text, analyzed);
         }.bind(this)).catch(function(e) {
             console.log('Failed to handle assistant command: ' + e.message);

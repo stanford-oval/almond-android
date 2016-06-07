@@ -16,15 +16,15 @@ class LinkedList {
 
 class ListForwardIterator {
     constructor(node) {
-        this.next = node;
+        this._next = node;
     }
 
     next() {
-        if (this.next === null) {
+        if (this._next === null) {
             return { done: true };
         } else {
-            var curr = this.next;
-            this.next = curr.next;
+            var curr = this._next;
+            this._next = curr.next;
             return { done: false, value: curr.data };
         }
     }
