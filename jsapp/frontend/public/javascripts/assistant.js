@@ -11,6 +11,8 @@ $(function() {
             showButton(msg.button, 'sabrina-says');
         else if (msg.rdl)
             showRDL(msg.rdl, 'sabrina-says');
+        else if (msg.link)
+            showLink(msg.link, 'sabrina-says');
     };
 
     var placeholder = $('#sabrina-placeholder');
@@ -23,12 +25,25 @@ $(function() {
         placeholder.append($('<img>').addClass(withClass).attr('src', url));
     }
 
-    function showButton() {
-        // FINISHME
+    function showButton(button, withClass) {
+        placeholder.append($('<a>')
+            .addClass('btn btn-default').addClass(withClass)
+            .text(button.title).click(function() {
+                sendChoice(button.id);
+            }));
     }
 
     function showRDL() {
         // FINISHME
+    }
+
+    function showLink(link, withClass) {
+        placeholder.append($('<a>').addClass(withClass)
+            .text(link.title).attr('href', link.url));
+    }
+
+    function sendChoice(idx) {
+        sendMsg({ type: "Choice", value: hash }, true);
     }
 
     function sendMsg(text, hidden) {

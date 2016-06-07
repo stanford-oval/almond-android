@@ -78,15 +78,8 @@ module.exports = class AssistantDispatcher {
             console.log('lul wut');
     }
 
-    _onHiddenMessage(text) {
-        try {
-            var parsed = JSON.parse(text);
-        } catch(e) {
-            console.log('Failed to parse hidden message as JSON: ' + e.message);
-            return;
-        }
-
-        this._conversation.handleCommand(null, text).catch(function(e) {
+    _onHiddenMessage(json) {
+        this._conversation.handleCommand(null, json).catch(function(e) {
             console.log('Failed to handle assistant command: ' + e.message);
         }).done();
     }
@@ -145,5 +138,9 @@ module.exports = class AssistantDispatcher {
 
     sendChoice(idx, what, title, text) {
         this._queue({ 'button': { id: idx, title: title, text: text } });
+    }
+
+    sendLink(title, url) {
+        this._queue({ 'link': { title: title, url: url } });
     }
 };
