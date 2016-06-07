@@ -3,16 +3,18 @@ $(function() {
     ws.onmessage = function(messageEvent) {
         var msg = JSON.parse(messageEvent.data);
 
+        var _class = msg.from === 'user' ? 'user-says' : 'sabrina-says';
+
         if (msg.text)
-            showText(msg.text, 'sabrina-says');
+            showText(msg.text, _class);
         else if (msg.picture)
-            showPicture(msg.picture, 'sabrina-says');
+            showPicture(msg.picture, _class);
         else if (msg.choice)
-            showButton(msg.button, 'sabrina-says');
+            showButton(msg.button, _class);
         else if (msg.rdl)
-            showRDL(msg.rdl, 'sabrina-says');
+            showRDL(msg.rdl, _class);
         else if (msg.link)
-            showLink(msg.link, 'sabrina-says');
+            showLink(msg.link, _class);
     };
 
     var placeholder = $('#sabrina-placeholder');

@@ -87,6 +87,7 @@ module.exports = class AssistantDispatcher {
     }
 
     _onTextMessage(text) {
+        this._history.push({ type: 'text', text: text, from: 'user' });
         this.analyze(text).then(function(analyzed) {
             this._conversation.handleCommand(text, analyzed);
         }.bind(this)).catch(function(e) {
@@ -119,6 +120,7 @@ module.exports = class AssistantDispatcher {
     }
 
     _queue(msg) {
+        msg.from = 'sabrina';
         this._history.push(msg);
         if (this._socket)
             this._socket.send(JSON.stringify(msg));
