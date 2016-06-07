@@ -2,13 +2,14 @@
     display: block;
     max-width: 70%;
     border-radius: 5px;
+    margin: 0.8em 0;
 }
 
 #sabrina-placeholder > img {
     padding: 6px;
 }
 
-#sabrina-placeholder > p {
+#sabrina-placeholder > p, #sabrina-placeholder > a {
     padding: 2px 6px;
 }
 

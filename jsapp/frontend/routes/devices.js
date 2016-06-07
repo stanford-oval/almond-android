@@ -52,6 +52,27 @@ router.post('/create', function(req, res, next) {
     }).done();
 });
 
+router.get('/create/:kind', function(req, res, next) {
+    var engine = req.app.engine;
+    var devices = engine.devices;
+
+    Q.try(function() {
+        var devices = engine.devices;
+
+        return devices.loadOneDevice({ kind: req.params.kind }, true);
+    }).then(function() {
+        if (req.session['device-redirect-to']) {
+            res.redirect(303, req.session['device-redirect-to']);
+            delete req.session['device-redirect-to'];
+        } else {
+            res.redirect(303, '/apps');
+        }
+    }).catch(function(e) {
+        res.status(400).render('error', { page_title: "ThingEngine - Error",
+                                          message: e.message });
+    }).done();
+});
+
 router.post('/delete', function(req, res, next) {
     if (req.query.class && ['online', 'physical'].indexOf(req.query.class) < 0) {
         res.status(404).render('error', { page_title: "ThingEngine - Error",
