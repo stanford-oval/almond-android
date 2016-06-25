@@ -33,7 +33,12 @@ module.exports.makeJavaAPI = function makeJavaAPI(klass, asyncMethods, syncMetho
     syncMethods.forEach(function(method) {
         obj[method] = function() {
             var call = JXMobile(klass + '_' + method);
-            return Q.npost(call, 'callNative', arguments);
+            return Q.npost(call, 'callNative', arguments).catch((e) => {
+                if (typeof e === 'string')
+                    throw new Error(e);
+                else
+                    throw e;
+            });
         }
     });
     events.forEach(function(event) {

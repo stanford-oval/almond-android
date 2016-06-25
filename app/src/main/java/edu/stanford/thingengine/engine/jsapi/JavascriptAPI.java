@@ -24,18 +24,18 @@ public abstract class JavascriptAPI {
     }
 
     protected ControlChannel getControl() {
-        return this.control;
+        return control;
     }
 
     private void sendCallback(String callback, String error, Object value) {
         control.sendInvokeCallback(callback, error, value);
     }
 
-    public void invokeAsync(String callback, Object value) {
+    protected void invokeAsync(String callback, Object value) {
         sendCallback(name + "_" + callback, null, value);
     }
 
-    public void registerAsync(String callback, final GenericCall call) {
+    protected void registerAsync(String callback, final GenericCall call) {
         jxcore.RegisterMethod(name + "_" + callback, new jxcore.JXcoreCallback() {
             @Override
             public void Receiver(final ArrayList<Object> params, final String callbackId) {
@@ -54,7 +54,7 @@ public abstract class JavascriptAPI {
         });
     }
 
-    public void registerSync(String callback, final GenericCall call) {
+    protected void registerSync(String callback, final GenericCall call) {
         jxcore.RegisterMethod(name + "_" + callback, new jxcore.JXcoreCallback() {
             @Override
             public void Receiver(ArrayList<Object> params, String callbackId) {

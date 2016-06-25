@@ -93,10 +93,11 @@ function runEngine() {
             // and execute on our thread
             JXMobile('controlReady').callNative();
 
-            return Q.all([_engine.open(), _frontend.open(), ad.start()]);
+            return Q.all([_engine.open(), ad.start(),
+                          _frontend.open().then(() => {
+                            JXMobile('frontendReady').callNative();
+                          })]);
         }).then(function() {
-            JXMobile('frontendReady').callNative();
-
             _running = true;
             if (_stopped)
                 return Q.all([_engine.close(), _frontend.close(), ad.stop()]);

@@ -9,6 +9,10 @@ import android.content.ServiceConnection;
 import android.os.IBinder;
 
 import com.google.android.gms.common.api.Status;
+
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Created by gcampagn on 8/16/15.
  */
@@ -17,8 +21,12 @@ public class EngineServiceConnection implements ServiceConnection, InteractionCa
     private volatile WebUIActivity parent;
     private volatile ControlBinder binder;
 
-    private boolean interacting = false;
-    private boolean interacted = false;
+    private static class InteractionState {
+        public boolean interacting = false;
+        public boolean interacted = false;
+    }
+
+    private final Map<Integer, InteractionState> interacting = new HashMap<>();
 
     @Override
     public void frontendReady() {
@@ -37,23 +45,23 @@ public class EngineServiceConnection implements ServiceConnection, InteractionCa
     }
 
     @Override
-    public boolean resolveResult(final Status status) throws InterruptedException {
+    public boolean resolveResult(final Status status, final int requestCode) throws InterruptedException {
         Activity currentParent = parent;
         if (currentParent == null)
             return false;
 
         synchronized (this) {
-            while (interacting)
-                wait();
-            interacting = true;
+            final InteractionState state = new InteractionState();
+            interacting.put(requestCode, state);
+            state.interacting = true;
             currentParent.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
                     Activity currentParent = parent;
                     if (currentParent == null) {
                         synchronized (EngineServiceConnection.this) {
-                            interacting = false;
-                            interacted = false;
+                            state.interacting = false;
+                            state.interacted = false;
                             EngineServiceConnection.this.notifyAll();
                         }
                         return;
@@ -63,17 +71,52 @@ public class EngineServiceConnection implements ServiceConnection, InteractionCa
                         status.startResolutionForResult(currentParent, 1);
                     } catch(IntentSender.SendIntentException e) {
                         synchronized (EngineServiceConnection.this) {
-                            interacting = false;
-                            interacted = false;
+                            state.interacting = false;
+                            state.interacted = false;
                             EngineServiceConnection.this.notifyAll();
                         }
                     }
                 }
             });
 
-            while (interacting)
+            while (state.interacting)
                 wait();
-            return interacted;
+            interacting.remove(requestCode);
+            return state.interacted;
+        }
+    }
+
+    @Override
+    public boolean startActivity(final Intent intent, final int requestCode) throws InterruptedException {
+        Activity currentParent = parent;
+        if (currentParent == null)
+            return false;
+
+        synchronized (this) {
+            final InteractionState state = new InteractionState();
+            interacting.put(requestCode, state);
+            state.interacting = true;
+            currentParent.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    Activity currentParent = parent;
+                    if (currentParent == null) {
+                        synchronized (EngineServiceConnection.this) {
+                            state.interacting = false;
+                            state.interacted = false;
+                            EngineServiceConnection.this.notifyAll();
+                        }
+                        return;
+                    }
+
+                    currentParent.startActivityForResult(intent, requestCode);
+                }
+            });
+
+            while (state.interacting)
+                wait();
+            interacting.remove(requestCode);
+            return state.interacted;
         }
     }
 
@@ -110,12 +153,11 @@ public class EngineServiceConnection implements ServiceConnection, InteractionCa
     }
 
     public synchronized void onActivityResult(int requestCode, int resultCode, Intent intent) {
-        if (!interacting)
+        final InteractionState state = interacting.get(requestCode);
+        if (state == null || !state.interacting)
             return;
-        if (requestCode != 1)
-            return;
-        interacting = false;
-        interacted = resultCode == Activity.RESULT_OK;
+        state.interacting = false;
+        state.interacted = resultCode == Activity.RESULT_OK;
         notifyAll();
     }
 }

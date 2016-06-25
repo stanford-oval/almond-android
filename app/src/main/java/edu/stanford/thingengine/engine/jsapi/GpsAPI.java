@@ -118,7 +118,7 @@ public class GpsAPI extends JavascriptAPI {
 
             case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
                 if (callback != null) {
-                    if (callback.resolveResult(status)) {
+                    if (callback.resolveResult(status, InteractionCallback.ENABLE_GPS)) {
                         break;
                     }
                 }

@@ -9,12 +9,20 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Handler;
 import android.os.ParcelUuid;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.Log;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+
 import edu.stanford.thingengine.engine.ControlChannel;
+import edu.stanford.thingengine.engine.InteractionCallback;
 
 /**
  * Created by gcampagn on 6/24/16.
@@ -25,6 +33,7 @@ public class BluetoothAPI extends JavascriptAPI {
     private final Context ctx;
     private final Handler handler;
     private final BluetoothAdapter adapter;
+    private final Map<String, BluetoothDevice> pairing;
 
     private Receiver receiver;
     private volatile boolean discovering;
@@ -55,15 +64,16 @@ public class BluetoothAPI extends JavascriptAPI {
         }
     }
 
-    public BluetoothAPI(Context ctx, Handler handler, ControlChannel control) {
+    public BluetoothAPI(Handler handler, Context ctx, ControlChannel control) {
         super("Bluetooth", control);
 
         this.ctx = ctx;
         this.handler = handler;
         adapter = ((BluetoothManager)ctx.getSystemService(Context.BLUETOOTH_SERVICE)).getAdapter();
         discovering = false;
+        pairing = new HashMap<>();
 
-        registerSync("start", new GenericCall() {
+        registerAsync("start", new GenericCall() {
             @Override
             public Object run(Object... args) throws Exception {
                 start();
@@ -79,7 +89,7 @@ public class BluetoothAPI extends JavascriptAPI {
             }
         });
 
-        registerSync("startDiscovery", new GenericCall() {
+        registerAsync("startDiscovery", new GenericCall() {
             @Override
             public Object run(Object... args) throws Exception {
                 startDiscovery(((Number)args[0]).longValue());
@@ -91,6 +101,14 @@ public class BluetoothAPI extends JavascriptAPI {
             @Override
             public Object run(Object... args) throws Exception {
                 stopDiscovery();
+                return null;
+            }
+        });
+
+        registerAsync("pairDevice", new GenericCall() {
+            @Override
+            public Object run(Object... args) throws Exception {
+                pairDevice((String)args[0]);
                 return null;
             }
         });
@@ -106,7 +124,13 @@ public class BluetoothAPI extends JavascriptAPI {
         filter.addAction(BluetoothDevice.ACTION_BOND_STATE_CHANGED);
         filter.addAction(BluetoothDevice.ACTION_NAME_CHANGED);
         filter.addAction(BluetoothDevice.ACTION_CLASS_CHANGED);
-        ctx.registerReceiver(receiver, new IntentFilter(), null, handler);
+        ctx.registerReceiver(receiver, filter, null, handler);
+
+        if (adapter != null) {
+            Collection<BluetoothDevice> devices = adapter.getBondedDevices();
+            for (BluetoothDevice d : devices)
+                onDeviceFound(d);
+        }
     }
 
     private void stop() {
@@ -117,7 +141,7 @@ public class BluetoothAPI extends JavascriptAPI {
     private void onStateChanged(int newState, int oldState) {
         invokeAsync("onstatechanged", new int[] { newState, oldState });
 
-        if (discovering && newState == BluetoothAdapter.STATE_ON)
+        if (discovering && newState == BluetoothAdapter.STATE_ON && adapter != null)
             adapter.startDiscovery();
     }
 
@@ -125,10 +149,14 @@ public class BluetoothAPI extends JavascriptAPI {
         invokeAsync("ondiscoveryfinished", null);
     }
 
-    private String[] uuidsToJson(ParcelUuid[] uuids) {
-        String[] ret = new String[uuids.length];
-        for (int i = 0; i < uuids.length; i++)
-            ret[i] = uuids[i].getUuid().toString();
+    @NonNull
+    private JSONArray uuidsToJson(@Nullable ParcelUuid[] uuids) {
+        if (uuids == null)
+            return new JSONArray();
+
+        JSONArray ret = new JSONArray();
+        for (ParcelUuid uuid : uuids)
+            ret.put(uuid.getUuid().toString());
         return ret;
     }
 
@@ -156,12 +184,18 @@ public class BluetoothAPI extends JavascriptAPI {
         } catch (JSONException e) {
             Log.i(LOG_TAG, "Failed to serialize Location", e);
         }
+
+        synchronized (this) {
+            if (pairing.containsKey(device.getAddress().toLowerCase())) {
+                pairing.put(device.getAddress().toLowerCase(), device);
+                notifyAll();
+            }
+        }
     }
 
-    private void startDiscovery(long timeout) {
-        discovering = true;
-        if (!adapter.startDiscovery())
-            ctx.startActivity(new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE));
+    private void startDiscovery(long timeout) throws InterruptedException {
+        if (adapter == null)
+            throw new UnsupportedOperationException("This device has no Bluetooth adapter");
 
         handler.postDelayed(new Runnable() {
             @Override
@@ -169,10 +203,58 @@ public class BluetoothAPI extends JavascriptAPI {
                 stopDiscovery();
             }
         }, timeout);
+
+        if (adapter.startDiscovery()) {
+            discovering = true;
+            return;
+        }
+
+        InteractionCallback callback = getControl().getInteractionCallback();
+        if (callback == null)
+            throw new UnsupportedOperationException("Bluetooth is disabled and operation is in background");
+
+        if (!callback.startActivity(new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE), InteractionCallback.ENABLE_BLUETOOTH))
+            throw new InterruptedException("User denied enabling Bluetooth");
+
+        if (adapter.startDiscovery()) {
+            discovering = true;
+        }
     }
 
     private void stopDiscovery() {
         discovering = false;
-        adapter.cancelDiscovery();
+        if (adapter != null)
+            adapter.cancelDiscovery();
+    }
+
+    private void pairDevice(String address) throws InterruptedException {
+        if (adapter == null)
+            throw new UnsupportedOperationException("This device has no Bluetooth adapter");
+
+        BluetoothDevice dev = adapter.getRemoteDevice(address.toUpperCase());
+
+        if (dev.getBondState() == BluetoothDevice.BOND_BONDED)
+            return;
+
+        synchronized (this) {
+            try {
+                while (true) {
+                    if (!pairing.containsKey(address)) {
+                        pairing.put(address, dev);
+                        dev.createBond();
+                    } else {
+                        dev = pairing.get(address);
+                        if (dev.getBondState() == BluetoothDevice.BOND_BONDED)
+                            return;
+                        if (dev.getBondState() != BluetoothDevice.BOND_BONDING)
+                            throw new InterruptedException("User cancelled bonding");
+                    }
+
+                    wait();
+                }
+            } finally {
+                pairing.remove(address);
+            }
+        }
     }
 }

@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import edu.stanford.thingengine.engine.jsapi.AudioManagerAPI;
+import edu.stanford.thingengine.engine.jsapi.BluetoothAPI;
 import edu.stanford.thingengine.engine.jsapi.GpsAPI;
 import edu.stanford.thingengine.engine.jsapi.JSSharedPreferences;
 import edu.stanford.thingengine.engine.jsapi.NotifyAPI;
@@ -53,6 +54,7 @@ public class EngineThread extends Thread {
                     new GpsAPI(workerHandler, context, control);
                     new AudioManagerAPI(context, control);
                     new SmsAPI(workerHandler, context, control);
+                    new BluetoothAPI(workerHandler, context, control);
                 }
             });
             jxcore.RegisterMethod("frontendReady", new jxcore.JXcoreCallback() {

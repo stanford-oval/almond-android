@@ -22,7 +22,10 @@ const _gpsApi = JavaAPI.makeJavaAPI('Gps', ['start', 'stop'], [], ['onlocationch
 const _notifyApi = JavaAPI.makeJavaAPI('Notify', [], ['showMessage'], []);
 const _audioManagerApi = JavaAPI.makeJavaAPI('AudioManager', [], ['setRingerMode'], []);
 const _smsApi = JavaAPI.makeJavaAPI('Sms', ['start', 'stop', 'sendMessage'], [], ['onsmsreceived']);
-const _btApi = JavaAPI.makeJavaAPI('Bluetooth', ['start', 'stop', 'runDiscovery', 'stopDiscovery'])
+const _btApi = JavaAPI.makeJavaAPI('Bluetooth',
+    ['start', 'startDiscovery', 'pairDevice'],
+    ['stop', 'stopDiscovery'],
+    ['ondeviceadded', 'ondevicechanged', 'onstatechanged', 'ondiscoveryfinished']);
 
 var filesDir = null;
 var cacheDir = null;
@@ -146,6 +149,7 @@ module.exports = {
         case 'gps':
         case 'audio-manager':
         case 'sms':
+        case 'bluetooth':
         // for compat
         case 'notify-api':
             return true;
@@ -180,6 +184,9 @@ module.exports = {
         case 'code-download':
             // We have the support to download code
             return _unzipApi;
+
+        case 'bluetooth':
+            return _btApi;
 
         case 'assistant':
             return AssistantDispatcher.get().getConversation();
