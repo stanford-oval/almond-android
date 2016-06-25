@@ -22,6 +22,7 @@ const _gpsApi = JavaAPI.makeJavaAPI('Gps', ['start', 'stop'], [], ['onlocationch
 const _notifyApi = JavaAPI.makeJavaAPI('Notify', [], ['showMessage'], []);
 const _audioManagerApi = JavaAPI.makeJavaAPI('AudioManager', [], ['setRingerMode'], []);
 const _smsApi = JavaAPI.makeJavaAPI('Sms', ['start', 'stop', 'sendMessage'], [], ['onsmsreceived']);
+const _btApi = JavaAPI.makeJavaAPI('Bluetooth', ['start', 'stop', 'runDiscovery', 'stopDiscovery'])
 
 var filesDir = null;
 var cacheDir = null;

@@ -16,8 +16,6 @@ public class ControlBinder extends IThingEngine.Stub {
         return this.service.isFrontendReady();
     }
 
-    public void runDeviceDiscovery() {}
-
     public boolean setCloudId(CloudAuthInfo authInfo) {
         return channel.sendSetCloudId(authInfo);
     }
