@@ -1,4 +1,4 @@
-package edu.stanford.thingengine.engine;
+package edu.stanford.thingengine.engine.service;
 
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -7,6 +7,7 @@ import android.util.Log;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import edu.stanford.thingengine.engine.jsapi.AssistantAPI;
 import edu.stanford.thingengine.engine.jsapi.AudioManagerAPI;
 import edu.stanford.thingengine.engine.jsapi.BluetoothAPI;
 import edu.stanford.thingengine.engine.jsapi.GpsAPI;
@@ -47,7 +48,6 @@ public class EngineThread extends Thread {
                         Log.e(EngineService.LOG_TAG, "Failed to acquire control channel!", e);
                         return;
                     }
-                    context.controlReady(control);
 
                     new NotifyAPI(context, control);
                     new UnzipAPI(control);
@@ -55,6 +55,8 @@ public class EngineThread extends Thread {
                     new AudioManagerAPI(context, control);
                     new SmsAPI(workerHandler, context, control);
                     new BluetoothAPI(workerHandler, context, control);
+
+                    context.controlReady(new AssistantAPI(control), control);
                 }
             });
             jxcore.RegisterMethod("frontendReady", new jxcore.JXcoreCallback() {

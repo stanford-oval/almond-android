@@ -16,6 +16,11 @@ const SempreClient = require('sabrina').Sempre;
 const Conversation = require('./conversation');
 const LinkedQueue = require('./linkedqueue');
 
+const JavaAPI = require('../java_api');
+const AssistantJavaApi = JavaAPI.makeJavaAPI('Assistant', [],
+    ['send', 'sendPicture', 'sendRDL', 'sendChoice', 'sendLink', 'sendButton'],
+    ['onhandlecommand', 'onhandleparsedcommand', 'onhandlepicture', 'onassistantresume']);
+
 var instance_;
 
 module.exports = class AssistantDispatcher {
@@ -37,10 +42,20 @@ module.exports = class AssistantDispatcher {
     start() {
         this._sempre.start();
         this._session = this._sempre.openSession();
+
+        AssistantJavaApi.onhandlecommand = this._onHandleCommand.bind(this);
+        AssistantJavaApi.onhandleparsedcommand = this._onHandleParsedCommand.bind(this);
+        AssistantJavaApi.onhandlepicture = this._onHandlePicture.bind(this);
+        AssistantJavaApi.onassistantresume = this._onAssistantResume.bind(this);
     }
 
     stop() {
         this._sempre.stop();
+
+        AssistantJavaApi.onhandlecommand = null;
+        AssistantJavaApi.onhandleparsedcommand = null;
+        AssistantJavaApi.onhandlepicture = null;
+        AssistantJavaApi.onassistantresume = null;
     }
 
     getConversation() {
@@ -48,26 +63,16 @@ module.exports = class AssistantDispatcher {
         return this._conversation;
     }
 
-    setSocket(ws) {
-        if (this._socket !== null)
-            this._socket.close();
+    _replayHistory(item) {
+        var call = item[0];
+        var args = item[1];
 
-        this._socket = ws;
-        ws.on('close', () => {
-            if (this._socket === ws) {
-                this._socket = null;
-            }
-        });
+        AssistantJavaApi[call].apply(AssistantJavaApi, args).done();
+    }
 
-        ws.on('message', (msg) => this._handleMessage(msg));
-
-        try {
-            for (var msg of this._history)
-                ws.send(JSON.stringify(msg));
-        } catch(e) {
-            console.error("Failed to send history: " + e.message);
-            console.error(e.stack);
-        }
+    _onAssistantResume() {
+        for (var msg of this._history)
+            this._replayHistory(item);
 
         this._ensureConversation();
     }
@@ -80,14 +85,15 @@ module.exports = class AssistantDispatcher {
         this._conversation.start();
     }
 
-    _onHiddenMessage(json) {
+    _onHandleParsedCommand(error, json) {
         this._conversation.handleCommand(null, json).catch(function(e) {
             console.log('Failed to handle assistant command: ' + e.message);
         }).done();
     }
 
-    _onTextMessage(text) {
-        this._history.push({ type: 'text', text: text, from: 'user' });
+    _onHandleCommand(error, text) {
+        // FIXME: record message from user
+
         this.analyze(text).then(function(analyzed) {
             this._conversation.handleCommand(text, analyzed);
         }.bind(this)).catch(function(e) {
@@ -95,54 +101,39 @@ module.exports = class AssistantDispatcher {
         }).done();
     }
 
-    _onPicture(url) {
+    _onHandlePicture(error, url) {
         this._conversation.handlePicture(url).catch(function(e) {
             console.log('Failed to handle assistant picture: ' + e.message);
         }).done();
-    }
-
-    _handleMessage(data) {
-        console.log('Received data on WebSocket', data);
-
-        var msg = JSON.parse(data);
-        if (msg.type === 'text') {
-            if (msg.hidden)
-                this._onHiddenMessage(msg.text);
-            else
-                this._onTextMessage(msg.text);
-        } else if (msg.type === 'picture') {
-            this._onPicture(msg.url);
-        }
     }
 
     analyze(what) {
         return this._session.sendUtterance(what);
     }
 
-    _queue(msg) {
-        msg.from = 'sabrina';
-        this._history.push(msg);
-        if (this._socket)
-            this._socket.send(JSON.stringify(msg));
+    _queue(call, args) {
+        this._history.push([call, args]);
+
+        AssistantJavaApi[call].apply(AssistantJavaApi, args).done();
     }
 
     send(what) {
-        this._queue({ 'text': what });
+        this._queue('send', arguments);
     }
 
     sendPicture(url) {
-        this._queue({ 'picture': url });
+        this._queue('sendPicture', arguments);
     }
 
     sendRDL(rdl) {
-        this._queue({ 'rdl': rdl });
+        this._queue('sendRDL', [JSON.stringify(rdl)]);
     }
 
     sendChoice(idx, what, title, text) {
-        this._queue({ 'button': { id: idx, title: title, text: text } });
+        this._queue('sendChoice', arguments);
     }
 
     sendLink(title, url) {
-        this._queue({ 'link': { title: title, url: url } });
+        this._queue('sendLink', arguments);
     }
 };

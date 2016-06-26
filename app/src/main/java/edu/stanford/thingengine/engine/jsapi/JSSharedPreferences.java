@@ -7,8 +7,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONTokener;
 
-import edu.stanford.thingengine.engine.ControlChannel;
-import edu.stanford.thingengine.engine.jsapi.JavascriptAPI;
+import edu.stanford.thingengine.engine.service.ControlChannel;
 
 /**
  * Created by gcampagn on 10/26/15.

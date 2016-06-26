@@ -23,8 +23,8 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 
-import edu.stanford.thingengine.engine.ControlChannel;
-import edu.stanford.thingengine.engine.InteractionCallback;
+import edu.stanford.thingengine.engine.service.ControlChannel;
+import edu.stanford.thingengine.engine.ui.InteractionCallback;
 
 /**
  * Created by gcampagn on 5/6/16.

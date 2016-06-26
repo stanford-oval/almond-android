@@ -1,4 +1,4 @@
-package edu.stanford.thingengine.engine;
+package edu.stanford.thingengine.engine.service;
 
 import android.content.Context;
 import android.net.LocalSocket;
@@ -22,6 +22,9 @@ import java.nio.charset.Charset;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import edu.stanford.thingengine.engine.CloudAuthInfo;
+import edu.stanford.thingengine.engine.ui.InteractionCallback;
 
 /**
  * Created by gcampagn on 8/10/15.

@@ -5,6 +5,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
+import edu.stanford.thingengine.engine.service.EngineService;
+
 public class AutoStarter extends BroadcastReceiver {
     public static void startService(Context context) {
         Log.i(EngineService.LOG_TAG, "Auto starting service");

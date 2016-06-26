@@ -1,4 +1,4 @@
-package edu.stanford.thingengine.engine;
+package edu.stanford.thingengine.engine.ui;
 
 import android.app.Activity;
 import android.content.ComponentName;
@@ -6,20 +6,27 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.ServiceConnection;
+import android.os.AsyncTask;
 import android.os.IBinder;
 
 import com.google.android.gms.common.api.Status;
 
+import org.json.JSONObject;
+
 import java.util.HashMap;
 import java.util.Map;
+
+import edu.stanford.thingengine.engine.service.ControlBinder;
+import edu.stanford.thingengine.engine.service.EngineService;
 
 /**
  * Created by gcampagn on 8/16/15.
  */
 
 public class EngineServiceConnection implements ServiceConnection, InteractionCallback {
-    private volatile WebUIActivity parent;
+    private volatile Activity parent;
     private volatile ControlBinder binder;
+    private AssistantOutput assistantOutput;
 
     private static class InteractionState {
         public boolean interacting = false;
@@ -29,17 +36,85 @@ public class EngineServiceConnection implements ServiceConnection, InteractionCa
     private final Map<Integer, InteractionState> interacting = new HashMap<>();
 
     @Override
-    public void frontendReady() {
+    public void send(final String msg) {
         Activity currentParent = parent;
         if (currentParent == null)
             return;
         currentParent.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                WebUIActivity currentParent = parent;
-                if (currentParent == null)
-                    return;
-                currentParent.onFrontendReady();
+                if (assistantOutput != null)
+                    assistantOutput.send(msg);
+            }
+        });
+    }
+
+    @Override
+    public void sendPicture(final String url) {
+        Activity currentParent = parent;
+        if (currentParent == null)
+            return;
+        currentParent.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (assistantOutput != null)
+                    assistantOutput.sendPicture(url);
+            }
+        });
+    }
+
+    @Override
+    public void sendRDL(final JSONObject rdl) {
+        Activity currentParent = parent;
+        if (currentParent == null)
+            return;
+        currentParent.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (assistantOutput != null)
+                    assistantOutput.sendRDL(rdl);
+            }
+        });
+    }
+
+    @Override
+    public void sendChoice(final int idx, final String what, final String title, final String text) {
+        Activity currentParent = parent;
+        if (currentParent == null)
+            return;
+        currentParent.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (assistantOutput != null)
+                    assistantOutput.sendChoice(idx, what, title, text);
+            }
+        });
+    }
+
+    @Override
+    public void sendLink(final String title, final String url) {
+        Activity currentParent = parent;
+        if (currentParent == null)
+            return;
+        currentParent.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (assistantOutput != null)
+                    assistantOutput.sendLink(title, url);
+            }
+        });
+    }
+
+    @Override
+    public void sendButton(final String title, final String json) {
+        Activity currentParent = parent;
+        if (currentParent == null)
+            return;
+        currentParent.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (assistantOutput != null)
+                    assistantOutput.sendButton(title, json);
             }
         });
     }
@@ -128,8 +203,8 @@ public class EngineServiceConnection implements ServiceConnection, InteractionCa
     public void onServiceConnected(ComponentName name, IBinder service) {
         binder = (ControlBinder)service;
         binder.setInteractionCallback(this);
-        if (binder.isFrontendReady())
-            this.frontendReady();
+        if (assistantOutput != null)
+            assistantResume();
     }
 
     @Override
@@ -137,7 +212,7 @@ public class EngineServiceConnection implements ServiceConnection, InteractionCa
         binder = null;
     }
 
-    public void start(WebUIActivity ctx) {
+    public void start(Activity ctx) {
         parent = ctx;
         Intent intent = new Intent(ctx, EngineService.class);
         ctx.bindService(intent, this, Context.BIND_AUTO_CREATE | Context.BIND_ADJUST_WITH_ACTIVITY);
@@ -159,5 +234,61 @@ public class EngineServiceConnection implements ServiceConnection, InteractionCa
         state.interacting = false;
         state.interacted = resultCode == Activity.RESULT_OK;
         notifyAll();
+    }
+
+    public void setAssistantOutput(AssistantOutput output) {
+        assistantOutput = output;
+    }
+
+    public void assistantResume() {
+        final ControlBinder control = binder;
+        if (control == null)
+            return;
+
+        AsyncTask.THREAD_POOL_EXECUTOR.execute(new Runnable() {
+            @Override
+            public void run() {
+                control.getAssistant().assistantResume();
+            }
+        });
+    }
+
+    public void handleAssistantCommand(final String command) {
+        final ControlBinder control = binder;
+        if (control == null)
+            return;
+
+        AsyncTask.THREAD_POOL_EXECUTOR.execute(new Runnable() {
+            @Override
+            public void run() {
+                control.getAssistant().handleCommand(command);
+            }
+        });
+    }
+
+    public void handleAssistantParsedCommand(final String json) {
+        final ControlBinder control = binder;
+        if (control == null)
+            return;
+
+        AsyncTask.THREAD_POOL_EXECUTOR.execute(new Runnable() {
+            @Override
+            public void run() {
+                control.getAssistant().handleParsedCommand(json);
+            }
+        });
+    }
+
+    public void handlePicture(final String url) {
+        final ControlBinder control = binder;
+        if (control == null)
+            return;
+
+        AsyncTask.THREAD_POOL_EXECUTOR.execute(new Runnable() {
+            @Override
+            public void run() {
+                control.getAssistant().handlePicture(url);
+            }
+        });
     }
 }

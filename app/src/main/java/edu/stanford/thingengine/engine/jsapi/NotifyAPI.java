@@ -4,9 +4,8 @@ import android.app.Notification;
 import android.app.NotificationManager;
 import android.content.Context;
 
-import edu.stanford.thingengine.engine.ControlChannel;
+import edu.stanford.thingengine.engine.service.ControlChannel;
 import edu.stanford.thingengine.engine.R;
-import edu.stanford.thingengine.engine.jsapi.JavascriptAPI;
 
 /**
  * Created by gcampagn on 11/7/15.

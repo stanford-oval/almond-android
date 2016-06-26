@@ -79,6 +79,8 @@ module.exports = class ControlChannel {
             if (this._socket && msg.replyId)
                 return Q.ninvoke(this._socket, 'write', {id:msg.replyId, reply:result});
         }.bind(this), function(error) {
+            console.error('Error in async control call', error.message);
+            console.error(error.stack);
             if (this._socket)
                 return Q.ninvoke(this._socket, 'write', {id:msg.replyId, error:error.message});
         }.bind(this)).done();

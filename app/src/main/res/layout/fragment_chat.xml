@@ -1,0 +1,32 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ui.AssistantFragment"
+    android:orientation="vertical"
+    android:showDividers="middle"
+    android:divider="@android:color/black">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_gravity="left|top"
+        android:id="@+id/assistant_container"
+        android:layout_weight="1"
+        android:padding="@dimen/abc_dialog_padding_material"
+        android:dividerPadding="@dimen/abc_dialog_padding_material"></LinearLayout>
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/assistant_input"
+        android:minLines="1"
+        android:maxLines="1"
+        android:enabled="true"
+        android:inputType="text"
+        android:imeOptions="actionSend"
+        android:singleLine="true"
+        android:focusable="true"
+        android:focusableInTouchMode="true" />
+</LinearLayout>

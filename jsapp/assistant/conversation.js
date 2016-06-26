@@ -31,7 +31,7 @@ module.exports = class Assistant extends Sabrina {
     }
 
     getAllNotify() {
-        return this.engine.channels.getNamedPipe('thingengine-app-notify', 'r');
+        return this._engine.channels.getNamedPipe('thingengine-app-notify', 'r');
     }
 
     start() {

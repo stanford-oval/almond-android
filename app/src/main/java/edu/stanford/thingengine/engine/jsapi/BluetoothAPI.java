@@ -21,8 +21,8 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import edu.stanford.thingengine.engine.ControlChannel;
-import edu.stanford.thingengine.engine.InteractionCallback;
+import edu.stanford.thingengine.engine.service.ControlChannel;
+import edu.stanford.thingengine.engine.ui.InteractionCallback;
 
 /**
  * Created by gcampagn on 6/24/16.

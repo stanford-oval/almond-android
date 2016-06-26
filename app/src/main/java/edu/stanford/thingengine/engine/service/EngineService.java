@@ -1,4 +1,4 @@
-package edu.stanford.thingengine.engine;
+package edu.stanford.thingengine.engine.service;
 
 import android.app.Service;
 import android.content.Intent;
@@ -7,10 +7,13 @@ import android.util.Log;
 
 import java.io.IOException;
 
+import edu.stanford.thingengine.engine.jsapi.AssistantAPI;
+
 public class EngineService extends Service {
     public static final String LOG_TAG = "thingengine.Service";
 
     private ControlChannel control;
+    private AssistantAPI assistant;
     private volatile boolean frontendReady;
     private EngineThread engineThread;
     
@@ -50,17 +53,15 @@ public class EngineService extends Service {
     void engineBroken() {
         stopSelf();
     }
-    void controlReady(ControlChannel control) {
+    void controlReady(AssistantAPI assistant, ControlChannel control) {
         synchronized (this) {
+            this.assistant = assistant;
             this.control = control;
             notifyAll();
         }
     }
     void frontendReady() {
-        frontendReady = true;
-        InteractionCallback callback = control.getInteractionCallback();
-        if (callback != null)
-            callback.frontendReady();
+        // FIXME remove
     }
 
     @Override
@@ -99,7 +100,7 @@ public class EngineService extends Service {
                 while (control == null)
                     wait();
             }
-            return new ControlBinder(this, control);
+            return new ControlBinder(this, assistant, control);
         } catch(InterruptedException e) {
             return null;
         }

@@ -4,7 +4,7 @@ import android.os.AsyncTask;
 
 import java.util.ArrayList;
 
-import edu.stanford.thingengine.engine.ControlChannel;
+import edu.stanford.thingengine.engine.service.ControlChannel;
 import io.jxcore.node.jxcore;
 
 /**

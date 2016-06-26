@@ -1,0 +1,166 @@
+package edu.stanford.thingengine.engine.ui;
+
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.os.Bundle;
+import android.webkit.JavascriptInterface;
+import android.webkit.JsResult;
+import android.webkit.WebChromeClient;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
+import android.webkit.WebViewFragment;
+
+import edu.stanford.thingengine.engine.CloudAuthInfo;
+import edu.stanford.thingengine.engine.service.ControlBinder;
+
+/**
+ * Created by gcampagn on 6/27/16.
+ */
+public class LegacyWebUIFragment extends WebViewFragment {
+    private CloudAuthInfo authInfo;
+    private FragmentEmbedder mListener;
+    private EngineServiceConnection mEngine;
+
+    public LegacyWebUIFragment() {}
+
+    public static LegacyWebUIFragment newInstance() {
+        LegacyWebUIFragment fragment = new LegacyWebUIFragment();
+        Bundle args = new Bundle();
+        fragment.setArguments(args);
+        return fragment;
+    }
+
+    private class UIWebChromeClient extends WebChromeClient {
+        @Override
+        public boolean onJsConfirm(WebView view, String url, String message, final JsResult result)
+        {
+            new AlertDialog.Builder(getActivity())
+                    .setTitle("Confirm")
+                    .setMessage(message)
+                    .setPositiveButton(android.R.string.ok,
+                            new AlertDialog.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int which) {
+                                    result.confirm();
+                                }
+                            })
+                    .setNegativeButton(android.R.string.cancel,
+                            new AlertDialog.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int which) {
+                                    result.cancel();
+                                }
+                            })
+                    .setCancelable(false)
+                    .create()
+                    .show();
+
+            return true;
+        }
+
+        @Override
+        public boolean onJsAlert(WebView view, String url, String message, final JsResult result)
+        {
+            new AlertDialog.Builder(getActivity())
+                    .setTitle("Alert")
+                    .setMessage(message)
+                    .setPositiveButton(android.R.string.ok,
+                            new AlertDialog.OnClickListener()
+                            {
+                                public void onClick(DialogInterface dialog, int which)
+                                {
+                                    result.confirm();
+                                }
+                            })
+                    .setCancelable(false)
+                    .create()
+                    .show();
+
+            return true;
+        }
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+    }
+
+    private static class UIWebViewClient extends WebViewClient {
+        @Override
+        public boolean shouldOverrideUrlLoading(WebView view, String url) {
+            return false;
+        }
+    }
+
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+
+        WebView view = getWebView();
+        view.addJavascriptInterface(this, "Android");
+        view.getSettings().setJavaScriptEnabled(true);
+        view.setWebChromeClient(new UIWebChromeClient());
+        view.setWebViewClient(new UIWebViewClient());
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        getWebView().loadUrl("http://127.0.0.1:3000/apps");
+    }
+
+    private void showConfirmDialog(boolean success) {
+        new AlertDialog.Builder(getActivity())
+                .setMessage(success ? "Congratulations, you're now all set to use ThingEngine!"
+                        : "Sorry, that did not work")
+                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                })
+                .setIcon(android.R.drawable.ic_dialog_info)
+                .show();
+    }
+
+    @JavascriptInterface
+    public void setCloudId(String cloudId, String authToken) {
+        ControlBinder control = mEngine.getControl();
+        if (control == null)
+            return;
+        CloudAuthInfo oldInfo = this.authInfo;
+        if (oldInfo != null && oldInfo.getCloudId().equals(cloudId) && oldInfo.getAuthToken().equals(authToken))
+            return;
+
+        CloudAuthInfo newInfo = new CloudAuthInfo(cloudId, authToken);
+        final boolean ok = control.setCloudId(newInfo);
+        if (ok)
+            authInfo = newInfo;
+
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                showConfirmDialog(ok);
+            }
+        });
+    }
+
+    // this version of onAttach is deprecated but it's required
+    // on APIs older than 23 because otherwise onAttach is never called
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        if (activity instanceof FragmentEmbedder) {
+            mListener = (FragmentEmbedder) activity;
+            mEngine = mListener.getEngine();
+        } else {
+            throw new RuntimeException(activity.toString()
+                    + " must implement AssistantFragmentEmbedder");
+        }
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        mListener = null;
+    }
+}

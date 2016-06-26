@@ -3,7 +3,7 @@ package edu.stanford.thingengine.engine.jsapi;
 import android.content.Context;
 import android.media.AudioManager;
 
-import edu.stanford.thingengine.engine.ControlChannel;
+import edu.stanford.thingengine.engine.service.ControlChannel;
 
 /**
  * Created by gcampagn on 5/16/16.
