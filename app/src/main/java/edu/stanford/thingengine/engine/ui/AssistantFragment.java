@@ -132,7 +132,7 @@ public class AssistantFragment extends Fragment implements AssistantOutput {
         super.onResume();
         if (mEngine != null) {
             mEngine.setAssistantOutput(this);
-            mEngine.assistantResume();
+            mEngine.assistantReady();
         }
     }
 

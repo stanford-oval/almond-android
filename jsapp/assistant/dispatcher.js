@@ -14,12 +14,11 @@ const util = require('util');
 const SempreClient = require('sabrina').Sempre;
 
 const Conversation = require('./conversation');
-const LinkedQueue = require('./linkedqueue');
 
 const JavaAPI = require('../java_api');
 const AssistantJavaApi = JavaAPI.makeJavaAPI('Assistant', [],
     ['send', 'sendPicture', 'sendRDL', 'sendChoice', 'sendLink', 'sendButton'],
-    ['onhandlecommand', 'onhandleparsedcommand', 'onhandlepicture', 'onassistantresume']);
+    ['onhandlecommand', 'onhandleparsedcommand', 'onhandlepicture', 'onassistantready']);
 
 var instance_;
 
@@ -28,7 +27,6 @@ module.exports = class AssistantDispatcher {
         this.engine = engine;
 
         this._sempre = new SempreClient();
-        this._history = new LinkedQueue();
         this._conversation = null;
         this._socket = null;
 
@@ -46,7 +44,7 @@ module.exports = class AssistantDispatcher {
         AssistantJavaApi.onhandlecommand = this._onHandleCommand.bind(this);
         AssistantJavaApi.onhandleparsedcommand = this._onHandleParsedCommand.bind(this);
         AssistantJavaApi.onhandlepicture = this._onHandlePicture.bind(this);
-        AssistantJavaApi.onassistantresume = this._onAssistantResume.bind(this);
+        AssistantJavaApi.onassistantready = this._onAssistantReady.bind(this);
     }
 
     stop() {
@@ -55,7 +53,7 @@ module.exports = class AssistantDispatcher {
         AssistantJavaApi.onhandlecommand = null;
         AssistantJavaApi.onhandleparsedcommand = null;
         AssistantJavaApi.onhandlepicture = null;
-        AssistantJavaApi.onassistantresume = null;
+        AssistantJavaApi.onassistantready = null;
     }
 
     getConversation() {
@@ -63,17 +61,7 @@ module.exports = class AssistantDispatcher {
         return this._conversation;
     }
 
-    _replayHistory(item) {
-        var call = item[0];
-        var args = item[1];
-
-        AssistantJavaApi[call].apply(AssistantJavaApi, args).done();
-    }
-
-    _onAssistantResume() {
-        for (var item of this._history)
-            this._replayHistory(item);
-
+    _onAssistantReady() {
         this._ensureConversation();
     }
 
@@ -86,13 +74,15 @@ module.exports = class AssistantDispatcher {
     }
 
     _onHandleParsedCommand(error, json) {
+        this._ensureConversation();
+
         this._conversation.handleCommand(null, json).catch(function(e) {
             console.log('Failed to handle assistant command: ' + e.message);
         }).done();
     }
 
     _onHandleCommand(error, text) {
-        // FIXME: record message from user
+        this._ensureConversation();
 
         this.analyze(text).then(function(analyzed) {
             this._conversation.handleCommand(text, analyzed);
@@ -102,6 +92,8 @@ module.exports = class AssistantDispatcher {
     }
 
     _onHandlePicture(error, url) {
+        this._ensureConversation();
+
         this._conversation.handlePicture(url).catch(function(e) {
             console.log('Failed to handle assistant picture: ' + e.message);
         }).done();
@@ -111,29 +103,23 @@ module.exports = class AssistantDispatcher {
         return this._session.sendUtterance(what);
     }
 
-    _queue(call, args) {
-        this._history.push([call, args]);
-
-        AssistantJavaApi[call].apply(AssistantJavaApi, args).done();
-    }
-
     send(what) {
-        this._queue('send', arguments);
+        AssistantJavaApi.send(what).done();
     }
 
     sendPicture(url) {
-        this._queue('sendPicture', arguments);
+        AssistantJavaApi.sendPicture(url).done()
     }
 
     sendRDL(rdl) {
-        this._queue('sendRDL', [JSON.stringify(rdl)]);
+        AssistantJavaApi.sendRDL(JSON.stringify(rdl)).done();
     }
 
     sendChoice(idx, what, title, text) {
-        this._queue('sendChoice', arguments);
+        AssistantJavaApi.sendChoice(idx, what, title, text).done();
     }
 
     sendLink(title, url) {
-        this._queue('sendLink', arguments);
+        AssistantJavaApi.sendLink(title, url).done();
     }
 };

@@ -194,7 +194,7 @@ public class MainServiceConnection extends EngineServiceConnection implements In
         super.onServiceConnected(name, service);
         binder.setInteractionCallback(this);
         if (assistantOutput != null)
-            assistantResume();
+            assistantReady();
     }
 
     @Override
@@ -219,7 +219,7 @@ public class MainServiceConnection extends EngineServiceConnection implements In
         assistantOutput = output;
     }
 
-    public void assistantResume() {
+    public void assistantReady() {
         final ControlBinder control = binder;
         if (control == null)
             return;
@@ -227,7 +227,7 @@ public class MainServiceConnection extends EngineServiceConnection implements In
         AsyncTask.THREAD_POOL_EXECUTOR.execute(new Runnable() {
             @Override
             public void run() {
-                control.getAssistant().assistantResume();
+                control.getAssistant().assistantReady();
             }
         });
     }

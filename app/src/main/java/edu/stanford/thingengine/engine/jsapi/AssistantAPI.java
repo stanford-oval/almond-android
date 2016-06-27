@@ -95,7 +95,7 @@ public class AssistantAPI extends JavascriptAPI {
         invokeAsync("onhandlepicture", url);
     }
 
-    public void assistantResume() {
-        invokeAsync("onassistantresume", null);
+    public void assistantReady() {
+        invokeAsync("onassistantready", null);
     }
 }
