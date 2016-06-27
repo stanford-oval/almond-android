@@ -20,7 +20,6 @@ import edu.stanford.thingengine.engine.service.ControlBinder;
  * Created by gcampagn on 6/27/16.
  */
 public class MainServiceConnection extends EngineServiceConnection implements InteractionCallback {
-    private volatile Activity parent;
     private AssistantOutput assistantOutput;
 
     private static class InteractionState {

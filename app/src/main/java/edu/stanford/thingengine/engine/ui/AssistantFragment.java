@@ -13,6 +13,7 @@ import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.Space;
 import android.widget.TextView;
 
@@ -24,6 +25,8 @@ import edu.stanford.thingengine.engine.R;
 public class AssistantFragment extends Fragment implements AssistantOutput {
     private MainServiceConnection mEngine;
     private FragmentEmbedder mListener;
+
+    private boolean mScrollScheduled;
 
     public AssistantFragment() {
         // Required empty public constructor
@@ -55,7 +58,7 @@ public class AssistantFragment extends Fragment implements AssistantOutput {
             wrapper.addView(view, innerParams);
             wrapper.addView(space, spaceParams);
             if (view instanceof TextView)
-                ((TextView)view).setGravity(Gravity.LEFT);
+                ((TextView) view).setGravity(Gravity.LEFT);
             view.setTextAlignment(View.TEXT_ALIGNMENT_VIEW_START);
         } else if (side == Side.RIGHT) {
             innerParams.gravity = Gravity.RIGHT;
@@ -63,12 +66,28 @@ public class AssistantFragment extends Fragment implements AssistantOutput {
             wrapper.addView(space, spaceParams);
             wrapper.addView(view, innerParams);
             if (view instanceof TextView)
-                ((TextView)view).setGravity(Gravity.RIGHT);
+                ((TextView) view).setGravity(Gravity.RIGHT);
             view.setTextAlignment(View.TEXT_ALIGNMENT_VIEW_END);
         }
 
         LinearLayout layout = (LinearLayout) getActivity().findViewById(R.id.assistant_container);
         layout.addView(wrapper, outerParams);
+
+        if (!mScrollScheduled)
+            scheduleScroll();
+    }
+
+    private void scheduleScroll() {
+        mScrollScheduled = true;
+
+        final ScrollView scrollView = (ScrollView)getActivity().findViewById(R.id.assistant_scroll_view);
+        scrollView.post(new Runnable() {
+            @Override
+            public void run() {
+                mScrollScheduled = false;
+                scrollView.fullScroll(ScrollView.FOCUS_DOWN);
+            }
+        });
     }
 
     @Override
