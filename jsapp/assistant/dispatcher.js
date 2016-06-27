@@ -71,7 +71,7 @@ module.exports = class AssistantDispatcher {
     }
 
     _onAssistantResume() {
-        for (var msg of this._history)
+        for (var item of this._history)
             this._replayHistory(item);
 
         this._ensureConversation();
