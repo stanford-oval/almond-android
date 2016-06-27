@@ -2,6 +2,9 @@ package edu.stanford.thingengine.engine.ui;
 
 import android.app.Activity;
 import android.app.Fragment;
+import android.content.Intent;
+import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.util.Log;
@@ -11,7 +14,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
+import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.Space;
@@ -21,8 +26,12 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import edu.stanford.thingengine.engine.R;
+import edu.stanford.thingengine.engine.service.ControlBinder;
 
 public class AssistantFragment extends Fragment implements AssistantOutput {
+    private static final int REQUEST_OAUTH2 = 1;
+    private static final int REQUEST_CREATE_DEVICE = 2;
+
     private MainServiceConnection mEngine;
     private FragmentEmbedder mListener;
 
@@ -99,27 +108,66 @@ public class AssistantFragment extends Fragment implements AssistantOutput {
 
     @Override
     public void sendPicture(String url) {
-        // FIXME STUB!
+        ImageView view = new ImageView(getActivity());
+        view.setImageURI(Uri.parse(url));
+        addItem(view, Side.LEFT);
     }
 
     @Override
     public void sendRDL(JSONObject rdl) {
-        // FIXME STUB!
+        try {
+            Button btn = new Button(getActivity());
+            btn.setText(rdl.getString("title"));
+            final String webCallback = rdl.getString("webCallback");
+            btn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    onLinkActivated(webCallback);
+                }
+            });
+            addItem(btn, Side.LEFT);
+        } catch(JSONException e) {
+            Log.e(MainActivity.LOG_TAG, "Unexpected JSON exception while unpacking RDL", e);
+        }
     }
 
     @Override
-    public void sendChoice(int idx, String what, String title, String text) {
-        // FIXME STUB!
+    public void sendChoice(final int idx, String what, String title, String text) {
+        Button btn = new Button(getActivity());
+        btn.setText(title);
+        btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onChoiceActivated(idx);
+            }
+        });
+        addItem(btn, Side.LEFT);
     }
 
     @Override
-    public void sendLink(String title, String url) {
-        // FIXME STUB!
+    public void sendLink(String title, final String url) {
+        Button btn = new Button(getActivity());
+        btn.setText(title);
+        btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onLinkActivated(url);
+            }
+        });
+        addItem(btn, Side.LEFT);
     }
 
     @Override
-    public void sendButton(String title, String json) {
-        // FIXME STUB!
+    public void sendButton(String title, final String json) {
+        Button btn = new Button(getActivity());
+        btn.setText(title);
+        btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onButtonActivated(json);
+            }
+        });
+        addItem(btn, Side.LEFT);
     }
 
     @Override
@@ -186,6 +234,83 @@ public class AssistantFragment extends Fragment implements AssistantOutput {
         }
     }
 
+    private void createDeviceNoAuth(String kind) {
+        final JSONObject object = new JSONObject();
+        try {
+            object.put("kind", kind);
+
+            final EngineServiceConnection engine = mEngine;
+            if (engine == null)
+                return;
+            AsyncTask.THREAD_POOL_EXECUTOR.execute(new Runnable() {
+                @Override
+                public void run() {
+                    ControlBinder control = engine.getControl();
+                    if (control == null)
+                        return;
+
+                    try {
+                        control.createDevice(object);
+                    } catch (final Exception e) {
+                        getActivity().runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                DialogUtils.showFailureDialog(getActivity(), "Failed to create device: " + e.getMessage());
+                            }
+                        });
+                    }
+                }
+            });
+        } catch (final Exception e) {
+            DialogUtils.showFailureDialog(getActivity(), "Failed to create device: " + e.getMessage());
+        }
+    }
+
+    private void createDeviceOAuth2(String kind) {
+        Intent intent = new Intent(getActivity(), OAuthActivity.class);
+        intent.setAction(OAuthActivity.ACTION);
+        intent.putExtra("extra.KIND", kind);
+        startActivityForResult(intent, REQUEST_OAUTH2);
+    }
+
+    private void showChooseDeviceKindList(Uri url) {
+        String _class = url.getQueryParameter("class");
+        if (_class == null)
+            _class = "physical";
+
+        Intent intent = new Intent(getActivity(), DeviceConfigureChooseKindActivity.class);
+        intent.setAction(DeviceConfigureChooseKindActivity.ACTION);
+        intent.putExtra("extra.CLASS", _class);
+
+        startActivityForResult(intent, REQUEST_CREATE_DEVICE);
+    }
+
+    private void onLinkActivated(String url) {
+        if (url.startsWith("/")) {
+            // recognize relative urls as local intents
+            if (url.startsWith("/devices/create/")) {
+                // FIXME this should not be a link, it should be a button
+
+                Uri parsed = Uri.parse(url);
+                String kind = parsed.getLastPathSegment();
+                createDeviceNoAuth(kind);
+            } else if (url.startsWith("/devices/oauth2/")) {
+                Uri parsed = Uri.parse(url);
+                String kind = parsed.getLastPathSegment();
+                createDeviceOAuth2(kind);
+            } else if (url.startsWith("/devices/create")) {
+                showChooseDeviceKindList(Uri.parse(url));
+            }
+
+            // eat all other links
+            return;
+        }
+
+        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(intent);
+    }
+
     private void onButtonActivated(String json) {
         if (mEngine != null) {
             mEngine.handleAssistantParsedCommand(json);
@@ -225,5 +350,15 @@ public class AssistantFragment extends Fragment implements AssistantOutput {
     public void onDetach() {
         super.onDetach();
         mListener = null;
+        mEngine = null;
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent intent) {
+        super.onActivityResult(requestCode, resultCode, intent);
+
+        if (requestCode == REQUEST_OAUTH2 || requestCode == REQUEST_CREATE_DEVICE) {
+            // do something with it
+        }
     }
 }

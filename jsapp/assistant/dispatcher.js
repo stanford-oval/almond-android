@@ -122,4 +122,8 @@ module.exports = class AssistantDispatcher {
     sendLink(title, url) {
         AssistantJavaApi.sendLink(title, url).done();
     }
+
+    sendButton(title, json) {
+        AssistantJavaApi.sendButton(title, json).done();
+    }
 };
