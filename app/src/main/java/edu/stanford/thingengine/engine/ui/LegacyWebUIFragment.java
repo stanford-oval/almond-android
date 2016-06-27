@@ -3,6 +3,8 @@ package edu.stanford.thingengine.engine.ui;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.webkit.JavascriptInterface;
 import android.webkit.JsResult;
@@ -18,6 +20,8 @@ import edu.stanford.thingengine.engine.service.ControlBinder;
  * Created by gcampagn on 6/27/16.
  */
 public class LegacyWebUIFragment extends WebViewFragment {
+    private final static int RESULT_OAUTH2 = 1;
+
     private CloudAuthInfo authInfo;
     private FragmentEmbedder mListener;
     private EngineServiceConnection mEngine;
@@ -84,9 +88,32 @@ public class LegacyWebUIFragment extends WebViewFragment {
         super.onCreate(savedInstanceState);
     }
 
-    private static class UIWebViewClient extends WebViewClient {
+    private void runOAuth2(Uri url) {
+        String kind = url.getLastPathSegment();
+
+        Intent intent = new Intent(getActivity(), OAuthActivity.class);
+        intent.setAction(OAuthActivity.ACTION);
+        intent.putExtra("extra.KIND", kind);
+
+        startActivityForResult(intent, RESULT_OAUTH2);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent intent) {
+        super.onActivityResult(requestCode, resultCode, intent);
+
+        if (requestCode == RESULT_OAUTH2) {
+            // do something with it
+        }
+    }
+
+    private class UIWebViewClient extends WebViewClient {
         @Override
-        public boolean shouldOverrideUrlLoading(WebView view, String url) {
+        public boolean shouldOverrideUrlLoading(WebView view, final String url) {
+            if (url.startsWith("http://127.0.0.1:3000/devices/oauth2/")) {
+                runOAuth2(Uri.parse(url));
+                return true;
+            }
             return false;
         }
     }

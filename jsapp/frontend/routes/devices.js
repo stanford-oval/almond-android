@@ -108,53 +108,5 @@ router.post('/delete', function(req, res, next) {
     }
 });
 
-router.get('/oauth2/:kind', function(req, res, next) {
-    var kind = req.params.kind;
-
-    var engine = req.app.engine;
-    var devFactory = engine.devices.factory;
-
-    Q.try(function() {
-        return Q(devFactory.runOAuth2(kind, null));
-    }).then(function(result) {
-        if (result !== null) {
-            var redirect = result[0];
-            var session = result[1];
-            for (var key in session)
-                req.session[key] = session[key];
-            res.redirect(redirect);
-        } else {
-            if (req.session['device-redirect-to'])
-                res.redirect(req.session['device-redirect-to']);
-            else
-                res.redirect('/devices?class=online');
-        }
-    }).catch(function(e) {
-        console.log(e.stack);
-        res.status(400).render('error', { page_title: "ThingEngine - Error",
-                                          message: e.message });
-    }).done();
-});
-
-router.get('/oauth2/callback/:kind', function(req, res, next) {
-    var kind = req.params.kind;
-
-    var engine = req.app.engine;
-    var devFactory = engine.devices.factory;
-
-    Q.try(function() {
-        return Q(devFactory.runOAuth2(kind, req));
-    }).then(function() {
-        if (req.session['device-redirect-to'])
-            res.redirect(req.session['device-redirect-to']);
-        else
-            res.redirect('/devices?class=online');
-    }).catch(function(e) {
-        console.log(e.stack);
-        res.status(400).render('error', { page_title: "ThingEngine - Error",
-                                          message: e.message });
-    }).done();
-});
-
 
 module.exports = router;

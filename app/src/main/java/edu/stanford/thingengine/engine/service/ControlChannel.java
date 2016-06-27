@@ -196,4 +196,12 @@ public class ControlChannel implements AutoCloseable, Closeable {
             return false;
         }
     }
+
+    public boolean sendHandleOAuth2Callback(String kind, JSONObject req) throws Exception {
+        return (Boolean)expectReply(sendCall("handleOAuth2Callback", kind, req));
+    }
+
+    public JSONArray sendStartOAuth2(String kind) throws Exception {
+        return (JSONArray)expectReply(sendCall("startOAuth2", kind));
+    }
 }

@@ -24,7 +24,7 @@ public class MainActivity extends Activity implements ActionBar.TabListener, Fra
     private SectionsPagerAdapter mSectionsPagerAdapter;
     private ViewPager mViewPager;
 
-    private final EngineServiceConnection engine;
+    private final MainServiceConnection engine;
 
     public class SectionsPagerAdapter extends FragmentPagerAdapter {
         private final static int SECTION_CHAT = 0;
@@ -65,11 +65,11 @@ public class MainActivity extends Activity implements ActionBar.TabListener, Fra
     }
 
     public MainActivity() {
-        engine = new EngineServiceConnection();
+        engine = new MainServiceConnection();
     }
 
     @Override
-    public EngineServiceConnection getEngine() {
+    public MainServiceConnection getEngine() {
         return engine;
     }
 

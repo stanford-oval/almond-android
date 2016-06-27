@@ -1,5 +1,8 @@
 package edu.stanford.thingengine.engine.service;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import edu.stanford.thingengine.engine.CloudAuthInfo;
 import edu.stanford.thingengine.engine.IThingEngine;
 import edu.stanford.thingengine.engine.jsapi.AssistantAPI;
@@ -23,6 +26,10 @@ public class ControlBinder extends IThingEngine.Stub {
         return assistant;
     }
 
+    public void setInteractionCallback(InteractionCallback callback) {
+        channel.setInteractionCallback(callback);
+    }
+
     public boolean setCloudId(CloudAuthInfo authInfo) {
         return channel.sendSetCloudId(authInfo);
     }
@@ -31,7 +38,11 @@ public class ControlBinder extends IThingEngine.Stub {
         return channel.sendSetServerAddress(host, port, authToken);
     }
 
-    public void setInteractionCallback(InteractionCallback callback) {
-        channel.setInteractionCallback(callback);
+    public boolean handleOAuth2Callback(String kind, JSONObject req) throws Exception {
+        return channel.sendHandleOAuth2Callback(kind, req);
+    }
+
+    public JSONArray startOAuth2(String kind) throws Exception {
+        return channel.sendStartOAuth2(kind);
     }
 }

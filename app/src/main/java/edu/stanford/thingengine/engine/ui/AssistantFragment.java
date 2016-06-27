@@ -22,7 +22,7 @@ import org.json.JSONObject;
 import edu.stanford.thingengine.engine.R;
 
 public class AssistantFragment extends Fragment implements AssistantOutput {
-    private EngineServiceConnection mEngine;
+    private MainServiceConnection mEngine;
     private FragmentEmbedder mListener;
 
     public AssistantFragment() {
