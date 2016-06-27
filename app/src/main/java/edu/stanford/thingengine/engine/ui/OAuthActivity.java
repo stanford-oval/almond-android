@@ -117,7 +117,7 @@ public class OAuthActivity extends Activity {
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            showFailureDialog("Failed to begin OAuth2 flow: " + e.getMessage());
+                            DialogUtils.showFailureDialog(OAuthActivity.this, "Failed to begin OAuth2 flow: " + e.getMessage());
                         }
                     });
                 }
@@ -143,27 +143,6 @@ public class OAuthActivity extends Activity {
     protected void onPause() {
         super.onPause();
         mEngine.stop(this);
-    }
-
-    private void showAlertDialog(String message, AlertDialog.OnClickListener onclick) {
-        new AlertDialog.Builder(this)
-                .setTitle("Alert")
-                .setMessage(message)
-                .setCancelable(false)
-                .setPositiveButton(android.R.string.ok, onclick)
-                .create().show();
-    }
-
-    private void showFailureDialog(String message) {
-        showAlertDialog(message,
-                new AlertDialog.OnClickListener()
-                {
-                    public void onClick(DialogInterface dialog, int which)
-                    {
-                        setResult(RESULT_CANCELED);
-                        finish();
-                    }
-                });
     }
 
     private class UIWebChromeClient extends WebChromeClient {
@@ -195,7 +174,7 @@ public class OAuthActivity extends Activity {
         @Override
         public boolean onJsAlert(WebView view, String url, String message, final JsResult result)
         {
-            showAlertDialog(message, new AlertDialog.OnClickListener()
+            DialogUtils.showAlertDialog(OAuthActivity.this, message, new AlertDialog.OnClickListener()
                 {
                     public void onClick(DialogInterface dialog, int which)
                     {
@@ -276,7 +255,7 @@ public class OAuthActivity extends Activity {
                     setResult(RESULT_OK);
                     finish();
                 } catch (Exception e) {
-                    showFailureDialog("Failed to complete OAuth2 flow: " + e.getMessage());
+                    DialogUtils.showFailureDialog(this, "Failed to complete OAuth2 flow: " + e.getMessage());
                 }
             }
         } catch(JSONException e) {

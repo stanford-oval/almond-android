@@ -42,7 +42,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".ui.OAuthActivity"></activity>
+        <activity android:name=".ui.OAuthActivity" />
+        <activity android:name=".ui.DeviceConfigureChooseKindActivity" />
+        <activity android:name=".ui.DeviceCreateFormActivity" />
     </application>
 
 </manifest>

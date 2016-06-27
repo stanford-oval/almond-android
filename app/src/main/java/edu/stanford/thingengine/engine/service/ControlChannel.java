@@ -204,4 +204,8 @@ public class ControlChannel implements AutoCloseable, Closeable {
     public JSONArray sendStartOAuth2(String kind) throws Exception {
         return (JSONArray)expectReply(sendCall("startOAuth2", kind));
     }
+
+    public boolean sendCreateDevice(JSONObject state) throws Exception {
+        return (Boolean)expectReply(sendCall("createDevice", state));
+    }
 }

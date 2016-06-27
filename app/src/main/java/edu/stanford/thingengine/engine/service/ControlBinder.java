@@ -45,4 +45,8 @@ public class ControlBinder extends IThingEngine.Stub {
     public JSONArray startOAuth2(String kind) throws Exception {
         return channel.sendStartOAuth2(kind);
     }
+
+    public boolean createDevice(JSONObject object) throws Exception {
+        return channel.sendCreateDevice(object);
+    }
 }

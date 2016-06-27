@@ -18,14 +18,12 @@ const ControlChannel = require('./control');
 const Engine = require('thingengine-core');
 const Tier = require('thingpedia').Tier;
 const Frontend = require('./frontend/frontend');
-const FrontendNew = require('./frontend_new');
 const AssistantDispatcher = require('./assistant/dispatcher');
 
 const JavaAPI = require('./java_api');
 
 var _engine;
 var _frontend;
-var _frontend_new;
 var _running;
 var _stopped;
 
@@ -45,11 +43,28 @@ class AppControlChannel extends ControlChannel {
     }
 
     startOAuth2(kind) {
-        return _frontend_new.startOAuth2(kind);
+        return _engine.devices.factory.runOAuth2(kind, null);
     }
 
     handleOAuth2Callback(kind, req) {
-        return _frontend_new.handleOAuth2Callback(kind, req);
+        return _engine.devices.factory.runOAuth2(kind, req).then(() => {
+            return true;
+        });
+    }
+
+    createDevice(state) {
+        return _engine.devices.loadOneDevice(state, true).then(() => {
+            return true;
+        });
+    }
+
+    deleteDevice(uniqueId) {
+        var device = _engine.devices.getDevice(uniqueId);
+        if (device === undefined)
+            return false;
+
+        _engine.devices.removeDevice(device);
+        return true;
     }
 
     setCloudId(cloudId, authToken) {
@@ -94,7 +109,6 @@ function runEngine() {
         _engine = new Engine(global.platform);
         _frontend = new Frontend();
         _frontend.setEngine(_engine);
-        _frontend_new = new FrontendNew(_engine);
         var ad = new AssistantDispatcher(_engine);
         var controlChannel = new AppControlChannel();
 

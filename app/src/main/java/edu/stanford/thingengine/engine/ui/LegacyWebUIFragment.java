@@ -21,6 +21,7 @@ import edu.stanford.thingengine.engine.service.ControlBinder;
  */
 public class LegacyWebUIFragment extends WebViewFragment {
     private final static int RESULT_OAUTH2 = 1;
+    private final static int RESULT_CREATE_DEVICE = 2;
 
     private CloudAuthInfo authInfo;
     private FragmentEmbedder mListener;
@@ -98,11 +99,23 @@ public class LegacyWebUIFragment extends WebViewFragment {
         startActivityForResult(intent, RESULT_OAUTH2);
     }
 
+    private void runDeviceConfigure(Uri url) {
+        String _class = url.getQueryParameter("class");
+        if (_class == null)
+            _class = "physical";
+
+        Intent intent = new Intent(getActivity(), DeviceConfigureChooseKindActivity.class);
+        intent.setAction(DeviceConfigureChooseKindActivity.ACTION);
+        intent.putExtra("extra.CLASS", _class);
+
+        startActivityForResult(intent, RESULT_CREATE_DEVICE);
+    }
+
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent intent) {
         super.onActivityResult(requestCode, resultCode, intent);
 
-        if (requestCode == RESULT_OAUTH2) {
+        if (requestCode == RESULT_OAUTH2 || requestCode == RESULT_CREATE_DEVICE) {
             // do something with it
         }
     }
@@ -112,6 +125,10 @@ public class LegacyWebUIFragment extends WebViewFragment {
         public boolean shouldOverrideUrlLoading(WebView view, final String url) {
             if (url.startsWith("http://127.0.0.1:3000/devices/oauth2/")) {
                 runOAuth2(Uri.parse(url));
+                return true;
+            }
+            if (url.startsWith("http://127.0.0.1:3000/devices/create")) {
+                runDeviceConfigure(Uri.parse(url));
                 return true;
             }
             return false;
