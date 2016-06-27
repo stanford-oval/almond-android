@@ -12,4 +12,5 @@
 
     <string name="chat_tab">Chat</string>
     <string name="mystuff_tab">My Goods</string>
+    <string name="button_configure_text">Configure</string>
 </resources>

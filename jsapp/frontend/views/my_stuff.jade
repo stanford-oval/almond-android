@@ -53,19 +53,12 @@ mixin device_list(devices, online, datasource)
                 div.col-md-6
                   form.form-inline(action="/devices/delete",method="post").form-delete-app
                     input(type='hidden',name='id',value=dev.uniqueId)
-                    input(type='hidden',name='_csrf',value=csrfToken)
                     if datasource
                       button(type='submit').btn.btn-danger.btn-sm.btn-block Disable
                     else
                       button(type='submit').btn.btn-danger.btn-sm.btn-block Forget
 
 block content
-  for message in messages
-    div.alert.alert-success.alert-dismissible.fade.in(role='alert')
-      button(type='button', data-dismiss='alert', aria-label="Close").close
-        span(aria-hidden='true') ×
-      p= message
-
   h2 Enabled Data Sources
 
   +device_list(datasourceDevices, true, true)

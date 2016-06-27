@@ -8,12 +8,7 @@ const Q = require('q');
 const express = require('express');
 const path = require('path');
 const logger = require('morgan');
-const cookieParser = require('cookie-parser');
-const bodyParser = require('body-parser');
-const session = require('express-session');
 const errorHandler = require('errorhandler');
-const csurf = require('csurf');
-const connect_flash = require('connect-flash');
 
 function Frontend() {
     this._init.apply(this, arguments);
@@ -27,15 +22,7 @@ Frontend.prototype._init = function _init() {
     this._app.set('views', path.join(__dirname, 'views'));
     this._app.set('view engine', 'jade');
     this._app.use(logger('dev'));
-    this._app.use(bodyParser.json());
-    this._app.use(bodyParser.urlencoded({ extended: true }));
-    this._app.use(cookieParser());
-    this._app.use(session({ resave: false,
-                            saveUninitialized: false,
-                            secret: 'badgersbadgersbadgers' }));
-    this._app.use(connect_flash());
     this._app.use(express.static(path.join(__dirname, 'public')));
-    this._app.use(csurf());
 
     // development only
     if ('development' == this._app.get('env')) {
@@ -44,7 +31,6 @@ Frontend.prototype._init = function _init() {
     }
 
     this._app.use('/apps', require('./routes/apps'));
-    this._app.use('/devices', require('./routes/devices'));
 }
 
 var server = null;

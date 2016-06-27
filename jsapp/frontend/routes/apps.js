@@ -47,8 +47,6 @@ router.get('/', function(req, res) {
                 physical.push(d);
         });
         res.render('my_stuff', { page_title: 'ThingEngine - Dashboard',
-                                 messages: req.flash('app-message'),
-                                 csrfToken: req.csrfToken(),
                                  datasourceDevices: datasource,
                                  physicalDevices: physical,
                                  onlineDevices: online,

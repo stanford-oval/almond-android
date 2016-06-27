@@ -98,6 +98,7 @@ public abstract class DeviceFactory {
         public String type;
         public String name;
         public String label;
+        public Object value;
     }
 
     public static class Form extends DeviceFactory {

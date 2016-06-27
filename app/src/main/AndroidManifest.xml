@@ -44,7 +44,7 @@
         </activity>
         <activity android:name=".ui.OAuthActivity" />
         <activity android:name=".ui.DeviceConfigureChooseKindActivity" />
-        <activity android:name=".ui.DeviceCreateFormActivity" />
+        <activity android:name=".ui.DeviceCreateFormActivity" android:windowSoftInputMode="adjustPan" />
     </application>
 
 </manifest>
