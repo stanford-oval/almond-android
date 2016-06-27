@@ -49,4 +49,8 @@ public class ControlBinder extends IThingEngine.Stub {
     public boolean createDevice(JSONObject object) throws Exception {
         return channel.sendCreateDevice(object);
     }
+
+    public boolean deleteDevice(String uniqueId) throws Exception {
+        return channel.sendDeleteDevice(uniqueId);
+    }
 }

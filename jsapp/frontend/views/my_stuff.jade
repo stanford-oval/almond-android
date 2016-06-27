@@ -1,8 +1,5 @@
 extends layout
 
-block scripts
-  script(src='/javascripts/apps.js')
-
 block styles
   link(rel='stylesheet', href='/stylesheets/my_stuff.css')
 
@@ -51,12 +48,10 @@ mixin device_list(devices, online, datasource)
             div.row
               if !dev.isTransient
                 div.col-md-6
-                  form.form-inline(action="/devices/delete",method="post").form-delete-app
-                    input(type='hidden',name='id',value=dev.uniqueId)
-                    if datasource
-                      button(type='submit').btn.btn-danger.btn-sm.btn-block Disable
-                    else
-                      button(type='submit').btn.btn-danger.btn-sm.btn-block Forget
+                  if datasource
+                    a(href='/devices/delete/' + dev.uniqueId).btn.btn-danger.btn-sm.btn-block Disable
+                  else
+                    a(href='/devices/delete/' + dev.uniqueId).btn.btn-danger.btn-sm.btn-block Forget
 
 block content
   h2 Enabled Data Sources

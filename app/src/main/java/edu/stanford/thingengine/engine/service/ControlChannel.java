@@ -208,4 +208,8 @@ public class ControlChannel implements AutoCloseable, Closeable {
     public boolean sendCreateDevice(JSONObject state) throws Exception {
         return (Boolean)expectReply(sendCall("createDevice", state));
     }
+
+    public boolean sendDeleteDevice(String uniqueId) throws Exception {
+        return (Boolean)expectReply(sendCall("deleteDevice", uniqueId));
+    }
 }

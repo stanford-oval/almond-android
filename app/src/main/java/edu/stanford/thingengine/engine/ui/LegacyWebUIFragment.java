@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.webkit.JavascriptInterface;
 import android.webkit.JsResult;
@@ -40,24 +41,15 @@ public class LegacyWebUIFragment extends WebViewFragment {
         @Override
         public boolean onJsConfirm(WebView view, String url, String message, final JsResult result)
         {
-            new AlertDialog.Builder(getActivity())
-                    .setTitle("Confirm")
-                    .setMessage(message)
-                    .setPositiveButton(android.R.string.ok,
-                            new AlertDialog.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int which) {
-                                    result.confirm();
-                                }
-                            })
-                    .setNegativeButton(android.R.string.cancel,
-                            new AlertDialog.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int which) {
-                                    result.cancel();
-                                }
-                            })
-                    .setCancelable(false)
-                    .create()
-                    .show();
+            DialogUtils.showConfirmDialog(getActivity(), message, new AlertDialog.OnClickListener() {
+                public void onClick(DialogInterface dialog, int which) {
+                    result.confirm();
+                }
+            }, new AlertDialog.OnClickListener() {
+                public void onClick(DialogInterface dialog, int which) {
+                    result.cancel();
+                }
+            });
 
             return true;
         }
@@ -65,21 +57,12 @@ public class LegacyWebUIFragment extends WebViewFragment {
         @Override
         public boolean onJsAlert(WebView view, String url, String message, final JsResult result)
         {
-            new AlertDialog.Builder(getActivity())
-                    .setTitle("Alert")
-                    .setMessage(message)
-                    .setPositiveButton(android.R.string.ok,
-                            new AlertDialog.OnClickListener()
-                            {
-                                public void onClick(DialogInterface dialog, int which)
-                                {
-                                    result.confirm();
-                                }
-                            })
-                    .setCancelable(false)
-                    .create()
-                    .show();
-
+            DialogUtils.showAlertDialog(getActivity(), message, new AlertDialog.OnClickListener() {
+                public void onClick(DialogInterface dialog, int which)
+                {
+                    result.confirm();
+                }
+            });
             return true;
         }
     }
@@ -111,12 +94,60 @@ public class LegacyWebUIFragment extends WebViewFragment {
         startActivityForResult(intent, RESULT_CREATE_DEVICE);
     }
 
+    private void deleteDevice(final String uniqueId) {
+        AsyncTask.THREAD_POOL_EXECUTOR.execute(new Runnable() {
+            @Override
+            public void run() {
+                ControlBinder control = mEngine.getControl();
+                if (control == null)
+                    return;
+
+                try {
+                    control.deleteDevice(uniqueId);
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            refresh();
+                        }
+                    });
+                } catch(final Exception e) {
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            DialogUtils.showAlertDialog(getActivity(), "Failed to delete device: " + e.getMessage(), new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    // do nothing
+                                }
+                            });
+                        }
+                    });
+                }
+            }
+        });
+    }
+
+    private void runDeviceDelete(Uri url) {
+        final String uniqueId = url.getLastPathSegment();
+
+        DialogUtils.showConfirmDialog(getActivity(), "Are you sure?", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                deleteDevice(uniqueId);
+            }
+        }, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                // do nothing
+            }
+        });
+    }
+
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent intent) {
         super.onActivityResult(requestCode, resultCode, intent);
 
         if (requestCode == RESULT_OAUTH2 || requestCode == RESULT_CREATE_DEVICE) {
-            // do something with it
+            refresh();
         }
     }
 
@@ -129,6 +160,10 @@ public class LegacyWebUIFragment extends WebViewFragment {
             }
             if (url.startsWith("http://127.0.0.1:3000/devices/create")) {
                 runDeviceConfigure(Uri.parse(url));
+                return true;
+            }
+            if (url.startsWith("http://127.0.0.1:3000/devices/delete/")) {
+                runDeviceDelete(Uri.parse(url));
                 return true;
             }
             return false;
@@ -146,10 +181,14 @@ public class LegacyWebUIFragment extends WebViewFragment {
         view.setWebViewClient(new UIWebViewClient());
     }
 
+    private void refresh() {
+        getWebView().loadUrl("http://127.0.0.1:3000/apps");
+    }
+
     @Override
     public void onResume() {
         super.onResume();
-        getWebView().loadUrl("http://127.0.0.1:3000/apps");
+        refresh();
     }
 
     private void showConfirmDialog(boolean success) {

@@ -10,6 +10,17 @@ import android.content.DialogInterface;
 public class DialogUtils {
     private DialogUtils() {}
 
+    public static void showConfirmDialog(Activity activity, String message, DialogInterface.OnClickListener onconfirm, DialogInterface.OnClickListener ondismiss) {
+        new AlertDialog.Builder(activity)
+                .setTitle("Confirm")
+                .setMessage(message)
+                .setPositiveButton(android.R.string.ok, onconfirm)
+                .setNegativeButton(android.R.string.cancel, ondismiss)
+                .setCancelable(false)
+                .create()
+                .show();
+    }
+
     public static void showAlertDialog(Activity activity, String message, AlertDialog.OnClickListener onclick) {
         new AlertDialog.Builder(activity)
                 .setTitle("Alert")

@@ -149,24 +149,15 @@ public class OAuthActivity extends Activity {
         @Override
         public boolean onJsConfirm(WebView view, String url, String message, final JsResult result)
         {
-            new AlertDialog.Builder(OAuthActivity.this)
-                    .setTitle("Confirm")
-                    .setMessage(message)
-                    .setPositiveButton(android.R.string.ok,
-                            new AlertDialog.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int which) {
-                                    result.confirm();
-                                }
-                            })
-                    .setNegativeButton(android.R.string.cancel,
-                            new AlertDialog.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int which) {
-                                    result.cancel();
-                                }
-                            })
-                    .setCancelable(false)
-                    .create()
-                    .show();
+            DialogUtils.showConfirmDialog(OAuthActivity.this, message, new AlertDialog.OnClickListener() {
+                public void onClick(DialogInterface dialog, int which) {
+                    result.confirm();
+                }
+            }, new AlertDialog.OnClickListener() {
+                public void onClick(DialogInterface dialog, int which) {
+                    result.cancel();
+                }
+            });
 
             return true;
         }
