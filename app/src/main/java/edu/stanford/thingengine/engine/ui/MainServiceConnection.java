@@ -11,7 +11,9 @@ import com.google.android.gms.common.api.Status;
 
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import edu.stanford.thingengine.engine.service.ControlBinder;
@@ -21,6 +23,7 @@ import edu.stanford.thingengine.engine.service.ControlBinder;
  */
 public class MainServiceConnection extends EngineServiceConnection implements InteractionCallback {
     private AssistantOutput assistantOutput;
+    private final List<Runnable> callbacks = new ArrayList<>();
 
     private static class InteractionState {
         public boolean interacting = false;
@@ -193,8 +196,9 @@ public class MainServiceConnection extends EngineServiceConnection implements In
     public void onServiceConnected(ComponentName name, IBinder service) {
         super.onServiceConnected(name, service);
         binder.setInteractionCallback(this);
-        if (assistantOutput != null)
-            assistantReady();
+
+        for (Runnable r : callbacks)
+            r.run();
     }
 
     @Override
@@ -217,6 +221,14 @@ public class MainServiceConnection extends EngineServiceConnection implements In
 
     public void setAssistantOutput(AssistantOutput output) {
         assistantOutput = output;
+    }
+
+    public void addEngineReadyCallback(Runnable callback) {
+        callbacks.add(callback);
+    }
+
+    public void removeEngineReadyCallback(Runnable callback) {
+        callbacks.remove(callback);
     }
 
     public void assistantReady() {

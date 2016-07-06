@@ -40,7 +40,7 @@ public class MainActivity extends Activity implements ActionBar.TabListener, Fra
                 case SECTION_CHAT:
                     return AssistantFragment.newInstance();
                 case SECTION_MYSTUFF:
-                    return LegacyWebUIFragment.newInstance();
+                    return MyStuffFragment.newInstance();
                 default:
                     return null;
             }

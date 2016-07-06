@@ -36,6 +36,12 @@ public class AssistantFragment extends Fragment implements AssistantOutput {
     private static final int REQUEST_CREATE_DEVICE = 2;
 
     private MainServiceConnection mEngine;
+    private final Runnable mReadyCallback = new Runnable() {
+        @Override
+        public void run() {
+            mEngine.assistantReady();
+        }
+    };
     private FragmentEmbedder mListener;
 
     private boolean mScrollScheduled;
@@ -182,15 +188,6 @@ public class AssistantFragment extends Fragment implements AssistantOutput {
     }
 
     @Override
-    public void onResume() {
-        super.onResume();
-        if (mEngine != null) {
-            mEngine.setAssistantOutput(this);
-            mEngine.assistantReady();
-        }
-    }
-
-    @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
@@ -209,11 +206,19 @@ public class AssistantFragment extends Fragment implements AssistantOutput {
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+        mEngine.setAssistantOutput(this);
+        mEngine.addEngineReadyCallback(mReadyCallback);
+        mEngine.assistantReady();
+    }
+
+    @Override
     public void onPause() {
         super.onPause();
 
-        if (mEngine != null)
-            mEngine.setAssistantOutput(null);
+        mEngine.setAssistantOutput(null);
+        mEngine.removeEngineReadyCallback(mReadyCallback);
     }
 
     @Override

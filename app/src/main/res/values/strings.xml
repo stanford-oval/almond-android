@@ -13,4 +13,10 @@
     <string name="chat_tab">Chat</string>
     <string name="mystuff_tab">My Goods</string>
     <string name="button_configure_text">Configure</string>
+    <string name="my_devices_title">My Devices</string>
+    <string name="my_accounts_title">My Accounts</string>
+    <string name="my_datasources_title">Enabled Data Sources</string>
+    <string name="btn_configure_device_title">Configure new device...</string>
+    <string name="btn_create_account_title">Add new account...</string>
+    <string name="btn_create_datasource_title">Enable new data source...</string>
 </resources>

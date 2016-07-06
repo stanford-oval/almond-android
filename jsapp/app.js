@@ -24,6 +24,7 @@ const JavaAPI = require('./java_api');
 
 var _engine;
 var _frontend;
+var _waitReady;
 var _running;
 var _stopped;
 
@@ -65,6 +66,26 @@ class AppControlChannel extends ControlChannel {
 
         _engine.devices.removeDevice(device);
         return true;
+    }
+
+    getDeviceInfos() {
+        return _waitReady.then(function() {
+            var devices = _engine.devices.getAllDevices();
+
+            return devices.map(function(d) {
+                return { uniqueId: d.uniqueId,
+                         name: d.name || "Unknown device",
+                         description: d.description || "Description not available",
+                         kind: d.kind,
+                         ownerTier: d.ownerTier,
+                         isTransient: d.isTransient,
+                         isOnlineAccount: d.hasKind('online-account'),
+                         isDataSource: d.hasKind('data-source'),
+                         isThingEngine: d.hasKind('thingengine-system') };
+            });
+        }, function(e) {
+            return [];
+        });
     }
 
     setCloudId(cloudId, authToken) {
@@ -118,7 +139,8 @@ function runEngine() {
             // and execute on our thread
             JXMobile('controlReady').callNative();
 
-            return Q.all([_engine.open(), ad.start(),
+            _waitReady = _engine.open();
+            return Q.all([_waitReady, ad.start(),
                           _frontend.open().then(() => {
                             JXMobile('frontendReady').callNative();
                           })]);
