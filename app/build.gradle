@@ -21,6 +21,13 @@ android {
             jniDebuggable true
         }
     }
+
+    applicationVariants.all { variant ->
+        def execTask = project.tasks.create("buildJs" + variant.name.capitalize(), Exec)
+        execTask.commandLine "./build_js.sh", file(variant.mergeAssets.outputDir).absolutePath + "/jxcore"
+
+        variant.mergeAssets.dependsOn(execTask)
+    }
 }
 
 dependencies {
