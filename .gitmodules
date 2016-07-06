@@ -13,9 +13,6 @@
 [submodule "jsapp/node_modules/thingtalk"]
 	path = jsapp/node_modules/thingtalk
 	url = https://github.com/Stanford-Mobisocial-IoT-Lab/ThingTalk.git
-[submodule "jsapp/shared"]
-	path = jsapp/shared
-	url = https://github.com/Stanford-Mobisocial-IoT-Lab/thingengine-platform-shared
 [submodule "jsapp/node_modules/sabrina"]
 	path = jsapp/node_modules/sabrina
 	url = https://github.com/Stanford-Mobisocial-IoT-Lab/Sabrina

@@ -5,9 +5,6 @@
   "dependencies": {
     "abstract-leveldown": "^2.6.0",
     "babel-polyfill": "^6.9.1",
-    "errorhandler": "~1.4.2",
-    "express": "^4.13.4",
-    "morgan": "~1.6.1",
     "omlib": "https://github.com/Stanford-Mobisocial-IoT-Lab/omclient/tarball/master",
     "q": "~1.4.0"
   }

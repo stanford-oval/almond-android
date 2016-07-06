@@ -17,13 +17,11 @@ const fs = require('fs');
 const ControlChannel = require('./control');
 const Engine = require('thingengine-core');
 const Tier = require('thingpedia').Tier;
-const Frontend = require('./frontend/frontend');
 const AssistantDispatcher = require('./assistant/dispatcher');
 
 const JavaAPI = require('./java_api');
 
 var _engine;
-var _frontend;
 var _waitReady;
 var _running;
 var _stopped;
@@ -39,7 +37,7 @@ class AppControlChannel extends ControlChannel {
         if (_running)
             _engine.stop();
         else
-            _stop = true;
+            _stopped = true;
         this.close();
     }
 
@@ -128,8 +126,6 @@ function runEngine() {
         console.log('Creating engine...');
 
         _engine = new Engine(global.platform);
-        _frontend = new Frontend();
-        _frontend.setEngine(_engine);
         var ad = new AssistantDispatcher(_engine);
         var controlChannel = new AppControlChannel();
 
@@ -140,17 +136,16 @@ function runEngine() {
             JXMobile('controlReady').callNative();
 
             _waitReady = _engine.open();
-            return Q.all([_waitReady, ad.start(),
-                          _frontend.open().then(() => {
-                            JXMobile('frontendReady').callNative();
-                          })]);
+            ad.start();
+            return _waitReady;
         }).then(function() {
             _running = true;
             if (_stopped)
-                return Q.all([_engine.close(), _frontend.close(), ad.stop()]);
-            return _engine.run().finally(function() {
-                return Q.all([_engine.close(), _frontend.close(), ad.stop()]);
-            });
+                return;
+            return _engine.run();
+        }).finally(function() {
+            ad.stop();
+            return _engine.close();
         });
     }).catch(function(error) {
         console.log('Uncaught exception: ' + error.message);

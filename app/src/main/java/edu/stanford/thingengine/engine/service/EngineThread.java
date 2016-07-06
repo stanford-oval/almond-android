@@ -59,12 +59,6 @@ public class EngineThread extends Thread {
                     context.controlReady(new AssistantAPI(control), control);
                 }
             });
-            jxcore.RegisterMethod("frontendReady", new jxcore.JXcoreCallback() {
-                @Override
-                public void Receiver(ArrayList<Object> params, String callbackId) {
-                    context.frontendReady();
-                }
-            });
 
             // shared preferences need to be initialized early, but luckily they don't have
             // async methods so they don't need the control channel

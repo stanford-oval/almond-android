@@ -14,14 +14,9 @@ public class EngineService extends Service {
 
     private ControlChannel control;
     private AssistantAPI assistant;
-    private volatile boolean frontendReady;
     private EngineThread engineThread;
     
     public EngineService() {
-    }
-
-    public boolean isFrontendReady() {
-        return frontendReady;
     }
 
     @Override
@@ -43,7 +38,6 @@ public class EngineService extends Service {
 
     private void startThread() {
         control = null;
-        frontendReady = false;
 
         engineThread = new EngineThread(this);
         engineThread.start();
@@ -59,9 +53,6 @@ public class EngineService extends Service {
             this.control = control;
             notifyAll();
         }
-    }
-    void frontendReady() {
-        // FIXME remove
     }
 
     @Override

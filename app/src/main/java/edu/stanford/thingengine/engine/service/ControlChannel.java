@@ -113,9 +113,19 @@ public class ControlChannel implements AutoCloseable, Closeable {
                     char[] buffer = new char[64];
                     int read = controlReader.read(buffer);
                     partialMsg.append(buffer, 0, read);
-                    JSONTokener tokener = new JSONTokener(partialMsg.toString());
+
+                    int newLine = partialMsg.indexOf("\n");
+                    while (newLine == 0) {
+                        partialMsg.deleteCharAt(0);
+                        newLine = partialMsg.indexOf("\n");
+                    }
+                    if (newLine < 0)
+                        continue;
+
+                    String prefix = partialMsg.substring(0, newLine);
+                    JSONTokener tokener = new JSONTokener(prefix);
                     value = (JSONObject) tokener.nextValue();
-                    partialMsg.setLength(0);
+                    partialMsg.delete(0, newLine+1);
                 } catch (JSONException e) {
                     Log.d(EngineService.LOG_TAG, "Partial message received");
                 }
