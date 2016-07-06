@@ -3,10 +3,13 @@ package edu.stanford.thingengine.engine.ui;
 import android.app.Activity;
 import android.app.Fragment;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.percent.PercentRelativeLayout;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
@@ -18,8 +21,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.ScrollView;
-import android.widget.Space;
 import android.widget.TextView;
 
 import org.json.JSONException;
@@ -51,42 +54,36 @@ public class AssistantFragment extends Fragment implements AssistantOutput {
     private enum Side { LEFT, RIGHT };
 
     public void addItem(@NonNull View view, @NonNull Side side) {
-        LinearLayout.LayoutParams outerParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT);
+        PercentRelativeLayout.LayoutParams params = new PercentRelativeLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT);
+        params.getPercentLayoutInfo().widthPercent = 0.7f;
 
-        LinearLayout wrapper = new LinearLayout(getActivity());
-        wrapper.setOrientation(LinearLayout.HORIZONTAL);
+        PercentRelativeLayout wrapper = new PercentRelativeLayout(getActivity());
 
-        LinearLayout.LayoutParams innerParams = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT,
-                0.7f);
-        LinearLayout.LayoutParams spaceParams = new LinearLayout.LayoutParams(0, 0, 0.3f);
-        Space space = new Space(getActivity());
         if (side == Side.LEFT) {
-            innerParams.gravity = Gravity.LEFT;
-            spaceParams.gravity = Gravity.RIGHT;
-            wrapper.addView(view, innerParams);
-            wrapper.addView(space, spaceParams);
+            params.addRule(RelativeLayout.ALIGN_PARENT_START);
             if (view instanceof TextView)
-                ((TextView) view).setGravity(Gravity.LEFT);
+                ((TextView) view).setGravity(Gravity.START);
+            wrapper.addView(view, params);
             view.setTextAlignment(View.TEXT_ALIGNMENT_VIEW_START);
         } else if (side == Side.RIGHT) {
-            innerParams.gravity = Gravity.RIGHT;
-            spaceParams.gravity = Gravity.LEFT;
-            wrapper.addView(space, spaceParams);
-            wrapper.addView(view, innerParams);
+            params.addRule(RelativeLayout.ALIGN_PARENT_END);
             if (view instanceof TextView)
-                ((TextView) view).setGravity(Gravity.RIGHT);
+                ((TextView) view).setGravity(Gravity.END);
+            wrapper.addView(view, params);
             view.setTextAlignment(View.TEXT_ALIGNMENT_VIEW_END);
         }
 
         LinearLayout layout = (LinearLayout) getActivity().findViewById(R.id.assistant_container);
+
+        LinearLayout.LayoutParams outerParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         layout.addView(wrapper, outerParams);
 
-        if (!mScrollScheduled)
-            scheduleScroll();
+        scheduleScroll();
     }
 
     private void scheduleScroll() {
+        if (mScrollScheduled)
+            return;
         mScrollScheduled = true;
 
         final ScrollView scrollView = (ScrollView)getActivity().findViewById(R.id.assistant_scroll_view);
@@ -109,8 +106,17 @@ public class AssistantFragment extends Fragment implements AssistantOutput {
     @Override
     public void sendPicture(String url) {
         ImageView view = new ImageView(getActivity());
-        view.setImageURI(Uri.parse(url));
+        view.setBackgroundColor(Color.RED);
+        view.setScaleType(ImageView.ScaleType.FIT_CENTER);
+        view.setAdjustViewBounds(true);
         addItem(view, Side.LEFT);
+        (new LoadImageTask(view) {
+            @Override
+            public void onPostExecute(Drawable draw) {
+                super.onPostExecute(draw);
+                scheduleScroll();
+            }
+        }).execute(url);
     }
 
     @Override

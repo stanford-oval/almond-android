@@ -95,36 +95,35 @@ public class LegacyWebUIFragment extends WebViewFragment {
     }
 
     private void deleteDevice(final String uniqueId) {
-        AsyncTask.THREAD_POOL_EXECUTOR.execute(new Runnable() {
+        (new AsyncTask<Void, Void, Exception>() {
             @Override
-            public void run() {
+            protected Exception doInBackground(Void... params) {
                 ControlBinder control = mEngine.getControl();
                 if (control == null)
-                    return;
+                    return null;
 
                 try {
                     control.deleteDevice(uniqueId);
-                    getActivity().runOnUiThread(new Runnable() {
+                    return null;
+                } catch(Exception e) {
+                    return e;
+                }
+            }
+
+            @Override
+            protected void onPostExecute(Exception e) {
+                if (e == null) {
+                    refresh();
+                } else {
+                    DialogUtils.showAlertDialog(getActivity(), "Failed to delete device: " + e.getMessage(), new DialogInterface.OnClickListener() {
                         @Override
-                        public void run() {
-                            refresh();
-                        }
-                    });
-                } catch(final Exception e) {
-                    getActivity().runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            DialogUtils.showAlertDialog(getActivity(), "Failed to delete device: " + e.getMessage(), new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    // do nothing
-                                }
-                            });
+                        public void onClick(DialogInterface dialog, int which) {
+                            // do nothing
                         }
                     });
                 }
             }
-        });
+        }).execute();
     }
 
     private void runDeviceDelete(Uri url) {
