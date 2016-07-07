@@ -25,9 +25,20 @@ import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
+import com.microsoft.projectoxford.speechrecognition.ISpeechRecognitionServerEvents;
+import com.microsoft.projectoxford.speechrecognition.MicrophoneRecognitionClient;
+import com.microsoft.projectoxford.speechrecognition.RecognitionResult;
+import com.microsoft.projectoxford.speechrecognition.SpeechRecognitionMode;
+import com.microsoft.projectoxford.speechrecognition.SpeechRecognitionServiceFactory;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.FutureTask;
+
+import edu.stanford.thingengine.engine.Config;
 import edu.stanford.thingengine.engine.R;
 import edu.stanford.thingengine.engine.service.ControlBinder;
 
@@ -43,6 +54,85 @@ public class AssistantFragment extends Fragment implements AssistantOutput {
         }
     };
     private FragmentEmbedder mListener;
+    private final SpeechHandler mSpeechHandler = new SpeechHandler();
+
+    private class SpeechHandler implements ISpeechRecognitionServerEvents {
+        private boolean mMicrophoneOn;
+        private FutureTask<MicrophoneRecognitionClient> mMicClientCreateTask;
+        private MicrophoneRecognitionClient mMicClient = null;
+
+        public void onCreate() {
+            mMicrophoneOn = false;
+            mMicClientCreateTask = new FutureTask<>(new Callable<MicrophoneRecognitionClient>() {
+                @Override
+                public MicrophoneRecognitionClient call() throws Exception {
+                    return SpeechRecognitionServiceFactory.createMicrophoneClient(getActivity(),
+                            SpeechRecognitionMode.ShortPhrase,
+                            Config.LOCALE,
+                            SpeechHandler.this,
+                            Config.MS_SPEECH_RECOGNITION_PRIMARY_KEY,
+                            Config.MS_SPEECH_RECOGNITION_SECONDARY_KEY);
+                }
+            });
+            AsyncTask.THREAD_POOL_EXECUTOR.execute(mMicClientCreateTask);
+        }
+
+        public void onResume() {
+
+        }
+
+        public void onPause() {
+            if (mMicrophoneOn)
+                mMicClient.endMicAndRecognition();
+            mMicrophoneOn = false;
+        }
+
+        public void startRecording() {
+            if (mMicClient == null) {
+                try {
+                    mMicClient = mMicClientCreateTask.get();
+                } catch (InterruptedException | ExecutionException e) {
+                    Log.e(MainActivity.LOG_TAG, "Failed to create microphone client", e);
+                    return;
+                }
+            }
+            if (mMicrophoneOn)
+                return;
+
+            mMicrophoneOn = true;
+            mMicClient.startMicAndRecognition();
+        }
+
+        @Override
+        public void onPartialResponseReceived(String text) {
+            if (!mMicrophoneOn)
+                return;
+            EditText editor = (EditText) getActivity().findViewById(R.id.assistant_input);
+            editor.setText(text);
+        }
+
+        @Override
+        public void onFinalResponseReceived(RecognitionResult recognitionResult) {
+            mMicClient.endMicAndRecognition();
+            mMicrophoneOn = false;
+            onTextActivated();
+        }
+
+        @Override
+        public void onIntentReceived(String intent) {
+        }
+
+        @Override
+        public void onError(int code, String message) {
+            Log.w(MainActivity.LOG_TAG, "Error reported by speech recognition server: " + message);
+        }
+
+        @Override
+        public void onAudioEvent(boolean recording) {
+            if (recording)
+                send("Speak now...");
+        }
+    }
 
     private boolean mScrollScheduled;
 
@@ -203,6 +293,16 @@ public class AssistantFragment extends Fragment implements AssistantOutput {
                 }
             }
         });
+
+        View voicebtn = getActivity().findViewById(R.id.btn_assistant_voice);
+        voicebtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mSpeechHandler.startRecording();
+            }
+        });
+
+        mSpeechHandler.onCreate();
     }
 
     @Override
@@ -211,6 +311,7 @@ public class AssistantFragment extends Fragment implements AssistantOutput {
         mEngine.setAssistantOutput(this);
         mEngine.addEngineReadyCallback(mReadyCallback);
         mEngine.assistantReady();
+        mSpeechHandler.onResume();
     }
 
     @Override
@@ -219,6 +320,7 @@ public class AssistantFragment extends Fragment implements AssistantOutput {
 
         mEngine.setAssistantOutput(null);
         mEngine.removeEngineReadyCallback(mReadyCallback);
+        mSpeechHandler.onPause();
     }
 
     @Override

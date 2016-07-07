@@ -27,17 +27,33 @@
             android:dividerPadding="@dimen/activity_vertical_margin"></LinearLayout>
     </ScrollView>
 
-    <EditText
+    <LinearLayout
+        android:orientation="horizontal"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/assistant_input"
-        android:minLines="1"
-        android:maxLines="1"
-        android:enabled="true"
-        android:inputType="text"
-        android:imeOptions="actionSend"
-        android:singleLine="true"
-        android:focusable="true"
-        android:focusableInTouchMode="true" />
+        android:layout_height="wrap_content">
+
+        <EditText
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/assistant_input"
+            android:minLines="1"
+            android:maxLines="1"
+            android:enabled="true"
+            android:inputType="text"
+            android:imeOptions="actionSend"
+            android:singleLine="true"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:layout_weight="1"
+            android:layout_marginRight="10dp" />
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="0"
+            android:id="@+id/btn_assistant_voice"
+            android:src="@android:drawable/ic_btn_speak_now"
+            android:clickable="true" />
+    </LinearLayout>
 
 </LinearLayout>
