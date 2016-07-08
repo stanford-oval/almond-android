@@ -218,8 +218,10 @@ public class AssistantFragment extends Fragment implements AssistantOutput {
     @Override
     public void sendRDL(JSONObject rdl) {
         try {
+            // FIXME: we can do a better job for RDLs...
+
             Button btn = new Button(getActivity());
-            btn.setText(rdl.getString("title"));
+            btn.setText(rdl.optString("displayTitle"));
             final String webCallback = rdl.getString("webCallback");
             btn.setOnClickListener(new View.OnClickListener() {
                 @Override
