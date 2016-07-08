@@ -33,7 +33,8 @@ public class BluetoothAPI extends JavascriptAPI {
     private final Context ctx;
     private final Handler handler;
     private final BluetoothAdapter adapter;
-    private final Map<String, BluetoothDevice> pairing;
+    private final Map<String, BluetoothDevice> pairing = new HashMap<>();
+    private final Map<String, BluetoothDevice> fetchingUuids = new HashMap<>();
 
     private Receiver receiver;
     private volatile boolean discovering;
@@ -58,6 +59,7 @@ public class BluetoothAPI extends JavascriptAPI {
                 case BluetoothDevice.ACTION_CLASS_CHANGED:
                 case BluetoothDevice.ACTION_BOND_STATE_CHANGED:
                 case BluetoothDevice.ACTION_NAME_CHANGED:
+                case BluetoothDevice.ACTION_UUID:
                     onDeviceChanged((BluetoothDevice)intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE));
                     return;
             }
@@ -71,7 +73,6 @@ public class BluetoothAPI extends JavascriptAPI {
         this.handler = handler;
         adapter = ((BluetoothManager)ctx.getSystemService(Context.BLUETOOTH_SERVICE)).getAdapter();
         discovering = false;
-        pairing = new HashMap<>();
 
         registerAsync("start", new GenericCall() {
             @Override
@@ -110,6 +111,13 @@ public class BluetoothAPI extends JavascriptAPI {
             public Object run(Object... args) throws Exception {
                 pairDevice((String)args[0]);
                 return null;
+            }
+        });
+
+        registerAsync("readUUIDs", new GenericCall() {
+            @Override
+            public Object run(Object... args) throws Exception {
+                return readUUIDs((String)args[0]);
             }
         });
     }
@@ -186,10 +194,18 @@ public class BluetoothAPI extends JavascriptAPI {
         }
 
         synchronized (this) {
-            if (pairing.containsKey(device.getAddress().toLowerCase())) {
-                pairing.put(device.getAddress().toLowerCase(), device);
-                notifyAll();
+            boolean shouldNotify = false;
+            String hwAddress = device.getAddress().toLowerCase();
+            if (pairing.containsKey(hwAddress)) {
+                pairing.put(hwAddress, device);
+                shouldNotify = true;
             }
+            if (fetchingUuids.containsKey(hwAddress)) {
+                fetchingUuids.put(hwAddress, device);
+                shouldNotify = true;
+            }
+            if (shouldNotify)
+                notifyAll();
         }
     }
 
@@ -254,6 +270,34 @@ public class BluetoothAPI extends JavascriptAPI {
                 }
             } finally {
                 pairing.remove(address);
+            }
+        }
+    }
+
+    @NonNull
+    private JSONArray readUUIDs(String address) throws InterruptedException {
+        if (adapter == null)
+            throw new UnsupportedOperationException("This device has no Bluetooth adapter");
+
+        BluetoothDevice dev = adapter.getRemoteDevice(address.toUpperCase());
+        synchronized (this) {
+            try {
+                while (true) {
+                    if (!fetchingUuids.containsKey(address)) {
+                        fetchingUuids.put(address, dev);
+                        if (!dev.fetchUuidsWithSdp())
+                            throw new RuntimeException("Fetching UUIDs failed with a generic error");
+                    } else {
+                        dev = fetchingUuids.get(address);
+                        ParcelUuid[] uuids = dev.getUuids();
+                        if (uuids != null && uuids.length > 0)
+                            return uuidsToJson(uuids);
+                    }
+
+                    wait();
+                }
+            } finally {
+                fetchingUuids.remove(address);
             }
         }
     }

@@ -9,11 +9,13 @@ import java.util.ArrayList;
 
 import edu.stanford.thingengine.engine.jsapi.AssistantAPI;
 import edu.stanford.thingengine.engine.jsapi.AudioManagerAPI;
+import edu.stanford.thingengine.engine.jsapi.AudioRouterAPI;
 import edu.stanford.thingengine.engine.jsapi.BluetoothAPI;
 import edu.stanford.thingengine.engine.jsapi.GpsAPI;
 import edu.stanford.thingengine.engine.jsapi.JSSharedPreferences;
 import edu.stanford.thingengine.engine.jsapi.NotifyAPI;
 import edu.stanford.thingengine.engine.jsapi.SmsAPI;
+import edu.stanford.thingengine.engine.jsapi.SystemAppsAPI;
 import edu.stanford.thingengine.engine.jsapi.UnzipAPI;
 import io.jxcore.node.jxcore;
 
@@ -55,6 +57,8 @@ public class EngineThread extends Thread {
                     new AudioManagerAPI(context, control);
                     new SmsAPI(workerHandler, context, control);
                     new BluetoothAPI(workerHandler, context, control);
+                    new AudioRouterAPI(workerHandler, context, control);
+                    new SystemAppsAPI(context, control);
 
                     context.controlReady(new AssistantAPI(control), control);
                 }

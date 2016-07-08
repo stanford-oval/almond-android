@@ -20,12 +20,16 @@ const AssistantDispatcher = require('./assistant/dispatcher');
 const _unzipApi = JavaAPI.makeJavaAPI('Unzip', ['unzip'], [], []);
 const _gpsApi = JavaAPI.makeJavaAPI('Gps', ['start', 'stop'], [], ['onlocationchanged']);
 const _notifyApi = JavaAPI.makeJavaAPI('Notify', [], ['showMessage'], []);
-const _audioManagerApi = JavaAPI.makeJavaAPI('AudioManager', [], ['setRingerMode'], []);
+const _audioManagerApi = JavaAPI.makeJavaAPI('AudioManager', [],
+    ['setRingerMode', 'adjustMediaVolume', 'setMediaVolume'], []);
 const _smsApi = JavaAPI.makeJavaAPI('Sms', ['start', 'stop', 'sendMessage'], [], ['onsmsreceived']);
 const _btApi = JavaAPI.makeJavaAPI('Bluetooth',
-    ['start', 'startDiscovery', 'pairDevice'],
+    ['start', 'startDiscovery', 'pairDevice', 'readUUIDs'],
     ['stop', 'stopDiscovery'],
     ['ondeviceadded', 'ondevicechanged', 'onstatechanged', 'ondiscoveryfinished']);
+const _audioRouterApi = JavaAPI.makeJavaAPI('AudioRouter',
+    ['setAudioRouteBluetooth'], ['start', 'stop', 'isAudioRouteBluetooth'], []);
+const _systemAppsApi = JavaAPI.makeJavaAPI('SystemApps', [], ['startMusic'], []);
 
 var filesDir = null;
 var cacheDir = null;
@@ -150,6 +154,8 @@ module.exports = {
         case 'audio-manager':
         case 'sms':
         case 'bluetooth':
+        case 'audio-router':
+        case 'system-apps':
         // for compat
         case 'notify-api':
             return true;
@@ -187,6 +193,12 @@ module.exports = {
 
         case 'bluetooth':
             return _btApi;
+
+        case 'audio-router':
+            return _audioRouterApi;
+
+        case 'system-apps':
+            return _systemAppsApi;
 
         case 'assistant':
             return AssistantDispatcher.get().getConversation();
