@@ -19,9 +19,9 @@
         android:required="true" />
 
     <application
-        android:name=".ThingEngineApplication"
+        android:name=".Application"
         android:allowBackup="true"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@drawable/sabrina"
         android:label="@string/app_name"
         android:theme="@style/Stanford">
         <service
@@ -38,7 +38,6 @@
         <activity
             android:name=".ui.MainActivity"
             android:label="@string/title_activity_main"
-            android:theme="@style/Stanford"
             android:windowSoftInputMode="adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -46,9 +45,19 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".ui.OAuthActivity" />
-        <activity android:name=".ui.DeviceConfigureChooseKindActivity" />
-        <activity android:name=".ui.DeviceCreateFormActivity" android:windowSoftInputMode="adjustPan" />
+        <activity
+            android:name=".ui.DeviceConfigureChooseKindActivity"
+            android:parentActivityName=".ui.MainActivity"
+            />
+        <activity
+            android:name=".ui.OAuthActivity"
+            android:parentActivityName=".ui.DeviceConfigureChooseKindActivity"
+            />
+        <activity
+            android:name=".ui.DeviceCreateFormActivity"
+            android:windowSoftInputMode="adjustPan"
+            android:parentActivityName=".ui.DeviceConfigureChooseKindActivity"
+            />
     </application>
 
 </manifest>

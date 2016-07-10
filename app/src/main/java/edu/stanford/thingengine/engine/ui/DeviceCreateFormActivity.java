@@ -1,13 +1,16 @@
 package edu.stanford.thingengine.engine.ui;
 
+import android.app.ActionBar;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.app.NavUtils;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
 import android.view.Gravity;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -20,6 +23,8 @@ import android.widget.TextView;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import edu.stanford.thingengine.engine.R;
@@ -29,6 +34,7 @@ public class DeviceCreateFormActivity extends Activity {
     public static final String ACTION = "edu.stanford.thingengine.engine.DEVICE_CREATE";
 
     private String mKind;
+    private String mClass;
     private ArrayAdapter<DeviceFactory.FormControl> mControls;
     private final EngineServiceConnection mEngine;
 
@@ -52,6 +58,10 @@ public class DeviceCreateFormActivity extends Activity {
                 confirmConfigure();
             }
         });
+
+        ActionBar actionBar = getActionBar();
+        if (actionBar != null)
+            actionBar.setDisplayHomeAsUpEnabled(true);
     }
 
     @Override
@@ -65,8 +75,32 @@ public class DeviceCreateFormActivity extends Activity {
         }
 
         mKind = intent.getStringExtra("extra.KIND");
-        List<DeviceFactory.FormControl> controls = (List<DeviceFactory.FormControl>) intent.getSerializableExtra("extra.CONTROLS");
+        mClass = intent.getStringExtra("extra.CLASS");
+        if (mClass == null)
+            mClass = "physical";
+        String title = intent.getStringExtra("extra.TITLE");
+        if (title != null) {
+            setTitle(title);
+        } else {
+            switch (mClass) {
+                case "online":
+                    setTitle(R.string.create_account_title);
+                    break;
+                case "data":
+                    setTitle(R.string.create_datasource_title);
+                    break;
+                case "physical":
+                    setTitle(R.string.create_device_title);
+                    break;
+            }
+        }
+        List<DeviceFactory.FormControl> controls = new ArrayList<>();
+        Collection<?> obtained = (Collection<?>) intent.getSerializableExtra("extra.CONTROLS");
+        for (Object o : obtained)
+            controls.add((DeviceFactory.FormControl)o);
         mControls.addAll(controls);
+
+
     }
 
 
@@ -184,5 +218,23 @@ public class DeviceCreateFormActivity extends Activity {
                 }
             }
         });
+    }
+
+    private void navigateUp() {
+        Intent intent = getParentActivityIntent();
+        if (intent != null)
+            intent.putExtra("extra.CLASS", mClass);
+        NavUtils.navigateUpTo(this, intent);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                navigateUp();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 }

@@ -13,7 +13,10 @@
     <string name="my_devices_title">My Devices</string>
     <string name="my_accounts_title">My Accounts</string>
     <string name="my_datasources_title">Enabled Data Sources</string>
-    <string name="btn_configure_device_title">Configure new device&#8230;</string>
+    <string name="btn_create_device_title">Configure new device&#8230;</string>
     <string name="btn_create_account_title">Add new account&#8230;</string>
     <string name="btn_create_datasource_title">Enable new data source&#8230;</string>
+    <string name="create_device_title">Configure Device</string>
+    <string name="create_account_title">Add New Account</string>
+    <string name="create_datasource_title">Enable New Data Source</string>
 </resources>

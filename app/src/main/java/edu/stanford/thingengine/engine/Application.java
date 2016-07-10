@@ -1,6 +1,5 @@
 package edu.stanford.thingengine.engine;
 
-import android.app.Application;
 import android.net.http.HttpResponseCache;
 import android.util.Log;
 
@@ -10,7 +9,7 @@ import java.io.IOException;
 /**
  * Created by gcampagn on 7/6/16.
  */
-public class ThingEngineApplication extends Application {
+public class Application extends android.app.Application {
     public static final String LOG_TAG = "thingengine";
 
     @Override

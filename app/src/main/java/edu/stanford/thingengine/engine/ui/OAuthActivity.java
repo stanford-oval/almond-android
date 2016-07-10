@@ -1,5 +1,6 @@
 package edu.stanford.thingengine.engine.ui;
 
+import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ComponentName;
@@ -9,6 +10,8 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.support.v4.app.NavUtils;
+import android.view.MenuItem;
 import android.webkit.JsResult;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
@@ -33,6 +36,7 @@ public class OAuthActivity extends Activity {
     private final EngineServiceConnection mEngine;
     private Map<String, String> mSession = new HashMap<>();
     private String kind;
+    private String mClass;
     private boolean started;
 
     public OAuthActivity() {
@@ -55,6 +59,10 @@ public class OAuthActivity extends Activity {
         view.getSettings().setJavaScriptEnabled(true);
         view.setWebChromeClient(new UIWebChromeClient());
         view.setWebViewClient(new UIWebViewClient());
+
+        ActionBar actionBar = getActionBar();
+        if (actionBar != null)
+            actionBar.setDisplayHomeAsUpEnabled(true);
     }
 
     @Override
@@ -70,6 +78,25 @@ public class OAuthActivity extends Activity {
 
         started = false;
         kind = intent.getStringExtra("extra.KIND");
+        mClass = intent.getStringExtra("extra.CLASS");
+        if (mClass == null)
+            mClass = "physical";
+        String title = intent.getStringExtra("extra.TITLE");
+        if (title != null) {
+            setTitle(title);
+        } else {
+            switch (mClass) {
+                case "online":
+                    setTitle(R.string.create_account_title);
+                    break;
+                case "data":
+                    setTitle(R.string.create_datasource_title);
+                    break;
+                case "physical":
+                    setTitle(R.string.create_device_title);
+                    break;
+            }
+        }
     }
 
     private static Map<String, String> jsonToMap(JSONObject o) throws JSONException {
@@ -251,6 +278,24 @@ public class OAuthActivity extends Activity {
             }
         } catch(JSONException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    private void navigateUp() {
+        Intent intent = getParentActivityIntent();
+        if (intent != null)
+            intent.putExtra("extra.CLASS", mClass);
+        NavUtils.navigateUpTo(this, intent);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                navigateUp();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
         }
     }
 }
