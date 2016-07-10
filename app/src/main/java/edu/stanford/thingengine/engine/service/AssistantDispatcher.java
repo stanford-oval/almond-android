@@ -12,6 +12,8 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
+import edu.stanford.thingengine.engine.BuildConfig;
+
 /**
  * Created by gcampagn on 7/10/16.
  */
@@ -37,6 +39,14 @@ public class AssistantDispatcher implements Handler.Callback {
     }
 
     public AssistantMessage.Text handleCommand(final String command) {
+        if (BuildConfig.DEBUG) {
+`            if (command.startsWith("\\r ")) {
+                String json = command.substring(3);
+                handleParsedCommand(json);
+                return null;
+            }
+        }
+
         AsyncTask.THREAD_POOL_EXECUTOR.execute(new Runnable() {
             @Override
             public void run() {
