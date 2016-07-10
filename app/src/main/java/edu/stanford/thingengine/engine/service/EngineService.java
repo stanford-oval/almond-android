@@ -12,16 +12,12 @@ import edu.stanford.thingengine.engine.ui.InteractionCallback;
 public class EngineService extends Service {
     public static final String LOG_TAG = "thingengine.Service";
 
-    private final AssistantDispatcher assistant;
-
+    private AssistantDispatcher assistant;
     private ControlChannel control;
-    private AssistantCommandHandler cmdHandler;
     private volatile InteractionCallback callback;
     private EngineThread engineThread;
     
-    public EngineService() {
-        assistant = new AssistantDispatcher(this);
-    }
+    public EngineService() {}
 
     public AssistantDispatcher getAssistant() {
         return assistant;
@@ -55,9 +51,9 @@ public class EngineService extends Service {
     void engineBroken() {
         stopSelf();
     }
-    void controlReady(AssistantCommandHandler assistant, ControlChannel control) {
+    void controlReady(AssistantCommandHandler cmdHandler, ControlChannel control) {
         synchronized (this) {
-            this.cmdHandler = assistant;
+            assistant = new AssistantDispatcher(this, cmdHandler);
             this.control = control;
             notifyAll();
         }
@@ -107,7 +103,7 @@ public class EngineService extends Service {
                 while (control == null)
                     wait();
             }
-            return new ControlBinder(this, cmdHandler, control);
+            return new ControlBinder(this, control);
         } catch(InterruptedException e) {
             return null;
         }

@@ -58,7 +58,7 @@ public class AssistantFragment extends Fragment implements AssistantOutput {
             if (control == null)
                 return;
 
-            control.setAssistantOutput(AssistantFragment.this);
+            control.getAssistant().setAssistantOutput(AssistantFragment.this);
             pullHistory(control.getAssistant());
         }
     };
@@ -139,7 +139,7 @@ public class AssistantFragment extends Fragment implements AssistantOutput {
         @Override
         public void onAudioEvent(boolean recording) {
             if (recording)
-                display(new AssistantMessage.Text("Speak now..."));
+                display(new AssistantMessage.Text(AssistantMessage.Direction.FROM_SABRINA, "Speak now..."));
         }
     }
 
@@ -156,21 +156,19 @@ public class AssistantFragment extends Fragment implements AssistantOutput {
         return fragment;
     }
 
-    private enum Side { LEFT, RIGHT };
-
-    public void addItem(@NonNull View view, @NonNull Side side) {
+    public void addItem(@NonNull View view, @NonNull AssistantMessage.Direction side) {
         PercentRelativeLayout.LayoutParams params = new PercentRelativeLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT);
         params.getPercentLayoutInfo().widthPercent = 0.7f;
 
         PercentRelativeLayout wrapper = new PercentRelativeLayout(getActivity());
 
-        if (side == Side.LEFT) {
+        if (side == AssistantMessage.Direction.FROM_SABRINA) {
             params.addRule(RelativeLayout.ALIGN_PARENT_START);
             if (view instanceof TextView)
                 ((TextView) view).setGravity(Gravity.START);
             wrapper.addView(view, params);
             view.setTextAlignment(View.TEXT_ALIGNMENT_VIEW_START);
-        } else if (side == Side.RIGHT) {
+        } else if (side == AssistantMessage.Direction.FROM_USER) {
             params.addRule(RelativeLayout.ALIGN_PARENT_END);
             if (view instanceof TextView)
                 ((TextView) view).setGravity(Gravity.END);
@@ -228,7 +226,7 @@ public class AssistantFragment extends Fragment implements AssistantOutput {
     private void display(AssistantMessage.Text msg) {
         TextView view = new TextView(getActivity());
         view.setText(msg.msg);
-        addItem(view, Side.LEFT);
+        addItem(view, msg.direction);
     }
 
     private void display(AssistantMessage.Picture msg) {
@@ -236,7 +234,7 @@ public class AssistantFragment extends Fragment implements AssistantOutput {
         view.setBackgroundColor(Color.RED);
         view.setScaleType(ImageView.ScaleType.FIT_CENTER);
         view.setAdjustViewBounds(true);
-        addItem(view, Side.LEFT);
+        addItem(view, msg.direction);
         (new LoadImageTask(view) {
             @Override
             public void onPostExecute(Drawable draw) {
@@ -246,20 +244,20 @@ public class AssistantFragment extends Fragment implements AssistantOutput {
         }).execute(msg.url);
     }
 
-    private void display(AssistantMessage.RDL rdl) {
+    private void display(AssistantMessage.RDL msg) {
         try {
             // FIXME: we can do a better job for RDLs...
 
             Button btn = new Button(getActivity());
-            btn.setText(rdl.rdl.optString("displayTitle"));
-            final String webCallback = rdl.rdl.getString("webCallback");
+            btn.setText(msg.rdl.optString("displayTitle"));
+            final String webCallback = msg.rdl.getString("webCallback");
             btn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     onLinkActivated(webCallback);
                 }
             });
-            addItem(btn, Side.LEFT);
+            addItem(btn, msg.direction);
         } catch(JSONException e) {
             Log.e(MainActivity.LOG_TAG, "Unexpected JSON exception while unpacking RDL", e);
         }
@@ -274,7 +272,7 @@ public class AssistantFragment extends Fragment implements AssistantOutput {
                 onChoiceActivated(msg.idx);
             }
         });
-        addItem(btn, Side.LEFT);
+        addItem(btn, msg.direction);
     }
 
     private void display(final AssistantMessage.Link msg) {
@@ -286,7 +284,7 @@ public class AssistantFragment extends Fragment implements AssistantOutput {
                 onLinkActivated(msg.url);
             }
         });
-        addItem(btn, Side.LEFT);
+        addItem(btn, msg.direction);
     }
 
     private void display(final AssistantMessage.Button msg) {
@@ -298,7 +296,7 @@ public class AssistantFragment extends Fragment implements AssistantOutput {
                 onButtonActivated(msg.json);
             }
         });
-        addItem(btn, Side.LEFT);
+        addItem(btn, msg.direction);
     }
 
     private void pullHistory(AssistantDispatcher dispatcher) {
@@ -357,7 +355,7 @@ public class AssistantFragment extends Fragment implements AssistantOutput {
 
         ControlBinder control = mEngine.getControl();
         if (control != null)
-            control.setAssistantOutput(null);
+            control.getAssistant().setAssistantOutput(null);
         mEngine.removeEngineReadyCallback(mReadyCallback);
         mSpeechHandler.onPause();
     }
@@ -369,56 +367,19 @@ public class AssistantFragment extends Fragment implements AssistantOutput {
         return inflater.inflate(R.layout.fragment_chat, container, false);
     }
 
-    private void handleAssistantCommand(final String command) {
-        AsyncTask.THREAD_POOL_EXECUTOR.execute(new Runnable() {
-            @Override
-            public void run() {
-                final ControlBinder control = mEngine.getControl();
-                if (control == null)
-                    return;
-
-                control.getAssistantCommandHandler().handleCommand(command);
-            }
-        });
-    }
-
-    private void handleAssistantParsedCommand(final String json) {
-        AsyncTask.THREAD_POOL_EXECUTOR.execute(new Runnable() {
-            @Override
-            public void run() {
-                final ControlBinder control = mEngine.getControl();
-                if (control == null)
-                    return;
-
-                control.getAssistantCommandHandler().handleParsedCommand(json);
-            }
-        });
-    }
-
-    private void handlePicture(final String url) {
-        AsyncTask.THREAD_POOL_EXECUTOR.execute(new Runnable() {
-            @Override
-            public void run() {
-                final ControlBinder control = mEngine.getControl();
-                if (control == null)
-                    return;
-
-                control.getAssistantCommandHandler().handlePicture(url);
-            }
-        });
-    }
-
     private void onTextActivated() {
         if (mEngine != null) {
             EditText input = (EditText)getActivity().findViewById(R.id.assistant_input);
 
             String command = input.getText().toString().trim();
             if (command.length() > 0) {
-                handleAssistantCommand(command);
+                ControlBinder control = mEngine.getControl();
+                if (control == null)
+                    return;
 
-                TextView copy = new TextView(getActivity());
-                copy.setText(input.getText());
-                addItem(copy, Side.RIGHT);
+                AssistantMessage msg = control.getAssistant().handleCommand(command);
+                if (msg != null)
+                    display(msg);
 
                 input.setText("");
             }
@@ -503,18 +464,27 @@ public class AssistantFragment extends Fragment implements AssistantOutput {
     }
 
     private void onButtonActivated(String json) {
-        handleAssistantParsedCommand(json);
+        ControlBinder control = mEngine.getControl();
+        if (control == null)
+            return;
+
+        control.getAssistant().handleParsedCommand(json);
     }
 
     private void onChoiceActivated(int idx) {
         if (mEngine != null) {
             try {
+                ControlBinder control = mEngine.getControl();
+                if (control == null)
+                    return;
+
                 JSONObject obj = new JSONObject();
                 JSONObject inner = new JSONObject();
                 obj.put("answer", inner);
                 inner.put("type", "Choice");
                 inner.put("value", idx);
-                handleAssistantParsedCommand(obj.toString());
+
+                control.getAssistant().handleParsedCommand(obj.toString());
             } catch(JSONException e) {
                 Log.e(MainActivity.LOG_TAG, "Unexpected json exception while constructing choice JSON", e);
             }

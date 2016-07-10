@@ -10,11 +10,16 @@ import java.io.Serializable;
 public abstract class AssistantMessage implements Serializable {
     private static final long serialVersionUID = 1L;
 
+    public enum Direction {
+        FROM_SABRINA, FROM_USER
+    }
     public enum Type {
         TEXT, PICTURE, RDL, CHOICE, LINK, BUTTON
     };
+    public final Direction direction;
     public final Type type;
-    protected AssistantMessage(Type type) {
+    protected AssistantMessage(Direction direction, Type type) {
+        this.direction = direction;
         this.type = type;
     }
 
@@ -23,8 +28,8 @@ public abstract class AssistantMessage implements Serializable {
 
         public final String msg;
 
-        public Text(String msg) {
-            super(Type.TEXT);
+        public Text(Direction dir, String msg) {
+            super(dir, Type.TEXT);
             this.msg = msg;
         }
     }
@@ -34,8 +39,8 @@ public abstract class AssistantMessage implements Serializable {
 
         public final String url;
 
-        public Picture(String url) {
-            super(Type.PICTURE);
+        public Picture(Direction dir, String url) {
+            super(dir, Type.PICTURE);
             this.url = url;
         }
     }
@@ -45,8 +50,8 @@ public abstract class AssistantMessage implements Serializable {
 
         public final JSONObject rdl;
 
-        public RDL(JSONObject rdl) {
-            super(Type.RDL);
+        public RDL(Direction dir, JSONObject rdl) {
+            super(dir, Type.RDL);
             this.rdl = rdl;
         }
     }
@@ -58,8 +63,8 @@ public abstract class AssistantMessage implements Serializable {
         public final String title;
         public final String text;
 
-        public Choice(int idx, String title, String text) {
-            super(Type.CHOICE);
+        public Choice(Direction dir, int idx, String title, String text) {
+            super(dir, Type.CHOICE);
             this.idx = idx;
             this.title = title;
             this.text = text;
@@ -72,8 +77,8 @@ public abstract class AssistantMessage implements Serializable {
         public final String title;
         public final String url;
 
-        public Link(String title, String url) {
-            super(Type.LINK);
+        public Link(Direction dir, String title, String url) {
+            super(dir, Type.LINK);
             this.title = title;
             this.url = url;
         }
@@ -85,8 +90,8 @@ public abstract class AssistantMessage implements Serializable {
         public final String title;
         public final String json;
 
-        public Button(String title, String json) {
-            super(Type.BUTTON);
+        public Button(Direction dir, String title, String json) {
+            super(dir, Type.BUTTON);
             this.title = title;
             this.json = json;
         }

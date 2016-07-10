@@ -16,7 +16,6 @@ import edu.stanford.thingengine.engine.ui.InteractionCallback;
  */
 public class ControlBinder extends IThingEngine.Stub {
     private final EngineService service;
-    private final AssistantCommandHandler cmdHandler;
     private final ControlChannel channel;
 
     public static class DeviceInfo {
@@ -44,22 +43,13 @@ public class ControlBinder extends IThingEngine.Stub {
         }
     }
 
-    public ControlBinder(EngineService service, AssistantCommandHandler cmdHandler, ControlChannel channel) {
+    public ControlBinder(EngineService service, ControlChannel channel) {
         this.service = service;
-        this.cmdHandler = cmdHandler;
         this.channel = channel;
-    }
-
-    public AssistantCommandHandler getAssistantCommandHandler() {
-        return cmdHandler;
     }
 
     public AssistantDispatcher getAssistant() {
         return service.getAssistant();
-    }
-
-    public void setAssistantOutput(AssistantOutput output) {
-        service.getAssistant().setAssistantOutput(output);
     }
 
     public void setInteractionCallback(InteractionCallback callback) {

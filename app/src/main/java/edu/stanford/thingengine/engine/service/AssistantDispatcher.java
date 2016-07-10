@@ -1,6 +1,7 @@
 package edu.stanford.thingengine.engine.service;
 
 import android.content.Context;
+import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
@@ -20,24 +21,54 @@ public class AssistantDispatcher implements Handler.Callback {
     private final Deque<AssistantMessage> history = new LinkedList<>();
     private final Context ctx;
     private final Handler assistantHandler;
+    private final AssistantCommandHandler cmdHandler;
 
     private AssistantOutput output;
-    private volatile AssistantCommandHandler cmdHandler;
 
-    public AssistantDispatcher(Context ctx) {
+    public AssistantDispatcher(Context ctx, AssistantCommandHandler cmdHandler) {
         this.ctx = ctx;
-
+        this.cmdHandler = cmdHandler;
         assistantHandler = new Handler(Looper.getMainLooper(), this);
     }
 
     // to be called from the main thread
-    void setAssistantOutput(AssistantOutput output) {
+    public void setAssistantOutput(AssistantOutput output) {
         this.output = output;
     }
 
-    // to be called from the JS thread
-    void setCommandHandler(AssistantCommandHandler cmdHandler) {
-        this.cmdHandler = cmdHandler;
+    public AssistantMessage.Text handleCommand(final String command) {
+        AsyncTask.THREAD_POOL_EXECUTOR.execute(new Runnable() {
+            @Override
+            public void run() {
+                cmdHandler.handleCommand(command);
+            }
+        });
+
+        AssistantMessage.Text text = new AssistantMessage.Text(AssistantMessage.Direction.FROM_USER, command);
+        history.addLast(text);
+        return text;
+    }
+
+    public void handleParsedCommand(final String json) {
+        AsyncTask.THREAD_POOL_EXECUTOR.execute(new Runnable() {
+            @Override
+            public void run() {
+                cmdHandler.handleParsedCommand(json);
+            }
+        });
+    }
+
+    public AssistantMessage.Picture handlePicture(final String url) {
+        AsyncTask.THREAD_POOL_EXECUTOR.execute(new Runnable() {
+            @Override
+            public void run() {
+                cmdHandler.handlePicture(url);
+            }
+        });
+
+        AssistantMessage.Picture pic = new AssistantMessage.Picture(AssistantMessage.Direction.FROM_USER, url);
+        history.addLast(pic);
+        return pic;
     }
 
     private static <E> void reverseList(List<E> list) {
@@ -69,8 +100,8 @@ public class AssistantDispatcher implements Handler.Callback {
         AssistantMessage msg = (AssistantMessage) m.obj;
         history.addLast(msg);
 
-        maybeNotify(msg);
-        maybeInformUI(msg);
+        if (!maybeInformUI(msg))
+            maybeNotify(msg);
 
         return true;
     }
@@ -79,11 +110,16 @@ public class AssistantDispatcher implements Handler.Callback {
         // TODO FILLME
     }
 
-    private void maybeInformUI(AssistantMessage msg) {
-        if (output != null)
+    private boolean maybeInformUI(AssistantMessage msg) {
+        if (output != null) {
             output.display(msg);
+            return true;
+        } else {
+            return false;
+        }
     }
 
+    // to be called from any thread
     public void dispatch(AssistantMessage msg) {
         Message osMsg = Message.obtain();
         osMsg.what = MSG_ASSISTANT_MESSAGE;

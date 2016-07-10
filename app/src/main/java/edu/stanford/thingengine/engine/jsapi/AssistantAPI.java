@@ -91,26 +91,26 @@ public class AssistantAPI extends JavascriptAPI implements AssistantCommandHandl
     }
 
     private void send(String text) {
-        mService.getAssistant().dispatch(new AssistantMessage.Text(text));
+        mService.getAssistant().dispatch(new AssistantMessage.Text(AssistantMessage.Direction.FROM_SABRINA, text));
     }
 
     private void sendPicture(String url) {
-        mService.getAssistant().dispatch(new AssistantMessage.Picture(url));
+        mService.getAssistant().dispatch(new AssistantMessage.Picture(AssistantMessage.Direction.FROM_SABRINA, url));
     }
 
     private void sendRDL(JSONObject rdl) {
-        mService.getAssistant().dispatch(new AssistantMessage.RDL(rdl));
+        mService.getAssistant().dispatch(new AssistantMessage.RDL(AssistantMessage.Direction.FROM_SABRINA, rdl));
     }
 
     private void sendChoice(int idx, String what, String title, String text) {
-        mService.getAssistant().dispatch(new AssistantMessage.Choice(idx, title, text));
+        mService.getAssistant().dispatch(new AssistantMessage.Choice(AssistantMessage.Direction.FROM_SABRINA, idx, title, text));
     }
 
     private void sendLink(String title, String url) {
-        mService.getAssistant().dispatch(new AssistantMessage.Link(title, url));
+        mService.getAssistant().dispatch(new AssistantMessage.Link(AssistantMessage.Direction.FROM_SABRINA, title, url));
     }
 
     private void sendButton(String title, String button) {
-        mService.getAssistant().dispatch(new AssistantMessage.Button(title, button));
+        mService.getAssistant().dispatch(new AssistantMessage.Button(AssistantMessage.Direction.FROM_SABRINA, title, button));
     }
 }
