@@ -12,47 +12,50 @@ var asyncCallbacks = {};
 var eventCallbacks = {};
 
 module.exports.makeJavaAPI = function makeJavaAPI(klass, asyncMethods, syncMethods, events) {
-    var obj = {
-        registerCallback: function(callbackName, callback) {
-            eventCallbacks[klass + '_' + callbackName] = callback;
-        },
-
-        unregisterCallback: function(callbackName) {
-            delete eventCallbacks[klass + '_' + callbackName];
-        },
-    };
+    var obj = {};
     asyncMethods.forEach(function(method) {
-        obj[method] = function() {
-            var call = JXMobile(klass + '_' + method);
-            var cb = call.callAsyncNative.apply(call, arguments);
-            var defer = Q.defer();
-            asyncCallbacks[cb] = defer;
-            return defer.promise;
-        }
+        Object.defineProperty(obj, method, {
+            configurable: true,
+            enumerable: false,
+            writable: true,
+            value: function() {
+                var call = JXMobile(klass + '_' + method);
+                var cb = call.callAsyncNative.apply(call, arguments);
+                var defer = Q.defer();
+                asyncCallbacks[cb] = defer;
+                return defer.promise;
+            }
+        });
     });
     syncMethods.forEach(function(method) {
-        obj[method] = function() {
-            var call = JXMobile(klass + '_' + method);
-            return Q.npost(call, 'callNative', arguments).catch((e) => {
-                if (typeof e === 'string')
-                    throw new Error(e);
-                else
-                    throw e;
-            });
-        }
+        Object.defineProperty(obj, method, {
+            configurable: true,
+            enumerable: false,
+            writable: true,
+            value: function() {
+                var call = JXMobile(klass + '_' + method);
+                return Q.npost(call, 'callNative', arguments).catch((e) => {
+                    if (typeof e === 'string')
+                        throw new Error(e);
+                    else
+                        throw e;
+                });
+            }
+        });
     });
     events.forEach(function(event) {
+        eventCallbacks[klass + '_' + event] = undefined;
         Object.defineProperty(obj, event, {
             configurable: true,
-            enumerable: true,
+            enumerable: false,
             get() {
                 return eventCallbacks[klass + '_' + callbackName];
             },
             set(callback) {
                 if (callback !== null)
-                    this.registerCallback(event, callback);
+                    eventCallbacks[klass + '_' + event] = callback;
                 else
-                    this.unregisterCallback(event);
+                    eventCallbacks[klass + '_' + event] = undefined;
             }
         });
     });
@@ -61,8 +64,13 @@ module.exports.makeJavaAPI = function makeJavaAPI(klass, asyncMethods, syncMetho
 }
 
 module.exports.invokeCallback = function(callbackId, error, value) {
-    if (callbackId in eventCallbacks)
+    if (callbackId in eventCallbacks) {
+        if (eventCallbacks[callbackId] === undefined) {
+            // ignore event with no listeners
+            return;
+        }
         return eventCallbacks[callbackId](error, value);
+    }
 
     if (!callbackId in asyncCallbacks) {
         console.log('Invalid callback ID ' + callbackId);
