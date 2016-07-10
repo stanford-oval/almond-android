@@ -1,5 +1,6 @@
 package edu.stanford.thingengine.engine.service;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.Serializable;
@@ -23,6 +24,8 @@ public abstract class AssistantMessage implements Serializable {
         this.type = type;
     }
 
+    public abstract String toText();
+
     public static class Text extends AssistantMessage {
         private static final long serialVersionUID = 1L;
 
@@ -31,6 +34,11 @@ public abstract class AssistantMessage implements Serializable {
         public Text(Direction dir, String msg) {
             super(dir, Type.TEXT);
             this.msg = msg;
+        }
+
+        @Override
+        public String toText() {
+            return msg;
         }
     }
 
@@ -43,6 +51,11 @@ public abstract class AssistantMessage implements Serializable {
             super(dir, Type.PICTURE);
             this.url = url;
         }
+
+        @Override
+        public String toText() {
+            return "Picture";
+        }
     }
 
     public static class RDL extends AssistantMessage {
@@ -53,6 +66,15 @@ public abstract class AssistantMessage implements Serializable {
         public RDL(Direction dir, JSONObject rdl) {
             super(dir, Type.RDL);
             this.rdl = rdl;
+        }
+
+        @Override
+        public String toText() {
+            try {
+                return rdl.getString("displayTitle");
+            } catch(JSONException e) {
+                return "RDL";
+            }
         }
     }
 
@@ -69,6 +91,11 @@ public abstract class AssistantMessage implements Serializable {
             this.title = title;
             this.text = text;
         }
+
+        @Override
+        public String toText() {
+            return title;
+        }
     }
 
     public static class Link extends AssistantMessage {
@@ -82,6 +109,11 @@ public abstract class AssistantMessage implements Serializable {
             this.title = title;
             this.url = url;
         }
+
+        @Override
+        public String toText() {
+            return title;
+        }
     }
 
     public static class Button extends AssistantMessage {
@@ -94,6 +126,11 @@ public abstract class AssistantMessage implements Serializable {
             super(dir, Type.BUTTON);
             this.title = title;
             this.json = json;
+        }
+
+        @Override
+        public String toText() {
+            return title;
         }
     }
 }
