@@ -4,12 +4,9 @@ import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.IntentSender;
-import android.os.AsyncTask;
 import android.os.IBinder;
 
 import com.google.android.gms.common.api.Status;
-
-import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -22,7 +19,6 @@ import edu.stanford.thingengine.engine.service.ControlBinder;
  * Created by gcampagn on 6/27/16.
  */
 public class MainServiceConnection extends EngineServiceConnection implements InteractionCallback {
-    private AssistantOutput assistantOutput;
     private final List<Runnable> callbacks = new ArrayList<>();
 
     private static class InteractionState {
@@ -31,90 +27,6 @@ public class MainServiceConnection extends EngineServiceConnection implements In
     }
 
     private final Map<Integer, InteractionState> interacting = new HashMap<>();
-
-    @Override
-    public void send(final String msg) {
-        Activity currentParent = parent;
-        if (currentParent == null)
-            return;
-        currentParent.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                if (assistantOutput != null)
-                    assistantOutput.send(msg);
-            }
-        });
-    }
-
-    @Override
-    public void sendPicture(final String url) {
-        Activity currentParent = parent;
-        if (currentParent == null)
-            return;
-        currentParent.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                if (assistantOutput != null)
-                    assistantOutput.sendPicture(url);
-            }
-        });
-    }
-
-    @Override
-    public void sendRDL(final JSONObject rdl) {
-        Activity currentParent = parent;
-        if (currentParent == null)
-            return;
-        currentParent.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                if (assistantOutput != null)
-                    assistantOutput.sendRDL(rdl);
-            }
-        });
-    }
-
-    @Override
-    public void sendChoice(final int idx, final String what, final String title, final String text) {
-        Activity currentParent = parent;
-        if (currentParent == null)
-            return;
-        currentParent.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                if (assistantOutput != null)
-                    assistantOutput.sendChoice(idx, what, title, text);
-            }
-        });
-    }
-
-    @Override
-    public void sendLink(final String title, final String url) {
-        Activity currentParent = parent;
-        if (currentParent == null)
-            return;
-        currentParent.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                if (assistantOutput != null)
-                    assistantOutput.sendLink(title, url);
-            }
-        });
-    }
-
-    @Override
-    public void sendButton(final String title, final String json) {
-        Activity currentParent = parent;
-        if (currentParent == null)
-            return;
-        currentParent.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                if (assistantOutput != null)
-                    assistantOutput.sendButton(title, json);
-            }
-        });
-    }
 
     @Override
     public boolean resolveResult(final Status status, final int requestCode) throws InterruptedException {
@@ -219,67 +131,11 @@ public class MainServiceConnection extends EngineServiceConnection implements In
         notifyAll();
     }
 
-    public void setAssistantOutput(AssistantOutput output) {
-        assistantOutput = output;
-    }
-
     public void addEngineReadyCallback(Runnable callback) {
         callbacks.add(callback);
     }
 
     public void removeEngineReadyCallback(Runnable callback) {
         callbacks.remove(callback);
-    }
-
-    public void assistantReady() {
-        final ControlBinder control = binder;
-        if (control == null)
-            return;
-
-        AsyncTask.THREAD_POOL_EXECUTOR.execute(new Runnable() {
-            @Override
-            public void run() {
-                control.getAssistant().assistantReady();
-            }
-        });
-    }
-
-    public void handleAssistantCommand(final String command) {
-        final ControlBinder control = binder;
-        if (control == null)
-            return;
-
-        AsyncTask.THREAD_POOL_EXECUTOR.execute(new Runnable() {
-            @Override
-            public void run() {
-                control.getAssistant().handleCommand(command);
-            }
-        });
-    }
-
-    public void handleAssistantParsedCommand(final String json) {
-        final ControlBinder control = binder;
-        if (control == null)
-            return;
-
-        AsyncTask.THREAD_POOL_EXECUTOR.execute(new Runnable() {
-            @Override
-            public void run() {
-                control.getAssistant().handleParsedCommand(json);
-            }
-        });
-    }
-
-    public void handlePicture(final String url) {
-        final ControlBinder control = binder;
-        if (control == null)
-            return;
-
-        AsyncTask.THREAD_POOL_EXECUTOR.execute(new Runnable() {
-            @Override
-            public void run() {
-                control.getAssistant().handlePicture(url);
-            }
-        });
     }
 }

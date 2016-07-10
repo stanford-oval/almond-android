@@ -7,16 +7,24 @@ import android.util.Log;
 
 import java.io.IOException;
 
-import edu.stanford.thingengine.engine.jsapi.AssistantAPI;
+import edu.stanford.thingengine.engine.ui.InteractionCallback;
 
 public class EngineService extends Service {
     public static final String LOG_TAG = "thingengine.Service";
 
+    private final AssistantDispatcher assistant;
+
     private ControlChannel control;
-    private AssistantAPI assistant;
+    private AssistantCommandHandler cmdHandler;
+    private volatile InteractionCallback callback;
     private EngineThread engineThread;
     
     public EngineService() {
+        assistant = new AssistantDispatcher(this);
+    }
+
+    public AssistantDispatcher getAssistant() {
+        return assistant;
     }
 
     @Override
@@ -47,12 +55,20 @@ public class EngineService extends Service {
     void engineBroken() {
         stopSelf();
     }
-    void controlReady(AssistantAPI assistant, ControlChannel control) {
+    void controlReady(AssistantCommandHandler assistant, ControlChannel control) {
         synchronized (this) {
-            this.assistant = assistant;
+            this.cmdHandler = assistant;
             this.control = control;
             notifyAll();
         }
+    }
+    public InteractionCallback getInteractionCallback() {
+        return callback;
+    }
+
+    // private methods to be called only from the main thread
+    void setInteractionCallback(InteractionCallback callback) {
+        this.callback = callback;
     }
 
     @Override
@@ -91,7 +107,7 @@ public class EngineService extends Service {
                 while (control == null)
                     wait();
             }
-            return new ControlBinder(this, assistant, control);
+            return new ControlBinder(this, cmdHandler, control);
         } catch(InterruptedException e) {
             return null;
         }

@@ -40,17 +40,26 @@ import java.util.concurrent.FutureTask;
 
 import edu.stanford.thingengine.engine.Config;
 import edu.stanford.thingengine.engine.R;
+import edu.stanford.thingengine.engine.service.AssistantDispatcher;
+import edu.stanford.thingengine.engine.service.AssistantMessage;
+import edu.stanford.thingengine.engine.service.AssistantOutput;
 import edu.stanford.thingengine.engine.service.ControlBinder;
 
 public class AssistantFragment extends Fragment implements AssistantOutput {
     private static final int REQUEST_OAUTH2 = 1;
     private static final int REQUEST_CREATE_DEVICE = 2;
 
+    private boolean mPulledHistory = false;
     private MainServiceConnection mEngine;
     private final Runnable mReadyCallback = new Runnable() {
         @Override
         public void run() {
-            mEngine.assistantReady();
+            ControlBinder control = mEngine.getControl();
+            if (control == null)
+                return;
+
+            control.setAssistantOutput(AssistantFragment.this);
+            pullHistory(control.getAssistant());
         }
     };
     private FragmentEmbedder mListener;
@@ -130,7 +139,7 @@ public class AssistantFragment extends Fragment implements AssistantOutput {
         @Override
         public void onAudioEvent(boolean recording) {
             if (recording)
-                send("Speak now...");
+                display(new AssistantMessage.Text("Speak now..."));
         }
     }
 
@@ -193,14 +202,36 @@ public class AssistantFragment extends Fragment implements AssistantOutput {
     }
 
     @Override
-    public void send(String msg) {
+    public void display(AssistantMessage msg) {
+        switch (msg.type) {
+            case TEXT:
+                display((AssistantMessage.Text)msg);
+                break;
+            case PICTURE:
+                display((AssistantMessage.Picture)msg);
+                break;
+            case RDL:
+                display((AssistantMessage.RDL)msg);
+                break;
+            case CHOICE:
+                display((AssistantMessage.Choice)msg);
+                break;
+            case LINK:
+                display((AssistantMessage.Link)msg);
+                break;
+            case BUTTON:
+                display((AssistantMessage.Button)msg);
+                break;
+        }
+    }
+
+    private void display(AssistantMessage.Text msg) {
         TextView view = new TextView(getActivity());
-        view.setText(msg);
+        view.setText(msg.msg);
         addItem(view, Side.LEFT);
     }
 
-    @Override
-    public void sendPicture(String url) {
+    private void display(AssistantMessage.Picture msg) {
         ImageView view = new ImageView(getActivity());
         view.setBackgroundColor(Color.RED);
         view.setScaleType(ImageView.ScaleType.FIT_CENTER);
@@ -212,17 +243,16 @@ public class AssistantFragment extends Fragment implements AssistantOutput {
                 super.onPostExecute(draw);
                 scheduleScroll();
             }
-        }).execute(url);
+        }).execute(msg.url);
     }
 
-    @Override
-    public void sendRDL(JSONObject rdl) {
+    private void display(AssistantMessage.RDL rdl) {
         try {
             // FIXME: we can do a better job for RDLs...
 
             Button btn = new Button(getActivity());
-            btn.setText(rdl.optString("displayTitle"));
-            final String webCallback = rdl.getString("webCallback");
+            btn.setText(rdl.rdl.optString("displayTitle"));
+            final String webCallback = rdl.rdl.getString("webCallback");
             btn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -235,43 +265,49 @@ public class AssistantFragment extends Fragment implements AssistantOutput {
         }
     }
 
-    @Override
-    public void sendChoice(final int idx, String what, String title, String text) {
+    private void display(final AssistantMessage.Choice msg) {
         Button btn = new Button(getActivity());
-        btn.setText(title);
+        btn.setText(msg.title);
         btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                onChoiceActivated(idx);
+                onChoiceActivated(msg.idx);
             }
         });
         addItem(btn, Side.LEFT);
     }
 
-    @Override
-    public void sendLink(String title, final String url) {
+    private void display(final AssistantMessage.Link msg) {
         Button btn = new Button(getActivity());
-        btn.setText(title);
+        btn.setText(msg.title);
         btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                onLinkActivated(url);
+                onLinkActivated(msg.url);
             }
         });
         addItem(btn, Side.LEFT);
     }
 
-    @Override
-    public void sendButton(String title, final String json) {
+    private void display(final AssistantMessage.Button msg) {
         Button btn = new Button(getActivity());
-        btn.setText(title);
+        btn.setText(msg.title);
         btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                onButtonActivated(json);
+                onButtonActivated(msg.json);
             }
         });
         addItem(btn, Side.LEFT);
+    }
+
+    private void pullHistory(AssistantDispatcher dispatcher) {
+        if (mPulledHistory)
+            return;
+        mPulledHistory = true;
+
+        for (AssistantMessage msg : dispatcher.getHistory(10))
+            display(msg);
     }
 
     @Override
@@ -310,9 +346,8 @@ public class AssistantFragment extends Fragment implements AssistantOutput {
     @Override
     public void onResume() {
         super.onResume();
-        mEngine.setAssistantOutput(this);
         mEngine.addEngineReadyCallback(mReadyCallback);
-        mEngine.assistantReady();
+        mReadyCallback.run();
         mSpeechHandler.onResume();
     }
 
@@ -320,7 +355,9 @@ public class AssistantFragment extends Fragment implements AssistantOutput {
     public void onPause() {
         super.onPause();
 
-        mEngine.setAssistantOutput(null);
+        ControlBinder control = mEngine.getControl();
+        if (control != null)
+            control.setAssistantOutput(null);
         mEngine.removeEngineReadyCallback(mReadyCallback);
         mSpeechHandler.onPause();
     }
@@ -332,13 +369,52 @@ public class AssistantFragment extends Fragment implements AssistantOutput {
         return inflater.inflate(R.layout.fragment_chat, container, false);
     }
 
+    private void handleAssistantCommand(final String command) {
+        AsyncTask.THREAD_POOL_EXECUTOR.execute(new Runnable() {
+            @Override
+            public void run() {
+                final ControlBinder control = mEngine.getControl();
+                if (control == null)
+                    return;
+
+                control.getAssistantCommandHandler().handleCommand(command);
+            }
+        });
+    }
+
+    private void handleAssistantParsedCommand(final String json) {
+        AsyncTask.THREAD_POOL_EXECUTOR.execute(new Runnable() {
+            @Override
+            public void run() {
+                final ControlBinder control = mEngine.getControl();
+                if (control == null)
+                    return;
+
+                control.getAssistantCommandHandler().handleParsedCommand(json);
+            }
+        });
+    }
+
+    private void handlePicture(final String url) {
+        AsyncTask.THREAD_POOL_EXECUTOR.execute(new Runnable() {
+            @Override
+            public void run() {
+                final ControlBinder control = mEngine.getControl();
+                if (control == null)
+                    return;
+
+                control.getAssistantCommandHandler().handlePicture(url);
+            }
+        });
+    }
+
     private void onTextActivated() {
         if (mEngine != null) {
             EditText input = (EditText)getActivity().findViewById(R.id.assistant_input);
 
             String command = input.getText().toString().trim();
             if (command.length() > 0) {
-                mEngine.handleAssistantCommand(command);
+                handleAssistantCommand(command);
 
                 TextView copy = new TextView(getActivity());
                 copy.setText(input.getText());
@@ -427,9 +503,7 @@ public class AssistantFragment extends Fragment implements AssistantOutput {
     }
 
     private void onButtonActivated(String json) {
-        if (mEngine != null) {
-            mEngine.handleAssistantParsedCommand(json);
-        }
+        handleAssistantParsedCommand(json);
     }
 
     private void onChoiceActivated(int idx) {
@@ -440,7 +514,7 @@ public class AssistantFragment extends Fragment implements AssistantOutput {
                 obj.put("answer", inner);
                 inner.put("type", "Choice");
                 inner.put("value", idx);
-                mEngine.handleAssistantParsedCommand(obj.toString());
+                handleAssistantParsedCommand(obj.toString());
             } catch(JSONException e) {
                 Log.e(MainActivity.LOG_TAG, "Unexpected json exception while constructing choice JSON", e);
             }

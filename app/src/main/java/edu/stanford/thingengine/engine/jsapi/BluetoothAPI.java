@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import edu.stanford.thingengine.engine.service.ControlChannel;
+import edu.stanford.thingengine.engine.service.EngineService;
 import edu.stanford.thingengine.engine.ui.InteractionCallback;
 
 /**
@@ -30,7 +31,7 @@ import edu.stanford.thingengine.engine.ui.InteractionCallback;
 public class BluetoothAPI extends JavascriptAPI {
     public static final String LOG_TAG = "thingengine.Service";
 
-    private final Context ctx;
+    private final EngineService ctx;
     private final Handler handler;
     private final BluetoothAdapter adapter;
     private final Map<String, BluetoothDevice> pairing = new HashMap<>();
@@ -66,7 +67,7 @@ public class BluetoothAPI extends JavascriptAPI {
         }
     }
 
-    public BluetoothAPI(Handler handler, Context ctx, ControlChannel control) {
+    public BluetoothAPI(Handler handler, EngineService ctx, ControlChannel control) {
         super("Bluetooth", control);
 
         this.ctx = ctx;
@@ -225,7 +226,7 @@ public class BluetoothAPI extends JavascriptAPI {
             return;
         }
 
-        InteractionCallback callback = getControl().getInteractionCallback();
+        InteractionCallback callback = ctx.getInteractionCallback();
         if (callback == null)
             throw new UnsupportedOperationException("Bluetooth is disabled and operation is in background");
 

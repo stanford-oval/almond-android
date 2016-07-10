@@ -7,7 +7,7 @@ import com.google.android.gms.common.api.Status;
 /**
  * Created by gcampagn on 5/7/16.
  */
-public interface InteractionCallback extends AssistantOutput {
+public interface InteractionCallback {
     int ENABLE_GPS = 1;
     int ENABLE_BLUETOOTH = 2;
 

@@ -1,6 +1,5 @@
 package edu.stanford.thingengine.engine.service;
 
-import android.content.Context;
 import android.net.LocalSocket;
 import android.net.LocalSocketAddress;
 import android.util.Log;
@@ -24,19 +23,17 @@ import java.util.LinkedList;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import edu.stanford.thingengine.engine.CloudAuthInfo;
-import edu.stanford.thingengine.engine.ui.InteractionCallback;
 
 /**
  * Created by gcampagn on 8/10/15.
  */
 public class ControlChannel implements AutoCloseable, Closeable {
     private static final AtomicInteger count = new AtomicInteger(0);
+    private final EngineService service;
     private final Reader controlReader;
-    private final StringBuilder partialMsg;
+    private final StringBuilder partialMsg = new StringBuilder();
     private final Writer controlWriter;
-    private final LinkedList<Reply> queuedReplies;
-
-    private volatile InteractionCallback callback;
+    private final LinkedList<Reply> queuedReplies = new LinkedList<>();
 
     private static class Reply {
         private final String replyId;
@@ -50,7 +47,9 @@ public class ControlChannel implements AutoCloseable, Closeable {
         }
     }
 
-    public ControlChannel(Context ctx) throws IOException {
+    public ControlChannel(EngineService ctx) throws IOException {
+        service = ctx;
+
         LocalSocket socket = new LocalSocket();
 
         socket.connect(new LocalSocketAddress(ctx.getFilesDir() + "/control", LocalSocketAddress.Namespace.FILESYSTEM));
@@ -58,8 +57,6 @@ public class ControlChannel implements AutoCloseable, Closeable {
         // so we use that and pay the byteswap, rather than paying the higher UTF-8 encoding cost
         controlReader = new BufferedReader(new InputStreamReader(socket.getInputStream(), Charset.forName("UTF-16LE")));
         controlWriter = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream(), Charset.forName("UTF-16LE")));
-        partialMsg = new StringBuilder();
-        queuedReplies = new LinkedList<>();
     }
 
     public void close() throws IOException {
@@ -69,14 +66,6 @@ public class ControlChannel implements AutoCloseable, Closeable {
         synchronized (controlWriter) {
             controlWriter.close();
         }
-    }
-
-    public void setInteractionCallback(InteractionCallback callback) {
-        this.callback = callback;
-    }
-
-    public InteractionCallback getInteractionCallback() {
-        return this.callback;
     }
 
     private String sendCall(String method, Object... arguments) throws IOException {

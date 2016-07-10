@@ -24,6 +24,7 @@ import org.json.JSONObject;
 import java.io.IOException;
 
 import edu.stanford.thingengine.engine.service.ControlChannel;
+import edu.stanford.thingengine.engine.service.EngineService;
 import edu.stanford.thingengine.engine.ui.InteractionCallback;
 
 /**
@@ -32,7 +33,7 @@ import edu.stanford.thingengine.engine.ui.InteractionCallback;
 public class GpsAPI extends JavascriptAPI {
     public static final String LOG_TAG = "thingengine.Service";
 
-    private final Context context;
+    private final EngineService context;
     private final Handler handler;
     private final GpsLocationCallback callback;
     private final GoogleApiClient mGoogleApiClient;
@@ -44,7 +45,7 @@ public class GpsAPI extends JavascriptAPI {
         }
     }
 
-    public GpsAPI(Handler handler, Context context, ControlChannel control) {
+    public GpsAPI(Handler handler, EngineService context, ControlChannel control) {
         super("Gps", control);
         this.handler = handler;
         this.context = context;
@@ -111,7 +112,7 @@ public class GpsAPI extends JavascriptAPI {
 
         final Status status = result.getStatus();
 
-        InteractionCallback callback = getControl().getInteractionCallback();
+        InteractionCallback callback = context.getInteractionCallback();
         switch (status.getStatusCode()) {
             case LocationSettingsStatusCodes.SUCCESS:
                 break;

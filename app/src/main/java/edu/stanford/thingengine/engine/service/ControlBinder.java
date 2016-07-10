@@ -9,7 +9,6 @@ import java.util.List;
 
 import edu.stanford.thingengine.engine.CloudAuthInfo;
 import edu.stanford.thingengine.engine.IThingEngine;
-import edu.stanford.thingengine.engine.jsapi.AssistantAPI;
 import edu.stanford.thingengine.engine.ui.InteractionCallback;
 
 /**
@@ -17,7 +16,7 @@ import edu.stanford.thingengine.engine.ui.InteractionCallback;
  */
 public class ControlBinder extends IThingEngine.Stub {
     private final EngineService service;
-    private final AssistantAPI assistant;
+    private final AssistantCommandHandler cmdHandler;
     private final ControlChannel channel;
 
     public static class DeviceInfo {
@@ -45,18 +44,26 @@ public class ControlBinder extends IThingEngine.Stub {
         }
     }
 
-    public ControlBinder(EngineService service, AssistantAPI assistant, ControlChannel channel) {
+    public ControlBinder(EngineService service, AssistantCommandHandler cmdHandler, ControlChannel channel) {
         this.service = service;
-        this.assistant = assistant;
+        this.cmdHandler = cmdHandler;
         this.channel = channel;
     }
 
-    public AssistantAPI getAssistant() {
-        return assistant;
+    public AssistantCommandHandler getAssistantCommandHandler() {
+        return cmdHandler;
+    }
+
+    public AssistantDispatcher getAssistant() {
+        return service.getAssistant();
+    }
+
+    public void setAssistantOutput(AssistantOutput output) {
+        service.getAssistant().setAssistantOutput(output);
     }
 
     public void setInteractionCallback(InteractionCallback callback) {
-        channel.setInteractionCallback(callback);
+        service.setInteractionCallback(callback);
     }
 
     public boolean setCloudId(CloudAuthInfo authInfo) {

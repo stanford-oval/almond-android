@@ -60,7 +60,7 @@ public class EngineThread extends Thread {
                     new AudioRouterAPI(workerHandler, context, control);
                     new SystemAppsAPI(context, control);
 
-                    context.controlReady(new AssistantAPI(control), control);
+                    context.controlReady(new AssistantAPI(context, control), control);
                 }
             });
 
