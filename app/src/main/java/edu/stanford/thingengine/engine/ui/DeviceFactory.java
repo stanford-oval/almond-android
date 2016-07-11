@@ -10,8 +10,6 @@ import org.json.JSONObject;
 import java.io.Serializable;
 import java.util.List;
 
-import edu.stanford.thingengine.engine.service.ControlBinder;
-
 /**
  * Created by gcampagn on 6/27/16.
  */
@@ -41,36 +39,11 @@ public abstract class DeviceFactory {
         }
 
         @Override
-        public void activate(final Activity activity, final EngineServiceConnection engine) {
+        public void activate(Activity activity, EngineServiceConnection engine) {
             try {
                 final JSONObject object = new JSONObject();
                 object.put("kind", kind);
-                AsyncTask.THREAD_POOL_EXECUTOR.execute(new Runnable() {
-                    @Override
-                    public void run() {
-                        ControlBinder control = engine.getControl();
-                        if (control == null)
-                            return;
-
-                        try {
-                            control.createDevice(object);
-                            activity.runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    activity.setResult(Activity.RESULT_OK);
-                                    activity.finish();
-                                }
-                            });
-                        } catch(final Exception e) {
-                            activity.runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    DialogUtils.showFailureDialog(activity, "Failed to create device: " + e.getMessage());
-                                }
-                            });
-                        }
-                    }
-                });
+                new DeviceConfigureTask(activity, engine).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, object);
             } catch (JSONException e) {
                 throw new RuntimeException(e);
             }

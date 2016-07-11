@@ -15,7 +15,7 @@ import edu.stanford.thingengine.engine.service.EngineService;
  */
 
 public class EngineServiceConnection implements ServiceConnection {
-    protected volatile Activity parent;
+    protected Activity parent;
     protected volatile ControlBinder binder;
 
     public ControlBinder getControl() {

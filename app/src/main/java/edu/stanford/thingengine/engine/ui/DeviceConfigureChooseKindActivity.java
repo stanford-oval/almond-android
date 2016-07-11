@@ -123,7 +123,7 @@ public class DeviceConfigureChooseKindActivity extends Activity {
                 break;
         }
 
-        new GetFactoriesTask().execute(_class);
+        new GetFactoriesTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, _class);
     }
 
 

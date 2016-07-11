@@ -241,7 +241,7 @@ public class AssistantFragment extends Fragment implements AssistantOutput {
                 super.onPostExecute(draw);
                 scheduleScroll();
             }
-        }).execute(msg.url);
+        }).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, msg.url);
     }
 
     private void display(AssistantMessage.RDL msg) {

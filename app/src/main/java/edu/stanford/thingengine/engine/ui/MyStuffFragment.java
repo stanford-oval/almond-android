@@ -98,7 +98,7 @@ public class MyStuffFragment extends Fragment {
 
             TextView name = (TextView)secondChild;
 
-            new LoadImageTask(icon).execute(getIcon(device));
+            new LoadImageTask(icon).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, getIcon(device));
             name.setText(device.name);
             return true;
         }
@@ -127,7 +127,7 @@ public class MyStuffFragment extends Fragment {
             textParams.gravity = Gravity.CENTER_HORIZONTAL;
             linearLayout.addView(text, textParams);
 
-            new LoadImageTask(icon).execute(getIcon(device));
+            new LoadImageTask(icon).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, getIcon(device));
             text.setText(device.name);
 
             return linearLayout;
@@ -202,7 +202,7 @@ public class MyStuffFragment extends Fragment {
     }
 
     public void refresh() {
-        new RefreshDevicesTask().execute();
+        new RefreshDevicesTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
     }
 
     private void processDevices(Collection<ControlBinder.DeviceInfo> devices) {

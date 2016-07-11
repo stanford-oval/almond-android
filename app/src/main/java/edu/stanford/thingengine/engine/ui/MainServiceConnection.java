@@ -4,14 +4,22 @@ import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.IntentSender;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
+import android.os.Message;
+import android.support.annotation.NonNull;
 
 import com.google.android.gms.common.api.Status;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import edu.stanford.thingengine.engine.service.ControlBinder;
 
@@ -19,89 +27,130 @@ import edu.stanford.thingengine.engine.service.ControlBinder;
  * Created by gcampagn on 6/27/16.
  */
 public class MainServiceConnection extends EngineServiceConnection implements InteractionCallback {
-    private final List<Runnable> callbacks = new ArrayList<>();
+    private static final int MSG_RESOLVE_RESULT = 1;
+    private static final int MSG_START_ACTIVITY = 2;
 
-    private static class InteractionState {
-        public boolean interacting = false;
-        public boolean interacted = false;
+    private static class InteractionState implements Future<Boolean> {
+        private boolean interacting = true;
+        private boolean interacted = false;
+
+        @Override
+        public synchronized boolean cancel(boolean mayInterruptIfRunning) {
+            return false;
+        }
+
+        @Override
+        public synchronized boolean isCancelled() {
+            return false;
+        }
+
+        @Override
+        public synchronized boolean isDone() {
+            return interacted;
+        }
+
+        @Override
+        public synchronized Boolean get() throws InterruptedException {
+            while (interacting)
+                wait();
+            return Boolean.valueOf(interacted);
+        }
+
+        @Override
+        public Boolean get(long timeout, @NonNull TimeUnit unit) throws InterruptedException, TimeoutException {
+            while (interacting)
+                unit.timedWait(this, timeout);
+            return Boolean.valueOf(interacted);
+        }
+
+        public synchronized void complete(boolean result) {
+            interacted = result;
+            interacting = false;
+            notifyAll();
+        }
     }
 
-    private final Map<Integer, InteractionState> interacting = new HashMap<>();
+    private static class InternalHandler extends Handler {
+        private final WeakReference<MainServiceConnection> ref;
+
+        public InternalHandler(WeakReference<MainServiceConnection> ref) {
+            super(Looper.getMainLooper());
+            this.ref = ref;
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+            MainServiceConnection parent = ref.get();
+            if (parent == null)
+                return;
+
+            switch (msg.what) {
+                case MSG_RESOLVE_RESULT:
+                    parent.doResolveResult((Status)msg.obj, msg.arg1);
+                    break;
+
+                case MSG_START_ACTIVITY:
+                    parent.doStartActivity((Intent)msg.obj, msg.arg1);
+            }
+        }
+    }
+
+    private final List<Runnable> callbacks = new ArrayList<>();
+    private final Map<Integer, InteractionState> interacting = new ConcurrentHashMap<>();
+    private final InternalHandler handler;
+
+    public MainServiceConnection() {
+        handler = new InternalHandler(new WeakReference<MainServiceConnection>(this));
+    }
+
+    private void doResolveResult(Status status, int requestCode) {
+        InteractionState state = interacting.get(requestCode);
+        if (state == null)
+            return;
+
+        Activity currentParent = parent;
+        if (currentParent == null) {
+            state.complete(false);
+            return;
+        }
+
+        try {
+            status.startResolutionForResult(currentParent, 1);
+        } catch (IntentSender.SendIntentException e) {
+            state.complete(false);
+        }
+    }
+
+    private void doStartActivity(Intent intent, int requestCode) {
+        InteractionState state = interacting.get(requestCode);
+        if (state == null)
+            return;
+
+        Activity currentParent = parent;
+        if (currentParent == null) {
+            state.complete(false);
+            return;
+        }
+
+        currentParent.startActivityForResult(intent, requestCode);
+    }
 
     @Override
-    public boolean resolveResult(final Status status, final int requestCode) throws InterruptedException {
-        Activity currentParent = parent;
-        if (currentParent == null)
-            return false;
+    public boolean resolveResult(Status status, int requestCode) throws InterruptedException {
+        final InteractionState state = new InteractionState();
+        interacting.put(requestCode, state);
+        handler.obtainMessage(MSG_RESOLVE_RESULT, requestCode, 0, status).sendToTarget();
 
-        synchronized (this) {
-            final InteractionState state = new InteractionState();
-            interacting.put(requestCode, state);
-            state.interacting = true;
-            currentParent.runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    Activity currentParent = parent;
-                    if (currentParent == null) {
-                        synchronized (MainServiceConnection.this) {
-                            state.interacting = false;
-                            state.interacted = false;
-                            MainServiceConnection.this.notifyAll();
-                        }
-                        return;
-                    }
-
-                    try {
-                        status.startResolutionForResult(currentParent, 1);
-                    } catch(IntentSender.SendIntentException e) {
-                        synchronized (MainServiceConnection.this) {
-                            state.interacting = false;
-                            state.interacted = false;
-                            MainServiceConnection.this.notifyAll();
-                        }
-                    }
-                }
-            });
-
-            while (state.interacting)
-                wait();
-            interacting.remove(requestCode);
-            return state.interacted;
-        }
+        return state.get();
     }
 
     @Override
     public boolean startActivity(final Intent intent, final int requestCode) throws InterruptedException {
-        Activity currentParent = parent;
-        if (currentParent == null)
-            return false;
+        final InteractionState state = new InteractionState();
+        interacting.put(requestCode, state);
+        handler.obtainMessage(MSG_START_ACTIVITY, requestCode, 0, intent).sendToTarget();
 
-        synchronized (this) {
-            final InteractionState state = new InteractionState();
-            interacting.put(requestCode, state);
-            state.interacting = true;
-            currentParent.runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    Activity currentParent = parent;
-                    if (currentParent == null) {
-                        synchronized (MainServiceConnection.this) {
-                            state.interacting = false;
-                            state.interacted = false;
-                            MainServiceConnection.this.notifyAll();
-                        }
-                        return;
-                    }
-
-                    currentParent.startActivityForResult(intent, requestCode);
-                }
-            });
-
-            while (state.interacting)
-                wait();
-            interacting.remove(requestCode);
-            return state.interacted;
-        }
+        return state.get();
     }
 
     @Override
@@ -122,13 +171,11 @@ public class MainServiceConnection extends EngineServiceConnection implements In
         super.stop(ctx);
     }
 
-    public synchronized void onActivityResult(int requestCode, int resultCode, Intent intent) {
-        final InteractionState state = interacting.get(requestCode);
-        if (state == null || !state.interacting)
+    public void onActivityResult(int requestCode, int resultCode, Intent intent) {
+        InteractionState state = interacting.remove(requestCode);
+        if (state == null)
             return;
-        state.interacting = false;
-        state.interacted = resultCode == Activity.RESULT_OK;
-        notifyAll();
+        state.complete(resultCode == Activity.RESULT_OK);
     }
 
     public void addEngineReadyCallback(Runnable callback) {

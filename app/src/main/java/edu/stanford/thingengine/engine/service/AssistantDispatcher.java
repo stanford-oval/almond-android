@@ -64,7 +64,7 @@ public class AssistantDispatcher implements Handler.Callback {
             }
         }
 
-        AsyncTask.THREAD_POOL_EXECUTOR.execute(new Runnable() {
+        AsyncTask.SERIAL_EXECUTOR.execute(new Runnable() {
             @Override
             public void run() {
                 cmdHandler.handleCommand(command);
@@ -77,7 +77,7 @@ public class AssistantDispatcher implements Handler.Callback {
     }
 
     public void handleParsedCommand(final String json) {
-        AsyncTask.THREAD_POOL_EXECUTOR.execute(new Runnable() {
+        AsyncTask.SERIAL_EXECUTOR.execute(new Runnable() {
             @Override
             public void run() {
                 cmdHandler.handleParsedCommand(json);
@@ -86,7 +86,7 @@ public class AssistantDispatcher implements Handler.Callback {
     }
 
     public AssistantMessage.Picture handlePicture(final String url) {
-        AsyncTask.THREAD_POOL_EXECUTOR.execute(new Runnable() {
+        AsyncTask.SERIAL_EXECUTOR.execute(new Runnable() {
             @Override
             public void run() {
                 cmdHandler.handlePicture(url);
@@ -221,9 +221,6 @@ public class AssistantDispatcher implements Handler.Callback {
 
     // to be called from any thread
     public void dispatch(AssistantMessage msg) {
-        Message osMsg = Message.obtain();
-        osMsg.what = MSG_ASSISTANT_MESSAGE;
-        osMsg.obj = msg;
-        assistantHandler.sendMessage(osMsg);
+        assistantHandler.obtainMessage(MSG_ASSISTANT_MESSAGE, msg).sendToTarget();
     }
 }

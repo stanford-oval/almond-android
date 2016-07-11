@@ -28,7 +28,6 @@ import java.util.Collection;
 import java.util.List;
 
 import edu.stanford.thingengine.engine.R;
-import edu.stanford.thingengine.engine.service.ControlBinder;
 
 public class DeviceCreateFormActivity extends Activity {
     public static final String ACTION = "edu.stanford.thingengine.engine.DEVICE_CREATE";
@@ -192,32 +191,7 @@ public class DeviceCreateFormActivity extends Activity {
             return;
         }
 
-        AsyncTask.THREAD_POOL_EXECUTOR.execute(new Runnable() {
-            @Override
-            public void run() {
-                ControlBinder control = mEngine.getControl();
-                if (control == null)
-                    return;
-
-                try {
-                    control.createDevice(obj);
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            setResult(RESULT_OK);
-                            finish();
-                        }
-                    });
-                } catch(final Exception e) {
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            DialogUtils.showFailureDialog(DeviceCreateFormActivity.this, "Failed to create device: " + e.getMessage());
-                        }
-                    });
-                }
-            }
-        });
+        new DeviceConfigureTask(this, mEngine).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, obj);
     }
 
     private void navigateUp() {

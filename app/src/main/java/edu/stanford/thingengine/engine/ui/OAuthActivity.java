@@ -11,6 +11,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v4.app.NavUtils;
+import android.util.Log;
 import android.view.MenuItem;
 import android.webkit.JsResult;
 import android.webkit.WebChromeClient;
@@ -110,46 +111,58 @@ public class OAuthActivity extends Activity {
         return map;
     }
 
-    private void startOAuth2() {
-        started = true;
+    private static class StartOAuth2Result {
+        public final Exception exception;
+        public final JSONArray result;
 
-        AsyncTask.THREAD_POOL_EXECUTOR.execute(new Runnable() {
-            @Override
-            public void run() {
-                ControlBinder control = mEngine.getControl();
-                if (control == null)
-                    return;
+        public StartOAuth2Result(Exception e, JSONArray a) {
+            exception = e;
+            result = a;
+        }
+    }
 
+    private class StartOAuth2Task extends AsyncTask<String, Void, StartOAuth2Result> {
+        @Override
+        public StartOAuth2Result doInBackground(String... params) {
+            ControlBinder control = mEngine.getControl();
+            if (control == null)
+                return null;
+
+            try {
+                return new StartOAuth2Result(null, control.startOAuth2(params[0]));
+            } catch(Exception e) {
+                return new StartOAuth2Result(e, null);
+            }
+        }
+
+        @Override
+        public void onPostExecute(StartOAuth2Result result) {
+            if (result == null)
+                return;
+
+            if (result.exception != null) {
+                DialogUtils.showFailureDialog(OAuthActivity.this, "Failed to begin OAuth2 flow: " + result.exception.getMessage());
+                return;
+            }
+
+            if (result.result == null) {
+                setResult(RESULT_OK);
+                finish();
+            } else {
                 try {
-                    final JSONArray obj = control.startOAuth2(kind);
-                    if (obj == null) {
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                setResult(RESULT_OK);
-                                finish();
-                            }
-                        });
-                    } else {
-                        final String redirect = obj.getString(0);
-                        final Map<String, String> session = jsonToMap(obj.getJSONObject(1));
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                continueStartOAuth2(redirect, session);
-                            }
-                        });
-                    }
-                } catch(final Exception e) {
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            DialogUtils.showFailureDialog(OAuthActivity.this, "Failed to begin OAuth2 flow: " + e.getMessage());
-                        }
-                    });
+                    final String redirect = result.result.getString(0);
+                    final Map<String, String> session = jsonToMap(result.result.getJSONObject(1));
+                    continueStartOAuth2(redirect, session);
+                } catch(JSONException e) {
+                    Log.e(MainActivity.LOG_TAG, "Unexpected JSON exception unpacking OAuth2 result", e);
                 }
             }
-        });
+        }
+    }
+
+    private void startOAuth2() {
+        started = true;
+        new StartOAuth2Task().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, kind);
     }
 
     private void continueStartOAuth2(String redirect, Map<String, String> session) {
