@@ -12,23 +12,29 @@ const events = require('events');
 const util = require('util');
 
 const SempreClient = require('sabrina').Sempre;
+const Sabrina = require('sabrina').Sabrina;
 
-const Conversation = require('./conversation');
-
-const JavaAPI = require('../java_api');
+const JavaAPI = require('./java_api');
 const AssistantJavaApi = JavaAPI.makeJavaAPI('Assistant', [],
     ['send', 'sendPicture', 'sendRDL', 'sendChoice', 'sendLink', 'sendButton'],
     ['onhandlecommand', 'onhandleparsedcommand', 'onhandlepicture']);
 
 var instance_;
 
+class LocalUser {
+    constructor() {
+        this.id = 0;
+        this.account = 'INVALID';
+        this.name = platform.getSharedPreferences().get('user-name');
+    }
+}
+
 module.exports = class AssistantDispatcher {
     constructor(engine) {
         this.engine = engine;
 
         this._sempre = new SempreClient();
-        this._conversation = null;
-        this._socket = null;
+        this._conversation = new Sabrina(this.engine, new LocalUser(), this, true);
 
         instance_ = this;
     }
@@ -45,7 +51,6 @@ module.exports = class AssistantDispatcher {
         AssistantJavaApi.onhandleparsedcommand = this._onHandleParsedCommand.bind(this);
         AssistantJavaApi.onhandlepicture = this._onHandlePicture.bind(this);
 
-        this._conversation = new Conversation(this.engine, this);
         this._conversation.start();
     }
 
@@ -55,8 +60,6 @@ module.exports = class AssistantDispatcher {
         AssistantJavaApi.onhandlecommand = null;
         AssistantJavaApi.onhandleparsedcommand = null;
         AssistantJavaApi.onhandlepicture = null;
-
-        this._conversation = null;
     }
 
     getConversation() {
@@ -64,50 +67,46 @@ module.exports = class AssistantDispatcher {
     }
 
     _onHandleParsedCommand(error, json) {
-        this._conversation.handleCommand(null, json).catch(function(e) {
+        return this._conversation.handleCommand(null, json).catch(function(e) {
             console.log('Failed to handle assistant command: ' + e.message);
-        }).done();
+        });
     }
 
     _onHandleCommand(error, text) {
-        this.analyze(text).then(function(analyzed) {
-            this._conversation.handleCommand(text, analyzed);
+        return this._session.sendUtterance(text).then(function(analyzed) {
+            return this._conversation.handleCommand(text, analyzed);
         }.bind(this)).catch(function(e) {
             console.log('Failed to handle assistant command: ' + e.message);
-        }).done();
+        });
     }
 
     _onHandlePicture(error, url) {
-        this._conversation.handlePicture(url).catch(function(e) {
+        return this._conversation.handlePicture(url).catch(function(e) {
             console.log('Failed to handle assistant picture: ' + e.message);
-        }).done();
-    }
-
-    analyze(what) {
-        return this._session.sendUtterance(what);
+        });
     }
 
     send(what) {
-        AssistantJavaApi.send(what).done();
+        return AssistantJavaApi.send(what);
     }
 
     sendPicture(url) {
-        AssistantJavaApi.sendPicture(url).done()
+        return AssistantJavaApi.sendPicture(url);
     }
 
     sendRDL(rdl) {
-        AssistantJavaApi.sendRDL(JSON.stringify(rdl)).done();
+        return AssistantJavaApi.sendRDL(JSON.stringify(rdl));
     }
 
     sendChoice(idx, what, title, text) {
-        AssistantJavaApi.sendChoice(idx, what, title, text).done();
+        return AssistantJavaApi.sendChoice(idx, what, title, text);
     }
 
     sendLink(title, url) {
-        AssistantJavaApi.sendLink(title, url).done();
+        return AssistantJavaApi.sendLink(title, url);
     }
 
     sendButton(title, json) {
-        AssistantJavaApi.sendButton(title, json).done();
+        return AssistantJavaApi.sendButton(title, json);
     }
 };

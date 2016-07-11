@@ -17,7 +17,7 @@ const fs = require('fs');
 const ControlChannel = require('./control');
 const Engine = require('thingengine-core');
 const Tier = require('thingpedia').Tier;
-const AssistantDispatcher = require('./assistant/dispatcher');
+const AssistantDispatcher = require('./assistant');
 
 const JavaAPI = require('./java_api');
 
