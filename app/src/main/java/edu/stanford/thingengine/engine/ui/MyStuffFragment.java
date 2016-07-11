@@ -42,7 +42,6 @@ public class MyStuffFragment extends Fragment {
 
     private ArrayAdapter<ControlBinder.DeviceInfo> mDevices;
     private ArrayAdapter<ControlBinder.DeviceInfo> mAccounts;
-    private ArrayAdapter<ControlBinder.DeviceInfo> mDataSources;
 
     public MyStuffFragment() {}
 
@@ -158,11 +157,10 @@ public class MyStuffFragment extends Fragment {
 
         mDevices = new DeviceArrayAdapter();
         mAccounts = new DeviceArrayAdapter();
-        mDataSources = new DeviceArrayAdapter();
 
-        ListAdapter[] adapters = new ListAdapter[] { mDevices, mAccounts, mDataSources };
-        int[] view_ids = new int[] { R.id.my_devices_view, R.id.my_accounts_view, R.id.my_datasources_view };
-        for (int i = 0; i < 3; i++) {
+        ListAdapter[] adapters = new ListAdapter[] { mDevices, mAccounts };
+        int[] view_ids = new int[] { R.id.my_devices_view, R.id.my_accounts_view };
+        for (int i = 0; i < view_ids.length; i++) {
             ListAdapter adapter = adapters[i];
             GridView view = (GridView) getActivity().findViewById(view_ids[i]);
 
@@ -177,10 +175,10 @@ public class MyStuffFragment extends Fragment {
             });
         }
 
-        int[] button_ids = new int[] { R.id.btn_create_device, R.id.btn_create_account, R.id.btn_create_datasource };
-        String[] classes = new String[] { "physical", "online", "data" };
+        int[] button_ids = new int[] { R.id.btn_create_device, R.id.btn_create_account };
+        String[] classes = new String[] { "physical", "online" };
 
-        for (int i = 0; i < 3; i++) {
+        for (int i = 0; i < classes.length; i++) {
             Button btn = (Button) getActivity().findViewById(button_ids[i]);
             String _class = classes[i];
 
@@ -210,14 +208,13 @@ public class MyStuffFragment extends Fragment {
     private void processDevices(Collection<ControlBinder.DeviceInfo> devices) {
         mDevices.clear();
         mAccounts.clear();
-        mDataSources.clear();
 
         for (ControlBinder.DeviceInfo device : devices) {
             if (device.isThingEngine)
                 continue;
             if (device.isDataSource)
-                mDataSources.add(device);
-            else if (device.isOnlineAccount)
+                continue; // we don't have space to show data sources, so we ignore them
+            if (device.isOnlineAccount)
                 mAccounts.add(device);
             else
                 mDevices.add(device);

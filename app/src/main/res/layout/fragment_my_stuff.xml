@@ -64,30 +64,4 @@
             android:text="@string/btn_create_account_title"
             android:id="@+id/btn_create_account" />
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceLarge"
-            android:text="@string/my_datasources_title"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginTop="@dimen/activity_vertical_margin"
-            android:layout_marginBottom="@dimen/activity_vertical_margin" />
-
-        <GridView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/my_datasources_view"
-            android:layout_gravity="center_horizontal"
-            android:layout_weight="1"
-            android:horizontalSpacing="@dimen/text_margin"
-            android:verticalSpacing="@dimen/text_margin"
-            android:numColumns="auto_fit"
-            android:columnWidth="100dp" />
-
-        <Button
-            style="?android:attr/buttonStyleSmall"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/btn_create_datasource_title"
-            android:id="@+id/btn_create_datasource" />
 </LinearLayout>

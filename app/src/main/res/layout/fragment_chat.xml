@@ -44,8 +44,7 @@
             android:singleLine="true"
             android:focusable="true"
             android:focusableInTouchMode="true"
-            android:layout_weight="1"
-            android:layout_marginRight="10dp" />
+            android:layout_weight="1" />
 
         <ImageView
             android:layout_width="wrap_content"
@@ -53,7 +52,9 @@
             android:layout_weight="0"
             android:id="@+id/btn_assistant_voice"
             android:src="@android:drawable/ic_btn_speak_now"
-            android:clickable="true" />
+            android:clickable="true"
+            android:padding="5dp"
+            android:layout_gravity="center" />
     </LinearLayout>
 
 </LinearLayout>

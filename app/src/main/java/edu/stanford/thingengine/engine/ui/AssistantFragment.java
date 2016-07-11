@@ -386,38 +386,6 @@ public class AssistantFragment extends Fragment implements AssistantOutput {
         }
     }
 
-    private void createDeviceNoAuth(String kind) {
-        final JSONObject object = new JSONObject();
-        try {
-            object.put("kind", kind);
-
-            final EngineServiceConnection engine = mEngine;
-            if (engine == null)
-                return;
-            AsyncTask.THREAD_POOL_EXECUTOR.execute(new Runnable() {
-                @Override
-                public void run() {
-                    ControlBinder control = engine.getControl();
-                    if (control == null)
-                        return;
-
-                    try {
-                        control.createDevice(object);
-                    } catch (final Exception e) {
-                        getActivity().runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                DialogUtils.showFailureDialog(getActivity(), "Failed to create device: " + e.getMessage());
-                            }
-                        });
-                    }
-                }
-            });
-        } catch (final Exception e) {
-            DialogUtils.showFailureDialog(getActivity(), "Failed to create device: " + e.getMessage());
-        }
-    }
-
     private void createDeviceOAuth2(String kind) {
         Intent intent = new Intent(getActivity(), OAuthActivity.class);
         intent.setAction(OAuthActivity.ACTION);
@@ -440,13 +408,7 @@ public class AssistantFragment extends Fragment implements AssistantOutput {
     private void onLinkActivated(String url) {
         if (url.startsWith("/")) {
             // recognize relative urls as local intents
-            if (url.startsWith("/devices/create/")) {
-                // FIXME this should not be a link, it should be a button
-
-                Uri parsed = Uri.parse(url);
-                String kind = parsed.getLastPathSegment();
-                createDeviceNoAuth(kind);
-            } else if (url.startsWith("/devices/oauth2/")) {
+            if (url.startsWith("/devices/oauth2/")) {
                 Uri parsed = Uri.parse(url);
                 String kind = parsed.getLastPathSegment();
                 createDeviceOAuth2(kind);
