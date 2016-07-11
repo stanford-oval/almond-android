@@ -7,19 +7,12 @@
 // See COPYING for details
 "use strict";
 
-require('babel-polyfill');
-
 console.log('ThingEngine-Android starting up...');
 
+// we need these very early on
 const Q = require('q');
-const fs = require('fs');
-
-const ControlChannel = require('./control');
-const Engine = require('thingengine-core');
-const Tier = require('thingpedia').Tier;
-const AssistantDispatcher = require('./assistant');
-
 const JavaAPI = require('./java_api');
+const ControlChannel = require('./control');
 
 var _engine;
 var _waitReady;
@@ -93,7 +86,7 @@ class AppControlChannel extends ControlChannel {
             return false;
 
         _engine.devices.loadOneDevice({ kind: 'org.thingpedia.builtin.thingengine',
-                                        tier: Tier.CLOUD,
+                                        tier: 'cloid',
                                         cloudId: cloudId,
                                         own: true }, true).done();
         return true;
@@ -108,7 +101,7 @@ class AppControlChannel extends ControlChannel {
         }
 
         _engine.devices.loadOneDevice({ kind: 'org.thingpedia.builtin.thingengine',
-                                        tier: Tier.SERVER,
+                                        tier: 'server',
                                         host: serverHost,
                                         port: serverPort,
                                         own: true }, true).done();
@@ -119,34 +112,50 @@ class AppControlChannel extends ControlChannel {
 function runEngine() {
     Q.longStackSupport = true;
 
+    // we would like to create the control channel without
+    // initializing the platform but we can't because the
+    // control channels needs paths and encodings from the platform
     global.platform = require('./platform');
-
     platform.init().then(function() {
         console.log('Android platform initialized');
-        console.log('Creating engine...');
 
-        _engine = new Engine(global.platform);
-        var ad = new AssistantDispatcher(_engine);
+        // create the control channel immediately so we free
+        // the UI thread to go on merrily on it's own
         var controlChannel = new AppControlChannel();
 
-        return controlChannel.open().then(function() {
-            // signal early to stop the engine
-            // we don't need to async-wait for the result here, the call is sync
-            // and execute on our thread
-            JXMobile('controlReady').callNative();
+        return controlChannel.open();
+    }).then(function() {
+        // signal to unblock the UI thread
+        // we don't need to async-wait for the result here, the call is sync
+        // and execute on our thread
+        JXMobile('controlReady').callNative();
 
-            _waitReady = _engine.open();
-            ad.start();
-            return _waitReady;
-        }).then(function() {
-            _running = true;
-            if (_stopped)
-                return;
-            return _engine.run();
-        }).finally(function() {
-            ad.stop();
-            return _engine.close();
-        });
+        console.log('Control channel ready');
+
+        // we would like to load this first, but it's huge
+        // so we delay until after we have the control channel
+        require('babel-polyfill');
+
+        // finally load the bulk of the code and create the engine
+        const Engine = require('thingengine-core');
+        const AssistantDispatcher = require('./assistant');
+
+        console.log('Creating engine...');
+        _engine = new Engine(global.platform);
+
+        var ad = new AssistantDispatcher(_engine);
+
+        _waitReady = _engine.open();
+        ad.start();
+        return _waitReady;
+    }).then(function() {
+        _running = true;
+        if (_stopped)
+            return;
+        return _engine.run();
+    }).finally(function() {
+        ad.stop();
+        return _engine.close();
     }).catch(function(error) {
         console.log('Uncaught exception: ' + error.message);
         console.log(error.stack);
@@ -156,6 +165,5 @@ function runEngine() {
     }).done();
 }
 
-console.log('Registering to JXMobile');
 JXMobile('runEngine').registerToNative(runEngine);
 

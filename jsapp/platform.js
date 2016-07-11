@@ -15,7 +15,7 @@ const fs = require('fs');
 const sql = require('thingengine-core/lib/util/sql');
 
 const JavaAPI = require('./java_api');
-const AssistantDispatcher = require('./assistant/dispatcher');
+const AssistantDispatcher = require('./assistant');
 
 const _unzipApi = JavaAPI.makeJavaAPI('Unzip', ['unzip'], [], []);
 const _gpsApi = JavaAPI.makeJavaAPI('Gps', ['start', 'stop'], [], ['onlocationchanged']);
