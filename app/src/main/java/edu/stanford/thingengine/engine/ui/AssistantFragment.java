@@ -156,7 +156,12 @@ public class AssistantFragment extends Fragment implements AssistantOutput {
         return fragment;
     }
 
-    public void addItem(@NonNull View view, @NonNull AssistantMessage.Direction side) {
+    public void clearHistory() {
+        LinearLayout layout = (LinearLayout) getActivity().findViewById(R.id.assistant_container);
+        layout.removeAllViews();
+    }
+
+    private void addItem(@NonNull View view, @NonNull AssistantMessage.Direction side) {
         PercentRelativeLayout.LayoutParams params = new PercentRelativeLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT);
         params.getPercentLayoutInfo().widthPercent = 0.7f;
 

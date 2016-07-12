@@ -2,6 +2,12 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="edu.stanford.thingengine.engine.ui.MainActivity">
     <item
+        android:id="@+id/action_clear_chat"
+        android:orderInCategory="0"
+        android:menuCategory="alternative"
+        android:showAsAction="ifRoom"
+        android:title="@string/action_clear_chat" />
+    <item
         android:id="@+id/action_settings"
         android:orderInCategory="100"
         android:showAsAction="never"
