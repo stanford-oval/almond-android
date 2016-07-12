@@ -27,6 +27,7 @@ import java.util.List;
 import edu.stanford.thingengine.engine.Config;
 import edu.stanford.thingengine.engine.R;
 import edu.stanford.thingengine.engine.service.ControlBinder;
+import edu.stanford.thingengine.engine.service.DeviceInfo;
 
 public class MyStuffFragment extends Fragment {
     private static final int REQUEST_CREATE_DEVICE = 2;
@@ -40,8 +41,8 @@ public class MyStuffFragment extends Fragment {
     };
     private FragmentEmbedder mListener;
 
-    private ArrayAdapter<ControlBinder.DeviceInfo> mDevices;
-    private ArrayAdapter<ControlBinder.DeviceInfo> mAccounts;
+    private ArrayAdapter<DeviceInfo> mDevices;
+    private ArrayAdapter<DeviceInfo> mAccounts;
 
     public MyStuffFragment() {}
 
@@ -52,9 +53,9 @@ public class MyStuffFragment extends Fragment {
         return fragment;
     }
 
-    private class RefreshDevicesTask extends AsyncTask<Void, Void, List<ControlBinder.DeviceInfo>> {
+    private class RefreshDevicesTask extends AsyncTask<Void, Void, List<DeviceInfo>> {
         @Override
-        public List<ControlBinder.DeviceInfo> doInBackground(Void... params) {
+        public List<DeviceInfo> doInBackground(Void... params) {
             try {
                 ControlBinder control = mEngine.getControl();
                 if (control == null)
@@ -68,21 +69,21 @@ public class MyStuffFragment extends Fragment {
         }
 
         @Override
-        public void onPostExecute(List<ControlBinder.DeviceInfo> devices) {
+        public void onPostExecute(List<DeviceInfo> devices) {
             processDevices(devices);
         }
     }
 
-    private class DeviceArrayAdapter extends ArrayAdapter<ControlBinder.DeviceInfo> {
+    private class DeviceArrayAdapter extends ArrayAdapter<DeviceInfo> {
         public DeviceArrayAdapter() {
             super(getActivity(), 0);
         }
 
-        private String getIcon(ControlBinder.DeviceInfo device) {
+        private String getIcon(DeviceInfo device) {
             return Config.S3_CLOUDFRONT_HOST + "/icons/" + device.kind + ".png";
         }
 
-        private boolean tryConvert(View convertView, ControlBinder.DeviceInfo device) {
+        private boolean tryConvert(View convertView, DeviceInfo device) {
             if (!(convertView instanceof LinearLayout))
                 return false;
 
@@ -105,7 +106,7 @@ public class MyStuffFragment extends Fragment {
 
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
-            ControlBinder.DeviceInfo device = getItem(position);
+            DeviceInfo device = getItem(position);
             if (tryConvert(convertView, device))
                 return convertView;
 
@@ -168,9 +169,15 @@ public class MyStuffFragment extends Fragment {
             view.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                    ControlBinder.DeviceInfo device = (ControlBinder.DeviceInfo) parent.getAdapter().getItem(position);
+                    DeviceInfo device = (DeviceInfo) parent.getAdapter().getItem(position);
 
-                    // do something with device, eg offer to delete it or show some info
+                    String _class = device.isDataSource ? "data" : (device.isOnlineAccount ? "online" : "physical");
+                    Intent intent = new Intent(getActivity(), DeviceDetailsActivity.class);
+                    intent.setAction(DeviceDetailsActivity.ACTION);
+                    intent.putExtra("extra.INFO", device);
+                    intent.putExtra("extra.CLASS", _class);
+
+                    startActivity(intent);
                 }
             });
         }
@@ -205,11 +212,11 @@ public class MyStuffFragment extends Fragment {
         new RefreshDevicesTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
     }
 
-    private void processDevices(Collection<ControlBinder.DeviceInfo> devices) {
+    private void processDevices(Collection<DeviceInfo> devices) {
         mDevices.clear();
         mAccounts.clear();
 
-        for (ControlBinder.DeviceInfo device : devices) {
+        for (DeviceInfo device : devices) {
             if (device.isThingEngine)
                 continue;
             if (device.isDataSource)

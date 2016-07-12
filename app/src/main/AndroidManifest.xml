@@ -44,17 +44,17 @@
         </activity>
         <activity
             android:name=".ui.DeviceConfigureChooseKindActivity"
-            android:parentActivityName=".ui.MainActivity"
-            />
+            android:parentActivityName=".ui.MainActivity" />
         <activity
             android:name=".ui.OAuthActivity"
-            android:parentActivityName=".ui.DeviceConfigureChooseKindActivity"
-            />
+            android:parentActivityName=".ui.DeviceConfigureChooseKindActivity" />
         <activity
             android:name=".ui.DeviceCreateFormActivity"
-            android:windowSoftInputMode="adjustPan"
             android:parentActivityName=".ui.DeviceConfigureChooseKindActivity"
-            />
+            android:windowSoftInputMode="adjustPan" />
+        <activity
+            android:name=".ui.DeviceDetailsActivity"
+            android:parentActivityName=".ui.MainActivity" />
     </application>
 
 </manifest>

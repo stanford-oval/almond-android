@@ -79,6 +79,34 @@ class AppControlChannel extends ControlChannel {
         });
     }
 
+    getDeviceInfo(uniqueId) {
+        return _waitReady.then(function() {
+            var d = _engine.devices.getDevice(uniqueId);
+            if (d === undefined)
+                throw new Error('Invalid device ' + uniqueId);
+
+            return { uniqueId: d.uniqueId,
+                     name: d.name || "Unknown device",
+                     description: d.description || "Description not available",
+                     kind: d.kind,
+                     ownerTier: d.ownerTier,
+                     isTransient: d.isTransient,
+                     isOnlineAccount: d.hasKind('online-account'),
+                     isDataSource: d.hasKind('data-source'),
+                     isThingEngine: d.hasKind('thingengine-system') }
+        });
+    }
+
+    checkDeviceAvailable(uniqueId) {
+        return _waitReady.then(function() {
+            var d = _engine.devices.getDevice(uniqueId);
+            if (d === undefined)
+                return -1;
+
+            return d.checkAvailable();
+        });
+    }
+
     setCloudId(cloudId, authToken) {
         if (_engine.devices.hasDevice('thingengine-own-cloud'))
             return false;

@@ -18,4 +18,11 @@
     <string name="create_device_title">Configure Device</string>
     <string name="create_account_title">Add New Account</string>
     <string name="create_datasource_title">Enable New Data Source</string>
+    <string name="btn_delete_device">Delete device</string>
+    <string name="btn_delete_account">Forget account</string>
+    <string name="btn_delete_datasource">Disable data source</string>
+    <string name="device_available">The device is available and working.</string>
+    <string name="device_unavailable">The device is not available. It might be powered off or disconnected.</string>
+    <string name="device_availability_unknown">It was not possible to verify if the device is available. Please check it is powered on and correctly configured.</string>
+    <string name="btn_refresh">Refresh</string>
 </resources>
