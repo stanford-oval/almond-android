@@ -31,6 +31,7 @@ public class MainActivity extends Activity implements ActionBar.TabListener, Fra
     public class SectionsPagerAdapter extends FragmentPagerAdapter {
         private final static int SECTION_CHAT = 0;
         private final static int SECTION_MYSTUFF = 1;
+        private final static int SECTION_RULES = 2;
 
         public SectionsPagerAdapter(FragmentManager fm) {
             super(fm);
@@ -43,6 +44,8 @@ public class MainActivity extends Activity implements ActionBar.TabListener, Fra
                     return AssistantFragment.newInstance();
                 case SECTION_MYSTUFF:
                     return MyStuffFragment.newInstance();
+                case SECTION_RULES:
+                    return RulesFragment.newInstance();
                 default:
                     return null;
             }
@@ -50,7 +53,7 @@ public class MainActivity extends Activity implements ActionBar.TabListener, Fra
 
         @Override
         public int getCount() {
-            return 2;
+            return 3;
         }
 
         @Override
@@ -60,6 +63,8 @@ public class MainActivity extends Activity implements ActionBar.TabListener, Fra
                     return getString(R.string.chat_tab);
                 case SECTION_MYSTUFF:
                     return getString(R.string.mystuff_tab);
+                case SECTION_RULES:
+                    return getString(R.string.myrules_tab);
                 default:
                     throw new IllegalArgumentException("Invalid fragment position");
             }

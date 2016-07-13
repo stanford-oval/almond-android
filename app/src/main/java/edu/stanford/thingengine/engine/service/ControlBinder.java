@@ -71,4 +71,18 @@ public class ControlBinder extends IThingEngine.Stub {
     public int checkDeviceAvailable(String uniqueId) throws Exception {
         return channel.sendCheckDeviceAvailable(uniqueId);
     }
+
+    public List<AppInfo> getAppInfos() throws Exception {
+        JSONArray jsonAppInfos = channel.sendGetAppInfos();
+
+        List<AppInfo> appInfos = new ArrayList<>();
+        for (int i = 0; i < jsonAppInfos.length(); i++)
+            appInfos.add(new AppInfo(jsonAppInfos.getJSONObject(i)));
+
+        return appInfos;
+    }
+
+    public void deleteApp(String uniqueId) throws Exception {
+        channel.sendDeleteApp(uniqueId);
+    }
 }
