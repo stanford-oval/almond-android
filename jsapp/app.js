@@ -107,6 +107,42 @@ class AppControlChannel extends ControlChannel {
         });
     }
 
+    getAppInfos() {
+        const feeds = require('./util/feeds');
+
+        return _waitReady.then(function() {
+            var apps = _engine.apps.getAllApps();
+
+            return Q.all(apps.map(function(a) {
+                return Q.try(function() {
+                    if (a.state.$F) {
+                        return engine.messaging.getFeedMeta(a.state.$F).then(function(f) {
+                            return feeds.getFeedName(engine, f, true);
+                        });
+                    } else {
+                        return null;
+                    }
+                }).then(function(feed) {
+                    var app = { uniqueId: a.uniqueId, name: a.name || "Some app",
+                                description: a.description || a.name || "Some app",
+                                isRunning: a.isRunning, isEnabled: a.isEnabled,
+                                error: a.error, feedId: a.state.$F || null, feedName: feed };
+                    return app;
+                });
+            }));
+        });
+    }
+
+    deleteApp(uniqueId) {
+        return _waitReady.then(function() {
+            var app = _engine.apps.getApp(uniqueId);
+            if (app === undefined)
+                return false;
+
+            return _engine.apps.removeApp(app).then(() => true);
+        });
+    }
+
     setCloudId(cloudId, authToken) {
         if (_engine.devices.hasDevice('thingengine-own-cloud'))
             return false;

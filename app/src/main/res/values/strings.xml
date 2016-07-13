@@ -25,4 +25,8 @@
     <string name="device_unavailable">The device is not available. It might be powered off or disconnected.</string>
     <string name="device_availability_unknown">It was not possible to verify if the device is available. Please check it is powered on and correctly configured.</string>
     <string name="btn_refresh">Refresh</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="myrules_tab">My Rules</string>
 </resources>
