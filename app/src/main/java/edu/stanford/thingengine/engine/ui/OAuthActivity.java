@@ -219,7 +219,8 @@ public class OAuthActivity extends Activity {
     private class UIWebViewClient extends WebViewClient {
         @Override
         public boolean shouldOverrideUrlLoading(WebView view, final String url) {
-            if (url.startsWith("http://127.0.0.1:3000/devices/oauth2/callback/")) {
+            if (url.startsWith("http://127.0.0.1:3000/devices/oauth2/callback/") ||
+                    url.startsWith("https://thingengine.stanford.edu/devices/oauth2/callback/")) {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
