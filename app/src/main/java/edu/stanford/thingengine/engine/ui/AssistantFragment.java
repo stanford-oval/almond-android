@@ -2,6 +2,7 @@ package edu.stanford.thingengine.engine.ui;
 
 import android.app.Activity;
 import android.app.Fragment;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
@@ -25,6 +26,12 @@ import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
+import com.google.android.gms.common.GoogleApiAvailability;
+import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
+import com.google.android.gms.common.GooglePlayServicesRepairableException;
+import com.google.android.gms.location.places.Place;
+import com.google.android.gms.location.places.ui.PlacePicker;
+import com.google.android.gms.maps.model.LatLng;
 import com.microsoft.projectoxford.speechrecognition.ISpeechRecognitionServerEvents;
 import com.microsoft.projectoxford.speechrecognition.MicrophoneRecognitionClient;
 import com.microsoft.projectoxford.speechrecognition.RecognitionResult;
@@ -48,6 +55,8 @@ import edu.stanford.thingengine.engine.service.ControlBinder;
 public class AssistantFragment extends Fragment implements AssistantOutput {
     private static final int REQUEST_OAUTH2 = 1;
     private static final int REQUEST_CREATE_DEVICE = 2;
+    private static final int REQUEST_LOCATION = 3;
+    private static final int REQUEST_ENABLE_PLAY_SERVICES = 4;
 
     private boolean mPulledHistory = false;
     private MainServiceConnection mEngine;
@@ -225,6 +234,9 @@ public class AssistantFragment extends Fragment implements AssistantOutput {
             case BUTTON:
                 display((AssistantMessage.Button)msg);
                 break;
+            case ASK_SPECIAL:
+                display((AssistantMessage.AskSpecial)msg);
+                break;
         }
     }
 
@@ -304,6 +316,48 @@ public class AssistantFragment extends Fragment implements AssistantOutput {
         addItem(btn, msg.direction);
     }
 
+    private void showLocationPicker() {
+        try {
+            Intent pickerIntent = new PlacePicker.IntentBuilder().build(getActivity());
+            startActivityForResult(pickerIntent, REQUEST_LOCATION);
+        } catch (GooglePlayServicesNotAvailableException e) {
+            DialogUtils.showAlertDialog(getActivity(), "Google Play Services is not available", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+
+                }
+            });
+        } catch (GooglePlayServicesRepairableException e) {
+            GoogleApiAvailability.getInstance().getErrorDialog(getActivity(),
+                    e.getConnectionStatusCode(), REQUEST_ENABLE_PLAY_SERVICES);
+        }
+    }
+
+    private void display(AssistantMessage.AskSpecial msg) {
+        switch (msg.what) {
+            case YESNO:
+                // do nothing for yes/no
+                // in the future, if we want to put two buttons up,
+                // this is the place to do it
+                return;
+
+            case LOCATION:
+                Button btn = new Button(getActivity());
+                btn.setText(R.string.btn_choose_location);
+                btn.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        showLocationPicker();
+                    }
+                });
+                addItem(btn, msg.direction);
+                return;
+
+            case UNKNOWN:
+                // we don't recognize this, nothing to do
+        }
+    }
+
     private void pullHistory(AssistantDispatcher dispatcher) {
         if (mPulledHistory)
             return;
@@ -363,6 +417,12 @@ public class AssistantFragment extends Fragment implements AssistantOutput {
             control.getAssistant().setAssistantOutput(null);
         mEngine.removeEngineReadyCallback(mReadyCallback);
         mSpeechHandler.onPause();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        mPulledHistory = false;
     }
 
     @Override
@@ -439,22 +499,42 @@ public class AssistantFragment extends Fragment implements AssistantOutput {
     }
 
     private void onChoiceActivated(int idx) {
-        if (mEngine != null) {
-            try {
-                ControlBinder control = mEngine.getControl();
-                if (control == null)
-                    return;
+        try {
+            ControlBinder control = mEngine.getControl();
+            if (control == null)
+                return;
 
-                JSONObject obj = new JSONObject();
-                JSONObject inner = new JSONObject();
-                obj.put("answer", inner);
-                inner.put("type", "Choice");
-                inner.put("value", idx);
+            JSONObject obj = new JSONObject();
+            JSONObject inner = new JSONObject();
+            obj.put("answer", inner);
+            inner.put("type", "Choice");
+            inner.put("value", idx);
 
-                control.getAssistant().handleParsedCommand(obj.toString());
-            } catch(JSONException e) {
-                Log.e(MainActivity.LOG_TAG, "Unexpected json exception while constructing choice JSON", e);
-            }
+            control.getAssistant().handleParsedCommand(obj.toString());
+        } catch(JSONException e) {
+            Log.e(MainActivity.LOG_TAG, "Unexpected json exception while constructing choice JSON", e);
+        }
+    }
+
+    private void onLocationSelected(Place place) {
+        ControlBinder control = mEngine.getControl();
+        if (control == null)
+            return;
+
+        try {
+            JSONObject obj = new JSONObject();
+            JSONObject inner = new JSONObject();
+            obj.put("answer", inner);
+            inner.put("type", "Location");
+            JSONObject location = new JSONObject();
+            inner.put("value", location);
+            LatLng latLng = place.getLatLng();
+            location.put("x", latLng.longitude);
+            location.put("y", latLng.latitude);
+
+            control.getAssistant().handleParsedCommand(obj.toString());
+        } catch(JSONException e) {
+            Log.e(MainActivity.LOG_TAG, "Unexpected json exception while constructing location JSON", e);
         }
     }
 
@@ -485,6 +565,20 @@ public class AssistantFragment extends Fragment implements AssistantOutput {
 
         if (requestCode == REQUEST_OAUTH2 || requestCode == REQUEST_CREATE_DEVICE) {
             // do something with it
+            // or nothing, probably
+            return;
+        }
+
+        if (requestCode == REQUEST_ENABLE_PLAY_SERVICES) {
+            // not sure about this one, do we try popping up the location picker again?
+            return;
+        }
+
+        if (requestCode == REQUEST_LOCATION) {
+            if (resultCode != Activity.RESULT_OK)
+                return;
+
+            onLocationSelected(PlacePicker.getPlace(getActivity(), intent));
         }
     }
 }

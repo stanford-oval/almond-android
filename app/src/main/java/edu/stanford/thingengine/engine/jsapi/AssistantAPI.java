@@ -73,6 +73,14 @@ public class AssistantAPI extends JavascriptAPI implements AssistantCommandHandl
                 return null;
             }
         });
+
+        registerSync("sendAskSpecial", new GenericCall() {
+            @Override
+            public Object run(Object... args) throws Exception {
+                sendAskSpecial((String)args[0]);
+                return null;
+            }
+        });
     }
 
     @Override
@@ -112,5 +120,15 @@ public class AssistantAPI extends JavascriptAPI implements AssistantCommandHandl
 
     private void sendButton(String title, String button) {
         mService.getAssistant().dispatch(new AssistantMessage.Button(AssistantMessage.Direction.FROM_SABRINA, title, button));
+    }
+
+    private void sendAskSpecial(String what) {
+        AssistantMessage.AskSpecialType type;
+        try {
+            type = AssistantMessage.AskSpecialType.valueOf(what.toUpperCase());
+        } catch(IllegalArgumentException e) {
+            type = AssistantMessage.AskSpecialType.UNKNOWN;
+        }
+        mService.getAssistant().dispatch(new AssistantMessage.AskSpecial(AssistantMessage.Direction.FROM_SABRINA, type));
     }
 }

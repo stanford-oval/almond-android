@@ -15,8 +15,10 @@ const SempreClient = require('sabrina').Sempre;
 const Sabrina = require('sabrina').Sabrina;
 
 const JavaAPI = require('./java_api');
+
+const COMMANDS = ['send', 'sendPicture', 'sendRDL', 'sendChoice', 'sendLink', 'sendButton', 'sendAskSpecial'];
 const AssistantJavaApi = JavaAPI.makeJavaAPI('Assistant', [],
-    ['send', 'sendPicture', 'sendRDL', 'sendChoice', 'sendLink', 'sendButton'],
+    COMMANDS,
     ['onhandlecommand', 'onhandleparsedcommand', 'onhandlepicture']);
 
 var instance_;
@@ -29,7 +31,7 @@ class LocalUser {
     }
 }
 
-module.exports = class AssistantDispatcher {
+class AssistantDispatcher {
     constructor(engine) {
         this.engine = engine;
 
@@ -85,28 +87,9 @@ module.exports = class AssistantDispatcher {
             console.log('Failed to handle assistant picture: ' + e.message);
         });
     }
-
-    send(what) {
-        return AssistantJavaApi.send(what);
-    }
-
-    sendPicture(url) {
-        return AssistantJavaApi.sendPicture(url);
-    }
-
-    sendRDL(rdl) {
-        return AssistantJavaApi.sendRDL(JSON.stringify(rdl));
-    }
-
-    sendChoice(idx, what, title, text) {
-        return AssistantJavaApi.sendChoice(idx, what, title, text);
-    }
-
-    sendLink(title, url) {
-        return AssistantJavaApi.sendLink(title, url);
-    }
-
-    sendButton(title, json) {
-        return AssistantJavaApi.sendButton(title, json);
-    }
 };
+COMMANDS.forEach(function(c) {
+    AssistantDispatcher.prototype[c] = AssistantJavaApi[c];
+});
+
+module.exports = AssistantDispatcher;

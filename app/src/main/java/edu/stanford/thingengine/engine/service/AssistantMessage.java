@@ -15,8 +15,11 @@ public abstract class AssistantMessage implements Serializable {
         FROM_SABRINA, FROM_USER
     }
     public enum Type {
-        TEXT, PICTURE, RDL, CHOICE, LINK, BUTTON
+        TEXT, PICTURE, RDL, CHOICE, LINK, BUTTON, ASK_SPECIAL
     };
+    public enum AskSpecialType {
+        YESNO, LOCATION, UNKNOWN
+    }
     public final Direction direction;
     public final Type type;
     protected AssistantMessage(Direction direction, Type type) {
@@ -131,6 +134,22 @@ public abstract class AssistantMessage implements Serializable {
         @Override
         public String toText() {
             return title;
+        }
+    }
+
+    public static class AskSpecial extends AssistantMessage {
+        private static final long serialVersionUID = 1L;
+
+        public final AskSpecialType what;
+
+        public AskSpecial(Direction dir, AskSpecialType what) {
+            super(dir, Type.ASK_SPECIAL);
+            this.what = what;
+        }
+
+        @Override
+        public String toText() {
+            return "Sabrina asks for a " + what.toString().toLowerCase();
         }
     }
 }

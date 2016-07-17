@@ -9,6 +9,12 @@
 
 console.log('ThingEngine-Android starting up...');
 
+// we would like to delay load this, but if we do we get
+// conflicts on global constructors like Number
+// (because the polyfill redefines it to support octal
+// and binary literals), which confuses adt
+require('babel-polyfill');
+
 // we need these very early on
 const Q = require('q');
 const JavaAPI = require('./java_api');
@@ -159,10 +165,6 @@ function runEngine() {
         JXMobile('controlReady').callNative();
 
         console.log('Control channel ready');
-
-        // we would like to load this first, but it's huge
-        // so we delay until after we have the control channel
-        require('babel-polyfill');
 
         // finally load the bulk of the code and create the engine
         const Engine = require('thingengine-core');

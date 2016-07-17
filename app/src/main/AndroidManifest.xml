@@ -21,6 +21,10 @@
         android:icon="@drawable/sabrina"
         android:label="@string/app_name"
         android:theme="@style/Stanford">
+
+        <meta-data android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyAEf8ciG2C6ZBj_ZlT1kkeM8OJRqG-dxJg" />
+
         <service
             android:name=".service.EngineService"
             android:enabled="true"

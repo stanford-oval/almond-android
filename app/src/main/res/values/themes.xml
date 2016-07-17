@@ -2,6 +2,7 @@
 <resources>
     <style name="Stanford" parent="@android:style/Theme.Material.Light">
         <item name="android:actionBarStyle">@style/StanfordActionBar</item>
+        <item name="android:colorPrimary">@color/stanford_cardinal</item>
         <item name="android:colorPrimaryDark">@color/dark_stanford_cardinal</item>
     </style>
 

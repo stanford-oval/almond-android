@@ -25,4 +25,5 @@
     <string name="device_unavailable">The device is not available. It might be powered off or disconnected.</string>
     <string name="device_availability_unknown">It was not possible to verify if the device is available. Please check it is powered on and correctly configured.</string>
     <string name="btn_refresh">Refresh</string>
+    <string name="btn_choose_location">Pick a location...</string>
 </resources>
