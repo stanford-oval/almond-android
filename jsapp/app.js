@@ -20,7 +20,7 @@ const Q = require('q');
 const JavaAPI = require('./java_api');
 const ControlChannel = require('./control');
 
-var _engine;
+var _engine, _ad;
 var _waitReady;
 var _running;
 var _stopped;
@@ -173,21 +173,24 @@ function runEngine() {
         console.log('Creating engine...');
         _engine = new Engine(global.platform);
 
-        var ad = new AssistantDispatcher(_engine);
+        _ad = new AssistantDispatcher(_engine);
 
         _waitReady = _engine.open();
-        ad.start();
+        _ad.start();
         return _waitReady;
     }).then(function() {
         _running = true;
         if (_stopped)
             return;
         return _engine.run();
-    }).finally(function() {
-        ad.stop();
-        return _engine.close();
     }).catch(function(error) {
         console.log('Uncaught exception: ' + error.message);
+        console.log(error.stack);
+    }).finally(function() {
+        _ad.stop();
+        return _engine.close();
+    }).catch(function(error) {
+        console.log('Exception during stop: ' + error.message);
         console.log(error.stack);
     }).finally(function() {
         console.log('Cleaning up');
