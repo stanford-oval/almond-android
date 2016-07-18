@@ -117,16 +117,6 @@ JXMobile.GetCachePath = function(callback) {
   });
 };
 
-JXMobile.GetConnectionStatus = function(callback) {
-  if (typeof callback != "function") {
-    throw new Error("JXMobile.GetConnectionStatus expects a function callback");
-  }
-
-  JXMobile('GetConnectionStatus').callNative(function(res){
-    callback(null, res);
-  });
-};
-
 JXMobile.GetEncoding = function(callback) {
     callback(null, 'utf16le');
 };

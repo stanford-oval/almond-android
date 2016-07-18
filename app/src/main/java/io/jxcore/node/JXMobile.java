@@ -4,8 +4,6 @@ package io.jxcore.node;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.util.Log;
 
 import java.util.ArrayList;
@@ -43,31 +41,6 @@ public class JXMobile {
       public void Receiver(ArrayList<Object> params, String callbackId) {
         String path = context.getCacheDir().getAbsolutePath();
         jxcore.CallJSMethod(callbackId, "\"" + path + "\"");
-      }
-    });
-
-    jxcore.RegisterMethod("GetConnectionStatus", new JXcoreCallback() {
-      @SuppressLint("NewApi")
-      @Override
-      public void Receiver(ArrayList<Object> params, String callbackId) {
-        ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-
-        String info = "{\"NotConnected\":1}";
-        NetworkInfo[] netInfo = cm.getAllNetworkInfo();
-        for (NetworkInfo ni : netInfo) {
-          if (ni.getTypeName().equalsIgnoreCase("WIFI"))
-            if (ni.isConnected()) {
-              info = "{\"WiFi\":1}";
-              break;
-            }
-          if (ni.getTypeName().equalsIgnoreCase("MOBILE"))
-            if (ni.isConnected()) {
-              info = "{\"WWAN\":1}";
-              break;
-            }
-        }
-
-        jxcore.CallJSMethod(callbackId, info);
       }
     });
 
