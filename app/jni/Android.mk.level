@@ -11,11 +11,11 @@ endif
 include $(PREBUILT_STATIC_LIBRARY)
 
 include $(CLEAR_VARS)
-LOCAL_MODULE := chrome_zlib
+LOCAL_MODULE := zlib
 ifeq ($(TARGET_ARCH),x86)
-LOCAL_SRC_FILES := $(JXCORE_OUT_ANDROID)libchrome_zlib_ia32.a
+LOCAL_SRC_FILES := $(JXCORE_OUT_ANDROID)libzlib_ia32.a
 else
-LOCAL_SRC_FILES := $(JXCORE_OUT_ANDROID)libchrome_zlib_arm.a
+LOCAL_SRC_FILES := $(JXCORE_OUT_ANDROID)libzlib_arm.a
 endif
 include $(PREBUILT_STATIC_LIBRARY)
 
@@ -112,5 +112,5 @@ LOCAL_LDLIBS := -llog \
                 -ldl \
                 -landroid
 LOCAL_STATIC_LIBRARIES := cares openssl
-LOCAL_WHOLE_STATIC_LIBRARIES := chrome_zlib http_parser sqlite3 libuv liblevel libsnappy libdown libmozjs jxcore_native
+LOCAL_WHOLE_STATIC_LIBRARIES := zlib http_parser sqlite3 libuv liblevel libsnappy libdown libmozjs jxcore_native
 include $(BUILD_SHARED_LIBRARY)
