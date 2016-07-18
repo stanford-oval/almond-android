@@ -174,6 +174,7 @@ function runEngine() {
         _engine = new Engine(global.platform);
 
         _ad = new AssistantDispatcher(_engine);
+        platform.setAssistant(_ad);
 
         _waitReady = _engine.open();
         _ad.start();

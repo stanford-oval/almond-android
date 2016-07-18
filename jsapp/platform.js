@@ -15,7 +15,6 @@ const fs = require('fs');
 const sql = require('thingengine-core/lib/util/sql');
 
 const JavaAPI = require('./java_api');
-const AssistantDispatcher = require('./assistant');
 
 const _unzipApi = JavaAPI.makeJavaAPI('Unzip', ['unzip'], [], []);
 const _gpsApi = JavaAPI.makeJavaAPI('Gps', ['start', 'stop'], [], ['onlocationchanged']);
@@ -97,6 +96,8 @@ module.exports = {
     // Initialize the platform code
     // Will be called before instantiating the engine
     init: function() {
+        this._assistant = null;
+
         return Q.nfcall(JXMobile.GetDocumentsPath).then(function(dir) {
             filesDir = dir;
             safeMkdirSync(filesDir + '/tmp');
@@ -114,6 +115,10 @@ module.exports = {
             return sql.ensureSchema(filesDir + '/sqlite.db',
                                     '../data/schema.sql');
         });
+    },
+
+    setAssistant(ad) {
+        this._assistant = ad;
     },
 
     type: 'android',
@@ -201,7 +206,7 @@ module.exports = {
             return _systemAppsApi;
 
         case 'assistant':
-            return AssistantDispatcher.get().getConversation();
+            return this._assistant.getConversation();
 
         default:
             return null;

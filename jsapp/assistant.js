@@ -41,10 +41,6 @@ class AssistantDispatcher {
         instance_ = this;
     }
 
-    static get() {
-        return instance_;
-    }
-
     start() {
         this._sempre.start();
         this._session = this._sempre.openSession();
