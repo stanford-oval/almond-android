@@ -175,6 +175,10 @@ public class AssistantFragment extends Fragment implements AssistantOutput {
         params.getPercentLayoutInfo().widthPercent = 0.7f;
 
         PercentRelativeLayout wrapper = new PercentRelativeLayout(getActivity());
+        if (view instanceof Button) {
+            ((Button) view).setBackgroundResource(R.drawable.button_sabrina);
+            ((Button) view).setStateListAnimator(null);
+        }
 
         if (side == AssistantMessage.Direction.FROM_SABRINA) {
             params.addRule(RelativeLayout.ALIGN_PARENT_START);
@@ -242,6 +246,10 @@ public class AssistantFragment extends Fragment implements AssistantOutput {
 
     private void display(AssistantMessage.Text msg) {
         TextView view = new TextView(getActivity());
+        if (msg.direction == AssistantMessage.Direction.FROM_SABRINA)
+            view.setBackgroundResource(R.drawable.bubble_sabrina);
+        else
+            view.setBackgroundResource(R.drawable.bubble_user);
         view.setText(msg.msg);
         addItem(view, msg.direction);
     }
