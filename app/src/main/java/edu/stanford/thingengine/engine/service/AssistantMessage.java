@@ -18,7 +18,7 @@ public abstract class AssistantMessage implements Serializable {
         TEXT, PICTURE, RDL, CHOICE, LINK, BUTTON, ASK_SPECIAL
     };
     public enum AskSpecialType {
-        YESNO, LOCATION, UNKNOWN
+        YESNO, LOCATION, PICTURE, UNKNOWN
     }
     public final Direction direction;
     public final Type type;

@@ -57,6 +57,7 @@ public class AssistantFragment extends Fragment implements AssistantOutput {
     private static final int REQUEST_CREATE_DEVICE = 2;
     private static final int REQUEST_LOCATION = 3;
     private static final int REQUEST_ENABLE_PLAY_SERVICES = 4;
+    private static final int REQUEST_PICTURE = 5;
 
     private boolean mPulledHistory = false;
     private MainServiceConnection mEngine;
@@ -340,7 +341,16 @@ public class AssistantFragment extends Fragment implements AssistantOutput {
         }
     }
 
+    private void showImagePicker() {
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+        intent.setType("image/*");
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        startActivityForResult(intent, REQUEST_PICTURE);
+    }
+
     private void display(AssistantMessage.AskSpecial msg) {
+        Button btn;
+
         switch (msg.what) {
             case YESNO:
                 // do nothing for yes/no
@@ -349,7 +359,7 @@ public class AssistantFragment extends Fragment implements AssistantOutput {
                 return;
 
             case LOCATION:
-                Button btn = new Button(getActivity());
+                btn = new Button(getActivity());
                 btn.setText(R.string.btn_choose_location);
                 btn.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -359,6 +369,17 @@ public class AssistantFragment extends Fragment implements AssistantOutput {
                 });
                 addItem(btn, msg.direction);
                 return;
+
+            case PICTURE:
+                btn = new Button(getActivity());
+                btn.setText(R.string.btn_choose_picture);
+                btn.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        showImagePicker();
+                    }
+                });
+                addItem(btn, msg.direction);
 
             case UNKNOWN:
                 // we don't recognize this, nothing to do
@@ -540,6 +561,16 @@ public class AssistantFragment extends Fragment implements AssistantOutput {
         }
     }
 
+    private void onPictureSelected(Uri uri) {
+        display(new AssistantMessage.Picture(AssistantMessage.Direction.FROM_USER, uri.toString()));
+
+        ControlBinder control = mEngine.getControl();
+        if (control == null)
+            return;
+
+        control.getAssistant().handlePicture(uri.toString());
+    }
+
     // this version of onAttach is deprecated but it's required
     // on APIs older than 23 because otherwise onAttach is never called
     @Override
@@ -581,6 +612,13 @@ public class AssistantFragment extends Fragment implements AssistantOutput {
                 return;
 
             onLocationSelected(PlacePicker.getPlace(getActivity(), intent));
+        }
+
+        if (requestCode == REQUEST_PICTURE) {
+            if (resultCode != Activity.RESULT_OK)
+                return;
+
+            onPictureSelected(intent.getData());
         }
     }
 }
