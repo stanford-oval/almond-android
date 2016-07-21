@@ -15,6 +15,7 @@ const fs = require('fs');
 const sql = require('thingengine-core/lib/util/sql');
 
 const JavaAPI = require('./java_api');
+const StreamAPI = require('./streams');
 
 const _unzipApi = JavaAPI.makeJavaAPI('Unzip', ['unzip'], [], []);
 const _gpsApi = JavaAPI.makeJavaAPI('Gps', ['start', 'stop'], [], ['onlocationchanged']);
@@ -29,6 +30,7 @@ const _btApi = JavaAPI.makeJavaAPI('Bluetooth',
 const _audioRouterApi = JavaAPI.makeJavaAPI('AudioRouter',
     ['setAudioRouteBluetooth'], ['start', 'stop', 'isAudioRouteBluetooth'], []);
 const _systemAppsApi = JavaAPI.makeJavaAPI('SystemApps', [], ['startMusic'], []);
+const _graphicsApi = require('./graphics');
 
 var filesDir = null;
 var cacheDir = null;
@@ -98,6 +100,8 @@ module.exports = {
     init: function() {
         this._assistant = null;
 
+        new StreamAPI();
+
         return Q.nfcall(JXMobile.GetDocumentsPath).then(function(dir) {
             filesDir = dir;
             safeMkdirSync(filesDir + '/tmp');
@@ -161,6 +165,7 @@ module.exports = {
         case 'bluetooth':
         case 'audio-router':
         case 'system-apps':
+        case 'graphics-api':
         // for compat
         case 'notify-api':
             return true;
@@ -204,6 +209,9 @@ module.exports = {
 
         case 'system-apps':
             return _systemAppsApi;
+
+        case 'graphics-api':
+            return _graphicsApi;
 
         case 'assistant':
             return this._assistant.getConversation();

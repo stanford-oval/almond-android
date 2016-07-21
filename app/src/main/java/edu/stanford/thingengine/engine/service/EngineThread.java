@@ -12,9 +12,11 @@ import edu.stanford.thingengine.engine.jsapi.AudioManagerAPI;
 import edu.stanford.thingengine.engine.jsapi.AudioRouterAPI;
 import edu.stanford.thingengine.engine.jsapi.BluetoothAPI;
 import edu.stanford.thingengine.engine.jsapi.GpsAPI;
+import edu.stanford.thingengine.engine.jsapi.ImageAPI;
 import edu.stanford.thingengine.engine.jsapi.JSSharedPreferences;
 import edu.stanford.thingengine.engine.jsapi.NotifyAPI;
 import edu.stanford.thingengine.engine.jsapi.SmsAPI;
+import edu.stanford.thingengine.engine.jsapi.StreamAPI;
 import edu.stanford.thingengine.engine.jsapi.SystemAppsAPI;
 import edu.stanford.thingengine.engine.jsapi.UnzipAPI;
 import io.jxcore.node.jxcore;
@@ -59,6 +61,8 @@ public class EngineThread extends Thread {
                     new BluetoothAPI(workerHandler, context, control);
                     new AudioRouterAPI(workerHandler, context, control);
                     new SystemAppsAPI(context, control);
+                    StreamAPI stream = new StreamAPI(control);
+                    new ImageAPI(control, stream);
 
                     context.controlReady(new AssistantAPI(context, control), control);
                 }
