@@ -16,9 +16,9 @@ const Sabrina = require('sabrina').Sabrina;
 
 const JavaAPI = require('./java_api');
 
-const COMMANDS = ['send', 'sendPicture', 'sendRDL', 'sendChoice', 'sendLink', 'sendButton', 'sendAskSpecial'];
+const COMMANDS = ['send', 'sendPicture', 'sendChoice', 'sendLink', 'sendButton', 'sendAskSpecial'];
 const AssistantJavaApi = JavaAPI.makeJavaAPI('Assistant', [],
-    COMMANDS,
+    COMMANDS.concat(['sendRDL']),
     ['onhandlecommand', 'onhandleparsedcommand', 'onhandlepicture']);
 
 var instance_;
@@ -82,6 +82,12 @@ class AssistantDispatcher {
         return this._conversation.handlePicture(url).catch(function(e) {
             console.log('Failed to handle assistant picture: ' + e.message);
         });
+    }
+
+    // sendRDL is special because we need to stringify the rdl before we
+    // call the Java API, or jxcore will marshal it weirdly
+    sendRDL(rdl) {
+        return AssistantJavaApi.sendRDL(JSON.stringify(rdl));
     }
 };
 COMMANDS.forEach(function(c) {

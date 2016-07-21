@@ -176,9 +176,12 @@ public class AssistantFragment extends Fragment implements AssistantOutput {
 
         PercentRelativeLayout wrapper = new PercentRelativeLayout(getActivity());
         if (view instanceof Button) {
-            ((Button) view).setBackgroundResource(R.drawable.button_sabrina);
-            ((Button) view).setStateListAnimator(null);
-        }
+            view.setBackgroundResource(R.drawable.button_sabrina);
+            view.setStateListAnimator(null);
+        } else if (side == AssistantMessage.Direction.FROM_SABRINA)
+            view.setBackgroundResource(R.drawable.bubble_sabrina);
+        else if (side == AssistantMessage.Direction.FROM_USER)
+            view.setBackgroundResource(R.drawable.bubble_user);
 
         if (side == AssistantMessage.Direction.FROM_SABRINA) {
             params.addRule(RelativeLayout.ALIGN_PARENT_START);
@@ -246,10 +249,6 @@ public class AssistantFragment extends Fragment implements AssistantOutput {
 
     private void display(AssistantMessage.Text msg) {
         TextView view = new TextView(getActivity());
-        if (msg.direction == AssistantMessage.Direction.FROM_SABRINA)
-            view.setBackgroundResource(R.drawable.bubble_sabrina);
-        else
-            view.setBackgroundResource(R.drawable.bubble_user);
         view.setText(msg.msg);
         addItem(view, msg.direction);
     }
@@ -428,12 +427,6 @@ public class AssistantFragment extends Fragment implements AssistantOutput {
     }
 
     @Override
-    public void onStop() {
-        super.onStop();
-        mPulledHistory = false;
-    }
-
-    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
@@ -537,8 +530,9 @@ public class AssistantFragment extends Fragment implements AssistantOutput {
             JSONObject location = new JSONObject();
             inner.put("value", location);
             LatLng latLng = place.getLatLng();
-            location.put("x", latLng.longitude);
-            location.put("y", latLng.latitude);
+            location.put("relativeTag", "absolute");
+            location.put("longitude", latLng.longitude);
+            location.put("latitude", latLng.latitude);
 
             control.getAssistant().handleParsedCommand(obj.toString());
         } catch(JSONException e) {
