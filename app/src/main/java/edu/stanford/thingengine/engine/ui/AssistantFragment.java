@@ -539,6 +539,8 @@ public class AssistantFragment extends Fragment implements AssistantOutput {
     }
 
     private void onLocationSelected(Place place) {
+        display(new AssistantMessage.Text(AssistantMessage.Direction.FROM_USER, place.getName()));
+
         ControlBinder control = mEngine.getControl();
         if (control == null)
             return;

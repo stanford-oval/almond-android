@@ -27,20 +27,20 @@ public abstract class AssistantMessage implements Serializable {
         this.type = type;
     }
 
-    public abstract String toText();
+    public abstract CharSequence toText();
 
     public static class Text extends AssistantMessage {
         private static final long serialVersionUID = 1L;
 
-        public final String msg;
+        public final CharSequence msg;
 
-        public Text(Direction dir, String msg) {
+        public Text(Direction dir, CharSequence msg) {
             super(dir, Type.TEXT);
             this.msg = msg;
         }
 
         @Override
-        public String toText() {
+        public CharSequence toText() {
             return msg;
         }
     }
