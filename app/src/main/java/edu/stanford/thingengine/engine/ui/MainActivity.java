@@ -10,7 +10,9 @@ import android.app.FragmentTransaction;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v13.app.FragmentPagerAdapter;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.view.ViewPager;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -18,7 +20,7 @@ import android.view.MenuItem;
 import edu.stanford.thingengine.engine.AutoStarter;
 import edu.stanford.thingengine.engine.R;
 
-public class MainActivity extends Activity implements ActionBar.TabListener, FragmentEmbedder {
+public class MainActivity extends Activity implements ActionBar.TabListener, FragmentEmbedder, ActivityCompat.OnRequestPermissionsResultCallback {
     public static final String LOG_TAG = "thingengine.UI";
 
     private SectionsPagerAdapter mSectionsPagerAdapter;
@@ -139,6 +141,14 @@ public class MainActivity extends Activity implements ActionBar.TabListener, Fra
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        Fragment fragment = getFragmentManager().findFragmentByTag("android:switcher:" + R.id.container + ":0");
+
+        if (fragment instanceof ActivityCompat.OnRequestPermissionsResultCallback)
+            ((ActivityCompat.OnRequestPermissionsResultCallback)fragment).onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
     @Override

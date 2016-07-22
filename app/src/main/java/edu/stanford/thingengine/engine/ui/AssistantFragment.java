@@ -1,9 +1,11 @@
 package edu.stanford.thingengine.engine.ui;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.Fragment;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
@@ -11,6 +13,9 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.percent.PercentRelativeLayout;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
+import android.support.v4.util.ArrayMap;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
@@ -25,6 +30,7 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
@@ -41,6 +47,7 @@ import com.microsoft.projectoxford.speechrecognition.SpeechRecognitionServiceFac
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
@@ -52,12 +59,13 @@ import edu.stanford.thingengine.engine.service.AssistantMessage;
 import edu.stanford.thingengine.engine.service.AssistantOutput;
 import edu.stanford.thingengine.engine.service.ControlBinder;
 
-public class AssistantFragment extends Fragment implements AssistantOutput {
+public class AssistantFragment extends Fragment implements AssistantOutput, ActivityCompat.OnRequestPermissionsResultCallback {
     private static final int REQUEST_OAUTH2 = 1;
     private static final int REQUEST_CREATE_DEVICE = 2;
     private static final int REQUEST_LOCATION = 3;
     private static final int REQUEST_ENABLE_PLAY_SERVICES = 4;
     private static final int REQUEST_PICTURE = 5;
+    private static final int REQUEST_AUDIO_PERMISSION = 6;
 
     private boolean mPulledHistory = false;
     private MainServiceConnection mEngine;
@@ -107,6 +115,21 @@ public class AssistantFragment extends Fragment implements AssistantOutput {
         }
 
         public void startRecording() {
+            int permissionCheck = ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.RECORD_AUDIO);
+            if (permissionCheck == PackageManager.PERMISSION_GRANTED)
+                startRecordingWithPermission();
+            else
+                requestPermission();
+        }
+
+        private void requestPermission() {
+            if (ActivityCompat.shouldShowRequestPermissionRationale(getActivity(), Manifest.permission.RECORD_AUDIO))
+                Toast.makeText(getActivity(), R.string.audio_permission_needed, Toast.LENGTH_LONG).show();
+
+            ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.RECORD_AUDIO}, REQUEST_AUDIO_PERMISSION);
+        }
+
+        private void startRecordingWithPermission() {
             if (mMicClient == null) {
                 try {
                     mMicClient = mMicClientCreateTask.get();
@@ -592,6 +615,17 @@ public class AssistantFragment extends Fragment implements AssistantOutput {
         super.onDetach();
         mListener = null;
         mEngine = null;
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        Map<String, Integer> permissionMap = new ArrayMap<>();
+        for (int i = 0; i < permissions.length; i++)
+            permissionMap.put(permissions[i], grantResults[i]);
+
+        if (permissionMap.containsKey(Manifest.permission.RECORD_AUDIO) &&
+                permissionMap.get(Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED)
+            mSpeechHandler.startRecording();
     }
 
     @Override

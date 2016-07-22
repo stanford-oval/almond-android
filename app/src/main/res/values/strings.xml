@@ -26,5 +26,6 @@
     <string name="device_availability_unknown">It was not possible to verify if the device is available. Please check it is powered on and correctly configured.</string>
     <string name="btn_refresh">Refresh</string>
     <string name="btn_choose_location">Pick a location&#8230;</string>
-    <string name="btn_choose_picture">Choose&#8230;</string><!-- picture is implied by the context -->
+    <string name="btn_choose_picture">Choose&#8230;</string>
+    <string name="audio_permission_needed">You must allow Sabrina to record audio in order to use voice interaction</string><!-- picture is implied by the context -->
 </resources>
