@@ -260,7 +260,7 @@ public class AssistantFragment extends Fragment implements AssistantOutput {
         view.setScaleType(ImageView.ScaleType.FIT_CENTER);
         view.setAdjustViewBounds(true);
         addItem(view, msg.direction);
-        (new LoadImageTask(view) {
+        (new LoadImageTask(getActivity(), view) {
             @Override
             public void onPostExecute(Drawable draw) {
                 super.onPostExecute(draw);

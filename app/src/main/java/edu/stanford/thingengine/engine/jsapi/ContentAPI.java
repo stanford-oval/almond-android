@@ -1,12 +1,8 @@
 package edu.stanford.thingengine.engine.jsapi;
 
-import android.content.ContentResolver;
-import android.net.Uri;
-
 import java.io.IOException;
-import java.net.URL;
-import java.net.URLConnection;
 
+import edu.stanford.thingengine.engine.ContentUtils;
 import edu.stanford.thingengine.engine.service.ControlChannel;
 import edu.stanford.thingengine.engine.service.EngineService;
 
@@ -38,21 +34,7 @@ public class ContentAPI extends JavascriptAPI {
             @Override
             public void run() {
                 try {
-                    Uri parsed = Uri.parse(url);
-                    String scheme = parsed.getScheme();
-                    if (scheme.equals(ContentResolver.SCHEME_CONTENT) ||
-                            scheme.equals(ContentResolver.SCHEME_ANDROID_RESOURCE) ||
-                            scheme.equals(ContentResolver.SCHEME_FILE)) {
-                        ContentResolver resolver = ctx.getContentResolver();
-
-
-                        stream.forwardSync(resolver.openInputStream(parsed));
-                    } else {
-                        URL javaUrl = new URL(url);
-                        URLConnection connection = javaUrl.openConnection();
-
-                        stream.forwardSync(connection.getInputStream());
-                    }
+                    stream.forwardSync(ContentUtils.readUrl(ctx, url));
                 } catch(IOException e) {
                     stream.error(e);
                 }
