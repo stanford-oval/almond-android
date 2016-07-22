@@ -9,7 +9,7 @@
 
 const Q = require('q');
 const JavaAPI = require('./java_api');
-const ImageAPI = JavaAPI.makeJavaAPI('ImageAPI',
+const ImageAPI = JavaAPI.makeJavaAPI('Image',
     ['createImage', 'resizeFit'],
     ['imageToBuffer', 'imageToStream', 'imageGetWidth', 'imageGetHeight', 'imageDispose'],
     []);

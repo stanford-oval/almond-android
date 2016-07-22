@@ -107,7 +107,7 @@ public class ImageAPI extends JavascriptAPI {
     }
 
     public ImageAPI(ControlChannel control, StreamAPI streams) {
-        super("ImageAPI", control);
+        super("Image", control);
 
         this.streams = streams;
 

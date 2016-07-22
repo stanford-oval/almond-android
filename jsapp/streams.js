@@ -10,7 +10,7 @@
 const stream = require('stream');
 
 const JavaAPI = require('./java_api');
-const StreamAPI = JavaAPI.makeJavaAPI([], [], ['onstreamdata', 'onstreamerror', 'onstreamend']);
+const StreamAPI = JavaAPI.makeJavaAPI('Stream', [], [], ['onstreamdata', 'onstreamerror', 'onstreamend']);
 
 var _instance;
 
@@ -30,6 +30,7 @@ module.exports = class Streams {
     }
 
     createStream(token) {
+        console.log('Creating stream with token ' + token);
         var readable = new stream.Readable({ read: function() {} });
         this._streams[token] = readable;
         return readable;
@@ -48,15 +49,17 @@ module.exports = class Streams {
 
     _onStreamData(unused, arg) {
         var token = arg[0];
-        var data = arg[1];
+        var data = new Buffer(arg[1], 'base64');
 
+        console.log(data.length + ' bytes received on stream ' + token);
         var readable = this._streams[token];
         if (!readable)
             return;
-        readable.push(new Buffer(arg, 'base64'));
+        readable.push(data);
     }
 
     _onStreamEnd(unused, token) {
+        console.log('end received on stream ' + token);
         var readable = this._streams[token];
         if (!readable)
             return;

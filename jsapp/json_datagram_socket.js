@@ -90,7 +90,7 @@ module.exports = class JsonDatagramSocket extends events.EventEmitter {
             msg = JSON.parse(this._partialMessage);
         } catch(e) {
             // Failed: does not parse as JSON
-            console.log('Partial read on JSON channel: ' + this._partialMessage);
+            //console.log('Partial read on JSON channel: ' + this._partialMessage);
             return;
         }
 

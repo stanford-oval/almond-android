@@ -20,7 +20,7 @@ public class StreamAPI extends JavascriptAPI {
     private final Executor executor = Executors.newFixedThreadPool(6);
 
     public StreamAPI(ControlChannel control) {
-        super("StreamAPI", control);
+        super("Stream", control);
     }
 
     public class Stream {
@@ -37,7 +37,7 @@ public class StreamAPI extends JavascriptAPI {
         public void push(byte[] data, int offset, int length) {
             JSONArray array = new JSONArray();
             array.put(token);
-            array.put(Base64.encode(data, offset, length, Base64.DEFAULT));
+            array.put(Base64.encodeToString(data, offset, length, Base64.DEFAULT));
             invokeAsync("onstreamdata", array);
         }
 

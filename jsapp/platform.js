@@ -32,6 +32,15 @@ const _audioRouterApi = JavaAPI.makeJavaAPI('AudioRouter',
 const _systemAppsApi = JavaAPI.makeJavaAPI('SystemApps', [], ['startMusic'], []);
 const _graphicsApi = require('./graphics');
 
+const _contentJavaApi = JavaAPI.makeJavaAPI('Content', [], ['getStream'], []);
+const _contentApi = {
+    getStream(url) {
+        return _contentJavaApi.getStream(url).then(function(token) {
+            return StreamAPI.get().createStream(token);
+        });
+    }
+}
+
 var filesDir = null;
 var cacheDir = null;
 var encoding = null;
@@ -166,6 +175,7 @@ module.exports = {
         case 'audio-router':
         case 'system-apps':
         case 'graphics-api':
+        case 'content-api':
         // for compat
         case 'notify-api':
             return true;
@@ -212,6 +222,9 @@ module.exports = {
 
         case 'graphics-api':
             return _graphicsApi;
+
+        case 'content-api':
+            return _contentApi;
 
         case 'assistant':
             return this._assistant.getConversation();
