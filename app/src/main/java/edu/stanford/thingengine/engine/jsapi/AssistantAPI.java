@@ -93,11 +93,6 @@ public class AssistantAPI extends JavascriptAPI implements AssistantCommandHandl
         invokeAsync("onhandleparsedcommand", json);
     }
 
-    @Override
-    public void handlePicture(String url) {
-        invokeAsync("onhandlepicture", url);
-    }
-
     private void send(String text) {
         mService.getAssistant().dispatch(new AssistantMessage.Text(AssistantMessage.Direction.FROM_SABRINA, text));
     }

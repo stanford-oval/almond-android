@@ -38,7 +38,6 @@ import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.ui.PlacePicker;
-import com.google.android.gms.maps.model.LatLng;
 import com.microsoft.projectoxford.speechrecognition.ISpeechRecognitionServerEvents;
 import com.microsoft.projectoxford.speechrecognition.MicrophoneRecognitionClient;
 import com.microsoft.projectoxford.speechrecognition.RecognitionResult;
@@ -46,7 +45,6 @@ import com.microsoft.projectoxford.speechrecognition.SpeechRecognitionMode;
 import com.microsoft.projectoxford.speechrecognition.SpeechRecognitionServiceFactory;
 
 import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.util.LinkedList;
 import java.util.Map;
@@ -592,56 +590,27 @@ public class AssistantFragment extends Fragment implements AssistantOutput, Acti
     }
 
     private void onChoiceActivated(int idx) {
-        try {
-            ControlBinder control = mEngine.getControl();
-            if (control == null)
-                return;
+        ControlBinder control = mEngine.getControl();
+        if (control == null)
+            return;
 
-            JSONObject obj = new JSONObject();
-            JSONObject inner = new JSONObject();
-            obj.put("answer", inner);
-            inner.put("type", "Choice");
-            inner.put("value", idx);
-
-            control.getAssistant().handleParsedCommand(obj.toString());
-        } catch(JSONException e) {
-            Log.e(MainActivity.LOG_TAG, "Unexpected json exception while constructing choice JSON", e);
-        }
+        control.getAssistant().handleChoice(idx);
     }
 
     private void onLocationSelected(Place place) {
-        display(new AssistantMessage.Text(AssistantMessage.Direction.FROM_USER, place.getName()));
-
         ControlBinder control = mEngine.getControl();
         if (control == null)
             return;
 
-        try {
-            JSONObject obj = new JSONObject();
-            JSONObject inner = new JSONObject();
-            obj.put("answer", inner);
-            inner.put("type", "Location");
-            JSONObject location = new JSONObject();
-            inner.put("value", location);
-            LatLng latLng = place.getLatLng();
-            location.put("relativeTag", "absolute");
-            location.put("longitude", latLng.longitude);
-            location.put("latitude", latLng.latitude);
-
-            control.getAssistant().handleParsedCommand(obj.toString());
-        } catch(JSONException e) {
-            Log.e(MainActivity.LOG_TAG, "Unexpected json exception while constructing location JSON", e);
-        }
+        display(control.getAssistant().handleLocation(place));
     }
 
     private void onPictureSelected(Uri uri) {
-        display(new AssistantMessage.Picture(AssistantMessage.Direction.FROM_USER, uri.toString()));
-
         ControlBinder control = mEngine.getControl();
         if (control == null)
             return;
 
-        control.getAssistant().handlePicture(uri.toString());
+        display(control.getAssistant().handlePicture(uri.toString()));
     }
 
     // this version of onAttach is deprecated but it's required

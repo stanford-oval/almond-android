@@ -13,6 +13,13 @@ import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.util.Log;
+
+import com.google.android.gms.location.places.Place;
+import com.google.android.gms.maps.model.LatLng;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Deque;
@@ -85,13 +92,57 @@ public class AssistantDispatcher implements Handler.Callback {
         });
     }
 
-    public AssistantMessage.Picture handlePicture(final String url) {
-        AsyncTask.SERIAL_EXECUTOR.execute(new Runnable() {
-            @Override
-            public void run() {
-                cmdHandler.handlePicture(url);
-            }
-        });
+    public void handleChoice(int idx) {
+        try {
+            JSONObject obj = new JSONObject();
+            JSONObject inner = new JSONObject();
+            obj.put("answer", inner);
+            inner.put("type", "Choice");
+            inner.put("value", idx);
+
+            handleParsedCommand(obj.toString());
+        } catch(JSONException e) {
+            Log.e(EngineService.LOG_TAG, "Unexpected json exception while constructing choice JSON", e);
+        }
+    }
+
+    public AssistantMessage handleLocation(Place place) {
+        try {
+            JSONObject obj = new JSONObject();
+            JSONObject inner = new JSONObject();
+            obj.put("answer", inner);
+            inner.put("type", "Location");
+            JSONObject location = new JSONObject();
+            inner.put("value", location);
+            LatLng latLng = place.getLatLng();
+            location.put("relativeTag", "absolute");
+            location.put("longitude", latLng.longitude);
+            location.put("latitude", latLng.latitude);
+
+            handleParsedCommand(obj.toString());
+        } catch(JSONException e) {
+            Log.e(EngineService.LOG_TAG, "Unexpected json exception while constructing location JSON", e);
+        }
+
+        AssistantMessage.Text loc = new AssistantMessage.Text(AssistantMessage.Direction.FROM_USER, place.getName());
+        history.addLast(loc);
+        return loc;
+    }
+
+    public AssistantMessage handlePicture(final String url) {
+        try {
+            JSONObject obj = new JSONObject();
+            JSONObject inner = new JSONObject();
+            obj.put("answer", inner);
+            inner.put("type", "Picture");
+            JSONObject picture = new JSONObject();
+            inner.put("value", picture);
+            picture.put("value", url);
+
+            handleParsedCommand(obj.toString());
+        } catch(JSONException e) {
+            Log.e(EngineService.LOG_TAG, "Unexpected json exception while constructing picture JSON", e);
+        }
 
         AssistantMessage.Picture pic = new AssistantMessage.Picture(AssistantMessage.Direction.FROM_USER, url);
         history.addLast(pic);

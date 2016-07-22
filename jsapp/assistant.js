@@ -19,7 +19,7 @@ const JavaAPI = require('./java_api');
 const COMMANDS = ['send', 'sendPicture', 'sendChoice', 'sendLink', 'sendButton', 'sendAskSpecial'];
 const AssistantJavaApi = JavaAPI.makeJavaAPI('Assistant', [],
     COMMANDS.concat(['sendRDL']),
-    ['onhandlecommand', 'onhandleparsedcommand', 'onhandlepicture']);
+    ['onhandlecommand', 'onhandleparsedcommand']);
 
 var instance_;
 
@@ -47,7 +47,6 @@ class AssistantDispatcher {
 
         AssistantJavaApi.onhandlecommand = this._onHandleCommand.bind(this);
         AssistantJavaApi.onhandleparsedcommand = this._onHandleParsedCommand.bind(this);
-        AssistantJavaApi.onhandlepicture = this._onHandlePicture.bind(this);
 
         this._conversation.start();
     }
@@ -57,7 +56,6 @@ class AssistantDispatcher {
 
         AssistantJavaApi.onhandlecommand = null;
         AssistantJavaApi.onhandleparsedcommand = null;
-        AssistantJavaApi.onhandlepicture = null;
     }
 
     getConversation() {
@@ -75,12 +73,6 @@ class AssistantDispatcher {
             return this._conversation.handleCommand(text, analyzed);
         }.bind(this)).catch(function(e) {
             console.log('Failed to handle assistant command: ' + e.message);
-        });
-    }
-
-    _onHandlePicture(error, url) {
-        return this._conversation.handlePicture(url).catch(function(e) {
-            console.log('Failed to handle assistant picture: ' + e.message);
         });
     }
 

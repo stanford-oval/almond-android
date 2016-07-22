@@ -7,6 +7,4 @@ public interface AssistantCommandHandler {
     void handleCommand(String command);
 
     void handleParsedCommand(String json);
-
-    void handlePicture(String url);
 }
