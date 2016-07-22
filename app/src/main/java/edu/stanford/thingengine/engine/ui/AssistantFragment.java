@@ -11,6 +11,7 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.speech.tts.TextToSpeech;
 import android.support.annotation.NonNull;
 import android.support.percent.PercentRelativeLayout;
 import android.support.v4.app.ActivityCompat;
@@ -47,7 +48,9 @@ import com.microsoft.projectoxford.speechrecognition.SpeechRecognitionServiceFac
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.LinkedList;
 import java.util.Map;
+import java.util.Queue;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
@@ -83,12 +86,17 @@ public class AssistantFragment extends Fragment implements AssistantOutput, Acti
     private FragmentEmbedder mListener;
     private final SpeechHandler mSpeechHandler = new SpeechHandler();
 
-    private class SpeechHandler implements ISpeechRecognitionServerEvents {
+    private class SpeechHandler implements ISpeechRecognitionServerEvents, TextToSpeech.OnInitListener {
         private boolean mMicrophoneOn;
         private FutureTask<MicrophoneRecognitionClient> mMicClientCreateTask;
         private MicrophoneRecognitionClient mMicClient = null;
+        private boolean mIsSpeechMode;
+        private TextToSpeech mtts = null;
+        private boolean mttsInitialized = false;
+        private final Queue<CharSequence> mOutputQueue = new LinkedList<>();
 
         public void onCreate() {
+            mIsSpeechMode = false;
             mMicrophoneOn = false;
             mMicClientCreateTask = new FutureTask<>(new Callable<MicrophoneRecognitionClient>() {
                 @Override
@@ -105,16 +113,52 @@ public class AssistantFragment extends Fragment implements AssistantOutput, Acti
         }
 
         public void onResume() {
-
+            if (mIsSpeechMode && mtts == null) {
+                mtts = new TextToSpeech(getActivity(), this);
+                mttsInitialized = false;
+            }
         }
 
         public void onPause() {
             if (mMicrophoneOn)
                 mMicClient.endMicAndRecognition();
             mMicrophoneOn = false;
+
+            if (mtts != null) {
+                mtts.shutdown();
+                mtts = null;
+                mttsInitialized = false;
+            }
+        }
+
+        public void onInit(int success) {
+            if (success == TextToSpeech.ERROR)
+                return;
+
+            mttsInitialized = true;
+            CharSequence seq;
+            while ((seq = mOutputQueue.poll()) != null) {
+                mtts.speak(seq, TextToSpeech.QUEUE_ADD, null, null);
+            }
+        }
+
+        public void say(CharSequence what) {
+            if (!mIsSpeechMode)
+                return;
+
+            if (mttsInitialized)
+                mtts.speak(what, TextToSpeech.QUEUE_ADD, null, null);
+            else
+                mOutputQueue.offer(what);
         }
 
         public void startRecording() {
+            mIsSpeechMode = true;
+            if (mtts == null) {
+                mtts = new TextToSpeech(getActivity(), this);
+                mttsInitialized = false;
+            }
+
             int permissionCheck = ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.RECORD_AUDIO);
             if (permissionCheck == PackageManager.PERMISSION_GRANTED)
                 startRecordingWithPermission();
@@ -246,6 +290,10 @@ public class AssistantFragment extends Fragment implements AssistantOutput, Acti
 
     @Override
     public void display(AssistantMessage msg) {
+        if (msg.direction == AssistantMessage.Direction.FROM_SABRINA &&
+                msg.type != AssistantMessage.Type.ASK_SPECIAL)
+            mSpeechHandler.say(msg.toText());
+
         switch (msg.type) {
             case TEXT:
                 display((AssistantMessage.Text)msg);
