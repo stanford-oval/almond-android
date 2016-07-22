@@ -407,6 +407,7 @@ process.on('uncaughtException', function (e) {
         console.error(e.fileName);
         console.error(e.lineNumber);
     }
+    console.error(String(e));
     console.error(e.stack);
     JXMobile('OnError').callNative(e.message, JSON.stringify(e.stack));
 });
