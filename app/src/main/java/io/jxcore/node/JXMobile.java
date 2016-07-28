@@ -7,6 +7,7 @@ import android.content.Context;
 import android.util.Log;
 
 import java.util.ArrayList;
+import java.util.Locale;
 
 import io.jxcore.node.jxcore.JXcoreCallback;
 
@@ -32,7 +33,7 @@ public class JXMobile {
       @Override
       public void Receiver(ArrayList<Object> params, String callbackId) {
         String path = context.getFilesDir().getAbsolutePath();
-        jxcore.CallJSMethod(callbackId, "\"" + path + "\"");
+        jxcore.CallJSMethod(callbackId, new String[] { path });
       }
     });
 
@@ -40,7 +41,14 @@ public class JXMobile {
       @Override
       public void Receiver(ArrayList<Object> params, String callbackId) {
         String path = context.getCacheDir().getAbsolutePath();
-        jxcore.CallJSMethod(callbackId, "\"" + path + "\"");
+        jxcore.CallJSMethod(callbackId, new String[] { path });
+      }
+    });
+
+    jxcore.RegisterMethod("GetLocale", new JXcoreCallback() {
+      @Override
+      public void Receiver(ArrayList<Object> params, String callbackId) {
+        jxcore.CallJSMethod(callbackId, new String[] { Locale.getDefault().toLanguageTag() });
       }
     });
 

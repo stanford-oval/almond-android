@@ -10,6 +10,7 @@
 
 const Q = require('q');
 const fs = require('fs');
+const Gettext = require('node-gettext');
 
 // FIXME
 const sql = require('thingengine-core/lib/util/sql');
@@ -109,19 +110,25 @@ module.exports = {
     init: function() {
         this._assistant = null;
 
+        this._gettext = new Gettext();
+
         new StreamAPI();
 
-        return Q.nfcall(JXMobile.GetDocumentsPath).then(function(dir) {
+        return Q.nfcall(JXMobile.GetDocumentsPath).then((dir) => {
             filesDir = dir;
             safeMkdirSync(filesDir + '/tmp');
             return Q.nfcall(JXMobile.GetEncoding);
-        }).then(function(value) {
+        }).then((value) => {
             encoding = value;
+            return Q.nfcall(JXMobile.GetLocale);
+        }).then((value) => {
+            this._locale = value;
+            this._gettext.setlocale(value);
             return Q.nfcall(JXMobile.GetSharedPreferences);
-        }).then(function(prefs) {
+        }).then((prefs) => {
             _prefs = prefs;
             return Q.nfcall(JXMobile.GetCachePath);
-        }).then(function(value) {
+        }).then((value) => {
             cacheDir = value;
             safeMkdirSync(cacheDir);
 
@@ -183,6 +190,9 @@ module.exports = {
         case 'assistant':
             return true;
 
+        case 'gettext':
+            return true;
+
         default:
             return false;
         }
@@ -228,6 +238,9 @@ module.exports = {
 
         case 'assistant':
             return this._assistant.getConversation();
+
+        case 'gettext':
+            return this._gettext;
 
         default:
             return null;
@@ -328,6 +341,10 @@ module.exports = {
 
     get encoding() {
         return encoding;
+    },
+
+    get locale() {
+        return this._locale;
     },
 
     // For internal use only

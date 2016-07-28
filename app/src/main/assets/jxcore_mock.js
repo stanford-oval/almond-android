@@ -54,6 +54,10 @@ JXMobile.GetSharedPreferences = function(callback) {
     callback(null, new prefs.FilePreferences(process.cwd() + '/prefs.db'));
 };
 
+JXMobile.GetLocale = function(callback) {
+    callback(null, process.env.LANG);
+}
+
 JXMobile.Exit = function() {
     process.exit();
 };

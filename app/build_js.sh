@@ -41,11 +41,11 @@ install_deps() {
 	( cd "${jxcoredir}/node_modules/thingpedia" ; npm install --no-optional --only=prod --no-bin-links )
 	( cd "${jxcoredir}/node_modules/thingpedia-discovery" ; npm install --no-optional --only=prod --no-bin-links )
 	( cd "${jxcoredir}/node_modules/thingtalk" ; npm install --no-optional --only=prod --no-bin-links )
-	( cd "${jxcoredir}/node_modules/sabrina" ; npm install --no-optional --only=prod --no-bin-links )
+	( cd "${jxcoredir}/node_modules/sabrina" ; npm install --no-optional --only=prod --no-bin-links ; npm run compile-mo )
 	( cd "${jxcoredir}/" ; npm dedupe --no-bin-links )
 	rm -fr "${jxcoredir}/node_modules/sabrina/node_modules/thingtalk"
 	find "${jxcoredir}/" -name .bin -type d -exec rm -fr '{}' ';'
-	find "${jxcoredir}/" -type f \! -name \*.js \! -name \*.json \! -name \*.jade  \! -name \*.css \! -name \*.sql \! -name \*.cert \! -iname \*LICENSE\* \! -iname \*COPYING\* \! -iname \*README\* -delete
+	find "${jxcoredir}/" -type f \! -name \*.js \! -name \*.json \! -name \*.jade  \! -name \*.css \! -name \*.sql \! -name \*.mo \! -name \*.cert \! -iname \*LICENSE\* \! -iname \*COPYING\* \! -iname \*README\* -delete
 	find "${jxcoredir}/" -type d -empty -delete
 }
 

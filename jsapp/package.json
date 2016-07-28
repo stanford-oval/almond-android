@@ -5,6 +5,7 @@
   "dependencies": {
     "abstract-leveldown": "^2.6.0",
     "babel-polyfill": "^6.9.1",
+    "node-gettext": "https://github.com/gcampax/node-gettext/tarball/master",
     "omlib": "https://github.com/Stanford-Mobisocial-IoT-Lab/omclient/tarball/master",
     "q": "~1.4.0"
   }

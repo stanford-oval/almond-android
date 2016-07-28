@@ -121,6 +121,16 @@ JXMobile.GetEncoding = function(callback) {
     callback(null, 'utf16le');
 };
 
+JXMobile.GetLocale = function(callback) {
+  if (typeof callback != "function") {
+    throw new Error("JXMobile.GetLocale expects a function callback");
+  }
+
+  JXMobile('GetLocale').callNative(function(res){
+    callback(null, res);
+  });
+}
+
 JXMobile.Exit = function() {
     JXMobile('Exit').callNative(function(res) { });
 };
