@@ -4,9 +4,7 @@
 
     <string name="action_settings">Settings</string>
     <string name="action_clear_chat">Clear</string>
-    <string name="title_activity_test">TestActivity</string>
     <string name="title_activity_main">Sabrina</string>
-    <string name="section_format">Hello World from section: %1$d</string>
 
     <string name="chat_tab">Chat</string>
     <string name="mystuff_tab">My Goods</string>
@@ -26,6 +24,7 @@
     <string name="device_availability_unknown">It was not possible to verify if the device is available. Please check it is powered on and correctly configured.</string>
     <string name="btn_refresh">Refresh</string>
     <string name="btn_choose_location">Pick a location&#8230;</string>
-    <string name="btn_choose_picture">Choose&#8230;</string>
-    <string name="audio_permission_needed">You must allow Sabrina to record audio in order to use voice interaction</string><!-- picture is implied by the context -->
+    <string name="btn_choose_picture">Choose&#8230;</string><!-- picture is implied by the context -->
+    <string name="audio_permission_needed">You must allow Sabrina to record audio in order to use voice interaction</string>
+    <string name="speak_now">Speak now…</string>
 </resources>

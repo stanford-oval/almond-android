@@ -214,7 +214,7 @@ public class AssistantFragment extends Fragment implements AssistantOutput, Acti
         @Override
         public void onAudioEvent(boolean recording) {
             if (recording)
-                display(new AssistantMessage.Text(AssistantMessage.Direction.FROM_SABRINA, "Speak now..."));
+                display(new AssistantMessage.Text(AssistantMessage.Direction.FROM_SABRINA, getActivity().getString(R.string.speak_now)));
         }
     }
 

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Sabrina</string>
+    <string name="action_clear_chat">Svuota</string>
+    <string name="action_settings">Impostazioni</string>
+    <string name="audio_permission_needed">Devi consentire a Sabrina di registrare l\'audio per potere usare i comandi vocali</string>
+    <string name="btn_choose_location">Scegli una località…</string>
+    <string name="btn_choose_picture">Scegli…</string>
+    <string name="btn_create_account_title">Aggiungi un nuovo account…</string>
+    <string name="btn_create_device_title">Configura un nuovo dispositivo…</string>
+    <string name="btn_delete_account">Dimentica account</string>
+    <string name="btn_delete_datasource">Disabilita sorgente dati</string>
+    <string name="btn_delete_device">Cancella dispositivo</string>
+    <string name="btn_refresh">Aggiorna</string>
+    <string name="button_configure_text">Configura</string>
+    <string name="chat_tab">Chat</string>
+    <string name="create_account_title">Aggiungi nuovo account</string>
+    <string name="create_datasource_title">Abilita nuova sorgente dati</string>
+    <string name="create_device_title">Configura dispositivo</string>
+    <string name="device_availability_unknown">Non è stato possibile verificare se il dispositivo è disponibile. Per favore verifica che sia acceso e correttamente configurato.</string>
+    <string name="device_available">Il dispositivo è disponibile e funzionante.</string>
+    <string name="device_unavailable">Il dispositivo non è disponibile. Potrebbe essere spento o non connesso.</string>
+    <string name="my_accounts_title">I miei account</string>
+    <string name="my_devices_title">I miei dispositivi</string>
+    <string name="mystuff_tab">I miei beni</string>
+    <string name="title_activity_main">Sabrina</string>
+    <string name="title_activity_web_ui">Sabrina</string>
+    <string name="speak_now">Parla ora…</string>
+</resources>
