@@ -37,7 +37,7 @@ transpile_js() {
 
 install_deps() {
 	( cd "${jxcoredir}/" ; npm install --no-optional --only=prod --no-bin-links )
-	( cd "${jxcoredir}/node_modules/thingengine-core" ; npm install --no-optional --only=prod --no-bin-links )
+	( cd "${jxcoredir}/node_modules/thingengine-core" ; npm install --no-optional --only=prod --no-bin-links ; npm run compile-mo )
 	( cd "${jxcoredir}/node_modules/thingpedia" ; npm install --no-optional --only=prod --no-bin-links )
 	( cd "${jxcoredir}/node_modules/thingpedia-discovery" ; npm install --no-optional --only=prod --no-bin-links )
 	( cd "${jxcoredir}/node_modules/thingtalk" ; npm install --no-optional --only=prod --no-bin-links )

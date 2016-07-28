@@ -43,7 +43,7 @@ class AssistantDispatcher {
 
     start() {
         this._sempre.start();
-        this._session = this._sempre.openSession();
+        this._session = this._sempre.openSession(platform.locale);
 
         AssistantJavaApi.onhandlecommand = this._onHandleCommand.bind(this);
         AssistantJavaApi.onhandleparsedcommand = this._onHandleParsedCommand.bind(this);
