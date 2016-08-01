@@ -7,12 +7,9 @@
 // See COPYING for details
 "use strict";
 
-const Q = require('q');
-const events = require('events');
-const util = require('util');
+const Config = require('./config');
 
-const SempreClient = require('sabrina').Sempre;
-const Sabrina = require('sabrina').Sabrina;
+const Sabrina = require('sabrina');
 
 const JavaAPI = require('./java_api');
 
@@ -20,8 +17,6 @@ const COMMANDS = ['send', 'sendPicture', 'sendChoice', 'sendLink', 'sendButton',
 const AssistantJavaApi = JavaAPI.makeJavaAPI('Assistant', [],
     COMMANDS.concat(['sendRDL']),
     ['onhandlecommand', 'onhandleparsedcommand']);
-
-var instance_;
 
 class LocalUser {
     constructor() {
@@ -33,27 +28,16 @@ class LocalUser {
 
 class AssistantDispatcher {
     constructor(engine) {
-        this.engine = engine;
-
-        this._sempre = new SempreClient();
-        this._conversation = new Sabrina(this.engine, new LocalUser(), this, true);
-
-        instance_ = this;
+        this._conversation = new Sabrina(engine, new LocalUser(), this, true, Config.SEMPRE_URL);
     }
 
     start() {
-        this._sempre.start();
-        this._session = this._sempre.openSession(platform.locale);
-
         AssistantJavaApi.onhandlecommand = this._onHandleCommand.bind(this);
         AssistantJavaApi.onhandleparsedcommand = this._onHandleParsedCommand.bind(this);
-
         this._conversation.start();
     }
 
     stop() {
-        this._sempre.stop();
-
         AssistantJavaApi.onhandlecommand = null;
         AssistantJavaApi.onhandleparsedcommand = null;
     }
@@ -63,17 +47,11 @@ class AssistantDispatcher {
     }
 
     _onHandleParsedCommand(error, json) {
-        return this._conversation.handleCommand(null, json).catch(function(e) {
-            console.log('Failed to handle assistant command: ' + e.message);
-        });
+        return this._conversation.handleParsedCommand(json);
     }
 
     _onHandleCommand(error, text) {
-        return this._session.sendUtterance(text).then(function(analyzed) {
-            return this._conversation.handleCommand(text, analyzed);
-        }.bind(this)).catch(function(e) {
-            console.log('Failed to handle assistant command: ' + e.message);
-        });
+        return this._conversation.handleCommand(text);
     }
 
     // sendRDL is special because we need to stringify the rdl before we
