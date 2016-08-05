@@ -8,6 +8,4 @@
 
 module.exports.S3_CLOUDFRONT_HOST = 'https://d1ge76rambtuys.cloudfront.net';
 
-// temporarily go through staging server
-// revert to stable server (and HTTPS!) for release!
-module.exports.SEMPRE_URL = 'http://pepperjack.stanford.edu:8400';
+module.exports.SEMPRE_URL = 'https://pepperjack.stanford.edu';

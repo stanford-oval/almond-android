@@ -299,6 +299,8 @@ public class BluetoothAPI extends JavascriptAPI {
                     }
 
                     long now = System.currentTimeMillis();
+                    if (FETCH_UUID_TIMEOUT - (now - startTime) < 1)
+                        throw new InterruptedException("Fetching UUIDs timed out");
                     wait(FETCH_UUID_TIMEOUT - (now - startTime));
                     now = System.currentTimeMillis();
                     if (now - startTime > FETCH_UUID_TIMEOUT)
