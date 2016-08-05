@@ -275,12 +275,15 @@ public class BluetoothAPI extends JavascriptAPI {
         }
     }
 
+    private final long FETCH_UUID_TIMEOUT = 20000;
+
     @NonNull
     private JSONArray readUUIDs(String address) throws InterruptedException {
         if (adapter == null)
             throw new UnsupportedOperationException("This device has no Bluetooth adapter");
 
         BluetoothDevice dev = adapter.getRemoteDevice(address.toUpperCase());
+        long startTime = System.currentTimeMillis();
         synchronized (this) {
             try {
                 while (true) {
@@ -295,7 +298,11 @@ public class BluetoothAPI extends JavascriptAPI {
                             return uuidsToJson(uuids);
                     }
 
-                    wait();
+                    long now = System.currentTimeMillis();
+                    wait(FETCH_UUID_TIMEOUT - (now - startTime));
+                    now = System.currentTimeMillis();
+                    if (now - startTime > FETCH_UUID_TIMEOUT)
+                        throw new InterruptedException("Fetching UUIDs timed out");
                 }
             } finally {
                 fetchingUuids.remove(address);
