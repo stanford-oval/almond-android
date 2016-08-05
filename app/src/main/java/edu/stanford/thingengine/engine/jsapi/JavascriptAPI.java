@@ -1,7 +1,5 @@
 package edu.stanford.thingengine.engine.jsapi;
 
-import android.os.AsyncTask;
-
 import java.util.ArrayList;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executors;
@@ -41,7 +39,7 @@ public abstract class JavascriptAPI {
         jxcore.RegisterMethod(name + "_" + callback, new jxcore.JXcoreCallback() {
             @Override
             public void Receiver(final ArrayList<Object> params, final String callbackId) {
-                AsyncTask.THREAD_POOL_EXECUTOR.execute(new Runnable() {
+                control.getThreadPool().execute(new Runnable() {
                     @Override
                     public void run() {
                         try {

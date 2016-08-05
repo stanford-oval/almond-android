@@ -20,6 +20,8 @@ import java.io.Writer;
 import java.nio.charset.Charset;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import edu.stanford.thingengine.engine.CloudAuthInfo;
@@ -34,6 +36,7 @@ public class ControlChannel implements AutoCloseable, Closeable {
     private final StringBuilder partialMsg = new StringBuilder();
     private final Writer controlWriter;
     private final LinkedList<Reply> queuedReplies = new LinkedList<>();
+    private final ExecutorService threadPool = Executors.newCachedThreadPool();
 
     private static class Reply {
         private final String replyId;
@@ -57,6 +60,10 @@ public class ControlChannel implements AutoCloseable, Closeable {
         // so we use that and pay the byteswap, rather than paying the higher UTF-8 encoding cost
         controlReader = new BufferedReader(new InputStreamReader(socket.getInputStream(), Charset.forName("UTF-16LE")));
         controlWriter = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream(), Charset.forName("UTF-16LE")));
+    }
+
+    public ExecutorService getThreadPool() {
+        return threadPool;
     }
 
     public void close() throws IOException {

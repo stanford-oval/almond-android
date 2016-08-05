@@ -71,7 +71,7 @@ public class AssistantDispatcher implements Handler.Callback {
             }
         }
 
-        AsyncTask.SERIAL_EXECUTOR.execute(new Runnable() {
+        AsyncTask.THREAD_POOL_EXECUTOR.execute(new Runnable() {
             @Override
             public void run() {
                 cmdHandler.handleCommand(command);
@@ -84,7 +84,7 @@ public class AssistantDispatcher implements Handler.Callback {
     }
 
     public void handleParsedCommand(final String json) {
-        AsyncTask.SERIAL_EXECUTOR.execute(new Runnable() {
+        AsyncTask.THREAD_POOL_EXECUTOR.execute(new Runnable() {
             @Override
             public void run() {
                 cmdHandler.handleParsedCommand(json);
