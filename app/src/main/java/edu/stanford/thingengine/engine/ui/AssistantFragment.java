@@ -6,11 +6,13 @@ import android.app.Fragment;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.provider.ContactsContract;
 import android.speech.tts.TextToSpeech;
 import android.support.annotation.NonNull;
 import android.support.percent.PercentRelativeLayout;
@@ -18,6 +20,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.util.ArrayMap;
 import android.util.Log;
+import android.util.Pair;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -67,6 +70,8 @@ public class AssistantFragment extends Fragment implements AssistantOutput, Acti
     private static final int REQUEST_ENABLE_PLAY_SERVICES = 4;
     private static final int REQUEST_PICTURE = 5;
     private static final int REQUEST_AUDIO_PERMISSION = 6;
+    private static final int REQUEST_EMAIL = 7;
+    private static final int REQUEST_PHONE_NUMBER = 8;
 
     private boolean mPulledHistory = false;
     private MainServiceConnection mEngine;
@@ -417,6 +422,28 @@ public class AssistantFragment extends Fragment implements AssistantOutput, Acti
         startActivityForResult(intent, REQUEST_PICTURE);
     }
 
+    private void showContactPicker(int requestCode) {
+        Intent intent = new Intent(Intent.ACTION_PICK);
+        if (requestCode == REQUEST_PHONE_NUMBER)
+            intent.setType(ContactsContract.CommonDataKinds.Phone.CONTENT_TYPE);
+        else
+            intent.setType(ContactsContract.CommonDataKinds.Email.CONTENT_TYPE);
+        startActivityForResult(intent, requestCode);
+
+    }
+
+    private Button makeContactPickerButton(final int requestCode) {
+        Button btn = new Button(getActivity());
+        btn.setText(R.string.btn_choose_contact);
+        btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showContactPicker(requestCode);
+            }
+        });
+        return btn;
+    }
+
     private void display(AssistantMessage.AskSpecial msg) {
         Button btn;
 
@@ -450,7 +477,13 @@ public class AssistantFragment extends Fragment implements AssistantOutput, Acti
                 });
                 addItem(btn, msg.direction);
 
+            case PHONE_NUMBER:
+            case EMAIL_ADDRESS:
+                addItem(makeContactPickerButton(msg.what == AssistantMessage.AskSpecialType.PHONE_NUMBER ? REQUEST_PHONE_NUMBER : REQUEST_EMAIL),
+                        msg.direction);
+
             case UNKNOWN:
+            case ANYTHING:
                 // we don't recognize this, nothing to do
         }
     }
@@ -613,6 +646,46 @@ public class AssistantFragment extends Fragment implements AssistantOutput, Acti
         display(control.getAssistant().handlePicture(uri.toString()));
     }
 
+    private class ReadContactTask extends AsyncTask<Void, Void, Pair<String, String>> {
+        private final int requestCode;
+        private final Uri uri;
+
+        public ReadContactTask(int requestCode, Uri uri) {
+            this.requestCode = requestCode;
+            this.uri = uri;
+        }
+
+        @Override
+        protected Pair<String, String> doInBackground(Void... nothing) {
+            String[] projection;
+            if (requestCode == REQUEST_PHONE_NUMBER)
+                projection = new String[]{ContactsContract.CommonDataKinds.Phone.NORMALIZED_NUMBER, ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME};
+            else
+                projection = new String[]{ContactsContract.CommonDataKinds.Email.ADDRESS, ContactsContract.CommonDataKinds.Email.DISPLAY_NAME};
+            try (Cursor cursor = getActivity().getContentResolver().query(uri, projection,
+                    null, null, null)) {
+                // If the cursor returned is valid, get the phone number
+                if (cursor != null && cursor.moveToFirst())
+                    return new Pair<>(cursor.getString(0), cursor.getString(1));
+                else
+                    return null;
+            }
+        }
+
+        @Override
+        public void onPostExecute(Pair<String, String> result) {
+            ControlBinder control = mEngine.getControl();
+            if (control == null)
+                return;
+
+            display(control.getAssistant().handleContact(result.first, result.second, requestCode == REQUEST_PHONE_NUMBER ? "PhoneNumber" : "EmailAddress"));
+        }
+    }
+
+    private void onContactSelected(int requestCode, Uri contact) {
+        new ReadContactTask(requestCode, contact).execute();
+    }
+
     // this version of onAttach is deprecated but it's required
     // on APIs older than 23 because otherwise onAttach is never called
     @Override
@@ -672,6 +745,13 @@ public class AssistantFragment extends Fragment implements AssistantOutput, Acti
                 return;
 
             onPictureSelected(intent.getData());
+        }
+
+        if (requestCode == REQUEST_PHONE_NUMBER || requestCode == REQUEST_EMAIL) {
+            if (resultCode != Activity.RESULT_OK)
+                return;
+
+            onContactSelected(requestCode, intent.getData());
         }
     }
 }

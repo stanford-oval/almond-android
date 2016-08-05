@@ -118,6 +118,7 @@ public class AssistantDispatcher implements Handler.Callback {
             location.put("relativeTag", "absolute");
             location.put("longitude", latLng.longitude);
             location.put("latitude", latLng.latitude);
+            location.put("display", place.getName());
 
             handleParsedCommand(obj.toString());
         } catch(JSONException e) {
@@ -129,7 +130,7 @@ public class AssistantDispatcher implements Handler.Callback {
         return loc;
     }
 
-    public AssistantMessage handlePicture(final String url) {
+    public AssistantMessage handlePicture(String url) {
         try {
             JSONObject obj = new JSONObject();
             JSONObject inner = new JSONObject();
@@ -147,6 +148,27 @@ public class AssistantDispatcher implements Handler.Callback {
         AssistantMessage.Picture pic = new AssistantMessage.Picture(AssistantMessage.Direction.FROM_USER, url);
         history.addLast(pic);
         return pic;
+    }
+
+    public AssistantMessage handleContact(String data, String displayName, String type) {
+        try {
+            JSONObject obj = new JSONObject();
+            JSONObject inner = new JSONObject();
+            obj.put("answer", inner);
+            inner.put("type", type);
+            JSONObject value = new JSONObject();
+            inner.put("value", value);
+            value.put("value", data);
+            value.put("display", displayName);
+
+            handleParsedCommand(obj.toString());
+        } catch(JSONException e) {
+            Log.e(EngineService.LOG_TAG, "Unexpected json exception while constructing picture JSON", e);
+        }
+
+        AssistantMessage.Text contact = new AssistantMessage.Text(AssistantMessage.Direction.FROM_USER, displayName);
+        history.addLast(contact);
+        return contact;
     }
 
     private static <E> void reverseList(List<E> list) {

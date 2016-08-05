@@ -1,11 +1,14 @@
 package edu.stanford.thingengine.engine.jsapi;
 
+import android.Manifest;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
 import android.os.Handler;
 import android.provider.Telephony;
+import android.support.v4.content.ContextCompat;
 import android.telephony.SmsManager;
 import android.telephony.SmsMessage;
 import android.util.Log;
@@ -14,6 +17,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import edu.stanford.thingengine.engine.service.ControlChannel;
+import edu.stanford.thingengine.engine.service.EngineService;
+import edu.stanford.thingengine.engine.ui.InteractionCallback;
 
 /**
  * Created by gcampagn on 5/16/16.
@@ -21,7 +26,7 @@ import edu.stanford.thingengine.engine.service.ControlChannel;
 public final class SmsAPI extends JavascriptAPI {
     public static final String LOG_TAG = "thingengine.Service";
 
-    private final Context ctx;
+    private final EngineService ctx;
     private final Handler handler;
     private final BroadcastReceiver receiver;
 
@@ -34,7 +39,7 @@ public final class SmsAPI extends JavascriptAPI {
         }
     }
 
-    public SmsAPI(Handler handler, Context ctx, ControlChannel control) {
+    public SmsAPI(Handler handler, EngineService ctx, ControlChannel control) {
         super("Sms", control);
 
         this.ctx = ctx;
@@ -66,9 +71,22 @@ public final class SmsAPI extends JavascriptAPI {
         });
     }
 
-    private void sendMessage(String phoneNumber, String message) {
+    private void sendMessage(String phoneNumber, String message) throws InterruptedException {
         SmsManager smsManager = SmsManager.getDefault();
+
+        int permissionCheck = ContextCompat.checkSelfPermission(ctx, Manifest.permission.SEND_SMS);
+        if (permissionCheck != PackageManager.PERMISSION_GRANTED)
+            requestPermission();
+
         smsManager.sendTextMessage(phoneNumber, null, message, null, null);
+    }
+
+    private void requestPermission() throws InterruptedException {
+        InteractionCallback callback = ctx.getInteractionCallback();
+        if (callback == null)
+            return;
+
+        callback.requestPermission(Manifest.permission.SEND_SMS, InteractionCallback.REQUEST_SMS);
     }
 
     private void start() {

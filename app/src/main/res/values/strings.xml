@@ -27,4 +27,5 @@
     <string name="btn_choose_picture">Choose&#8230;</string><!-- picture is implied by the context -->
     <string name="audio_permission_needed">You must allow Sabrina to record audio in order to use voice interaction</string>
     <string name="speak_now">Speak now…</string>
+    <string name="btn_choose_contact">Choose a contact...</string>
 </resources>

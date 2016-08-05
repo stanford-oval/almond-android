@@ -9,6 +9,7 @@ import android.os.IBinder;
 import android.os.Looper;
 import android.os.Message;
 import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
 
 import com.google.android.gms.common.api.Status;
 
@@ -29,6 +30,7 @@ import edu.stanford.thingengine.engine.service.ControlBinder;
 public class MainServiceConnection extends EngineServiceConnection implements InteractionCallback {
     private static final int MSG_RESOLVE_RESULT = 1;
     private static final int MSG_START_ACTIVITY = 2;
+    private static final int MSG_REQUEST_PERMISSION = 3;
 
     private static class InteractionState implements Future<Boolean> {
         private boolean interacting = true;
@@ -91,6 +93,10 @@ public class MainServiceConnection extends EngineServiceConnection implements In
 
                 case MSG_START_ACTIVITY:
                     parent.doStartActivity((Intent)msg.obj, msg.arg1);
+                    break;
+
+                case MSG_REQUEST_PERMISSION:
+                    parent.doRequestPermission((String)msg.obj, msg.arg1);
             }
         }
     }
@@ -135,6 +141,20 @@ public class MainServiceConnection extends EngineServiceConnection implements In
         currentParent.startActivityForResult(intent, requestCode);
     }
 
+    private void doRequestPermission(String permission, int requestCode) {
+        InteractionState state = interacting.get(requestCode);
+        if (state == null)
+            return;
+
+        Activity currentParent = parent;
+        if (currentParent == null) {
+            state.complete(false);
+            return;
+        }
+
+        ActivityCompat.requestPermissions(currentParent, new String[]{permission}, requestCode);
+    }
+
     @Override
     public boolean resolveResult(Status status, int requestCode) throws InterruptedException {
         final InteractionState state = new InteractionState();
@@ -149,6 +169,15 @@ public class MainServiceConnection extends EngineServiceConnection implements In
         final InteractionState state = new InteractionState();
         interacting.put(requestCode, state);
         handler.obtainMessage(MSG_START_ACTIVITY, requestCode, 0, intent).sendToTarget();
+
+        return state.get();
+    }
+
+    @Override
+    public boolean requestPermission(String permission, int requestCode) throws InterruptedException {
+        final InteractionState state = new InteractionState();
+        interacting.put(requestCode, state);
+        handler.obtainMessage(MSG_REQUEST_PERMISSION, requestCode, 0, permission).sendToTarget();
 
         return state.get();
     }
