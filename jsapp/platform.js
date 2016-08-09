@@ -42,6 +42,7 @@ const _contentApi = {
     }
 }
 const _contactApi = JavaAPI.makeJavaAPI('Contacts', ['lookup'], [], []);
+const _telephoneApi = JavaAPI.makeJavaAPI('Telephone', ['call', 'callEmergency'], [], []);
 
 var filesDir = null;
 var cacheDir = null;
@@ -185,6 +186,7 @@ module.exports = {
         case 'graphics-api':
         case 'content-api':
         case 'contacts':
+        case 'telephone':
         // for compat
         case 'notify-api':
             return true;
@@ -240,6 +242,9 @@ module.exports = {
 
         case 'contacts':
             return _contactApi;
+
+        case 'telephone':
+            return _telephoneApi;
 
         case 'assistant':
             return this._assistant.getConversation();

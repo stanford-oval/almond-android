@@ -20,6 +20,7 @@ import edu.stanford.thingengine.engine.jsapi.NotifyAPI;
 import edu.stanford.thingengine.engine.jsapi.SmsAPI;
 import edu.stanford.thingengine.engine.jsapi.StreamAPI;
 import edu.stanford.thingengine.engine.jsapi.SystemAppsAPI;
+import edu.stanford.thingengine.engine.jsapi.TelephoneAPI;
 import edu.stanford.thingengine.engine.jsapi.UnzipAPI;
 import io.jxcore.node.jxcore;
 
@@ -67,6 +68,7 @@ public class EngineThread extends Thread {
                     new ImageAPI(control, stream);
                     new ContentAPI(context, control, stream);
                     new ContactAPI(context, control);
+                    new TelephoneAPI(context, control);
 
                     context.controlReady(new AssistantAPI(context, control), control);
                 }
