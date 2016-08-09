@@ -41,6 +41,7 @@ const _contentApi = {
         });
     }
 }
+const _contactApi = JavaAPI.makeJavaAPI('Contacts', ['lookup'], [], []);
 
 var filesDir = null;
 var cacheDir = null;
@@ -183,6 +184,7 @@ module.exports = {
         case 'system-apps':
         case 'graphics-api':
         case 'content-api':
+        case 'contacts':
         // for compat
         case 'notify-api':
             return true;
@@ -235,6 +237,9 @@ module.exports = {
 
         case 'content-api':
             return _contentApi;
+
+        case 'contacts':
+            return _contactApi;
 
         case 'assistant':
             return this._assistant.getConversation();

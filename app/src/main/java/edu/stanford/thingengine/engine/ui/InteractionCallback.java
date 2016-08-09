@@ -11,6 +11,7 @@ public interface InteractionCallback {
     int ENABLE_GPS = 1;
     int ENABLE_BLUETOOTH = 2;
     int REQUEST_SMS = 3;
+    int REQUEST_CONTACTS = 4;
 
     boolean requestPermission(String permission, int requestCode) throws InterruptedException;
     boolean resolveResult(Status status, int requestCode) throws InterruptedException;
