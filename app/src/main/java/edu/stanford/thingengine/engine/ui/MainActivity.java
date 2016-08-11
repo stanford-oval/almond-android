@@ -19,8 +19,10 @@ import android.view.MenuItem;
 
 import net.hockeyapp.android.CrashManager;
 import net.hockeyapp.android.UpdateManager;
+import net.hockeyapp.android.metrics.MetricsManager;
 
 import edu.stanford.thingengine.engine.AutoStarter;
+import edu.stanford.thingengine.engine.BuildConfig;
 import edu.stanford.thingengine.engine.R;
 
 public class MainActivity extends Activity implements ActionBar.TabListener, FragmentEmbedder, ActivityCompat.OnRequestPermissionsResultCallback {
@@ -115,6 +117,9 @@ public class MainActivity extends Activity implements ActionBar.TabListener, Fra
 
         AutoStarter.startService(this);
         UpdateManager.register(this);
+        if (!BuildConfig.DEBUG) {
+            MetricsManager.register(this, getApplication());
+        }
     }
 
     @Override
