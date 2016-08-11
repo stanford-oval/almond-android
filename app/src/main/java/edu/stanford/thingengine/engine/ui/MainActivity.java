@@ -17,6 +17,9 @@ import android.support.v4.view.ViewPager;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import net.hockeyapp.android.CrashManager;
+import net.hockeyapp.android.UpdateManager;
+
 import edu.stanford.thingengine.engine.AutoStarter;
 import edu.stanford.thingengine.engine.R;
 
@@ -111,18 +114,21 @@ public class MainActivity extends Activity implements ActionBar.TabListener, Fra
         }
 
         AutoStarter.startService(this);
+        UpdateManager.register(this);
     }
 
     @Override
     public void onResume() {
         super.onResume();
         engine.start(this);
+        CrashManager.register(this);
     }
 
     @Override
     public void onPause() {
         super.onPause();
         engine.stop(this);
+        UpdateManager.unregister();
     }
 
     @Override

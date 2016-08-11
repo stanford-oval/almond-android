@@ -26,4 +26,6 @@
     <string name="title_activity_main">Sabrina</string>
     <string name="title_activity_web_ui">Sabrina</string>
     <string name="speak_now">Parla ora…</string>
+    <string name="btn_choose_contact">Scegli contatto…</string>
+    <string name="myrules_tab">Le mie regole</string>
 </resources>

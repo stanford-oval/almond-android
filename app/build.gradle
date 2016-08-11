@@ -6,10 +6,10 @@ android {
 
     signingConfigs {
         release {
-            //keyAlias keystoreProperties['keyAlias']
-            //keyPassword keystoreProperties['keyPassword']
-            //storeFile file(keystoreProperties['storeFile'])
-            //storePassword keystoreProperties['storePassword']
+            keyAlias keystoreProperties['keyAlias']
+            keyPassword keystoreProperties['keyPassword']
+            storeFile file(keystoreProperties['storeFile'])
+            storePassword keystoreProperties['storePassword']
         }
     }
     compileSdkVersion 23
@@ -18,8 +18,9 @@ android {
         applicationId "edu.stanford.thingengine.engine"
         minSdkVersion 21
         targetSdkVersion 23
-        versionCode 3
-        versionName "1.0~beta2~snapshot"
+        versionCode 4
+        versionName "1.0~beta3"
+        manifestPlaceholders = [HOCKEYAPP_APP_ID: "d6e09574c0f9434e8e20e8d8f2234285"]
     }
     buildTypes {
         release {
@@ -50,4 +51,5 @@ dependencies {
     compile 'com.android.support:recyclerview-v7:23.4.0'
     compile 'com.android.support:percent:23.3.0'
     compile 'com.microsoft.projectoxford:speechrecognition:0.6.0'
+    compile 'net.hockeyapp.android:HockeySDK:4.0.1'
 }
