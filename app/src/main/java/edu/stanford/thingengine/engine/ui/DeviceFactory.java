@@ -4,10 +4,12 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.AsyncTask;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -72,6 +74,25 @@ public abstract class DeviceFactory {
         public String name;
         public String label;
         public Object value;
+
+        public static FormControl fromJSON(JSONObject obj) throws JSONException {
+            DeviceFactory.FormControl control = new DeviceFactory.FormControl();
+            control.label = obj.getString("label");
+            control.type = obj.getString("type");
+            control.name = obj.getString("name");
+            return control;
+        }
+
+        public static List<FormControl> fromJSONArray(JSONArray array) throws JSONException {
+            List<DeviceFactory.FormControl> list = new ArrayList<>();
+
+            for (int i = 0; i < array.length(); i++) {
+                JSONObject field = array.getJSONObject(i);
+                list.add(DeviceFactory.FormControl.fromJSON(field));
+            }
+
+            return list;
+        }
     }
 
     public static class Form extends DeviceFactory {

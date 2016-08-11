@@ -60,7 +60,7 @@ public class DeviceConfigureChooseKindActivity extends Activity {
 
                 switch (jsonFactory.getString("type")) {
                     case "form":
-                        factory = new DeviceFactory.Form(name, kind, _class, jsonFormToMap(jsonFactory.getJSONArray("fields")));
+                        factory = new DeviceFactory.Form(name, kind, _class, DeviceFactory.FormControl.fromJSONArray(jsonFactory.getJSONArray("fields")));
                         break;
 
                     case "oauth2":
@@ -137,21 +137,6 @@ public class DeviceConfigureChooseKindActivity extends Activity {
     protected void onPause() {
         super.onPause();
         mEngine.stop(this);
-    }
-
-    private static List<DeviceFactory.FormControl> jsonFormToMap(JSONArray array) throws JSONException {
-        List<DeviceFactory.FormControl> list = new ArrayList<>();
-
-        for (int i = 0; i < array.length(); i++) {
-            JSONObject field = array.getJSONObject(i);
-            DeviceFactory.FormControl control = new DeviceFactory.FormControl();
-            control.label = field.getString("label");
-            control.type = field.getString("type");
-            control.name = field.getString("name");
-            list.add(control);
-        }
-
-        return list;
     }
 
     private void addAdapter(List<DeviceFactory> factories) {

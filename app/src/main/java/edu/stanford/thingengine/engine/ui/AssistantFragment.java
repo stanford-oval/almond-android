@@ -47,8 +47,11 @@ import com.microsoft.projectoxford.speechrecognition.RecognitionResult;
 import com.microsoft.projectoxford.speechrecognition.SpeechRecognitionMode;
 import com.microsoft.projectoxford.speechrecognition.SpeechRecognitionServiceFactory;
 
+import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONTokener;
 
+import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
@@ -575,10 +578,11 @@ public class AssistantFragment extends Fragment implements AssistantOutput, Acti
         }
     }
 
-    private void createDeviceOAuth2(String kind) {
+    private void createDeviceOAuth2(String kind, String name) {
         Intent intent = new Intent(getActivity(), OAuthActivity.class);
         intent.setAction(OAuthActivity.ACTION);
         intent.putExtra("extra.KIND", kind);
+        intent.putExtra("extra.TITLE", name);
         startActivityForResult(intent, REQUEST_OAUTH2);
     }
 
@@ -594,15 +598,44 @@ public class AssistantFragment extends Fragment implements AssistantOutput, Acti
         startActivityForResult(intent, REQUEST_CREATE_DEVICE);
     }
 
+    private void showMyGoods() {
+        mListener.switchToMyGoods();
+    }
+
+    private static Object jsonParse(String what) throws JSONException {
+        return new JSONTokener(what).nextValue();
+    }
+
+    private void showConfigureDevice(String kind, String name, String controls) {
+        try {
+            Intent intent = new Intent(getActivity(), DeviceCreateFormActivity.class);
+            intent.setAction(DeviceCreateFormActivity.ACTION);
+            intent.putExtra("extra.KIND", kind);
+            intent.putExtra("extra.TITLE", name);
+            intent.putExtra("extra.CONTROLS", (Serializable) DeviceFactory.FormControl.fromJSONArray((JSONArray) jsonParse(controls)));
+            startActivityForResult(intent, REQUEST_CREATE_DEVICE);
+        } catch(JSONException e) {
+            Log.e(MainActivity.LOG_TAG, "Unexpected JSON exception configuring " + kind, e);
+        }
+    }
+
     private void onLinkActivated(String url) {
         if (url.startsWith("/")) {
             // recognize relative urls as local intents
             if (url.startsWith("/devices/oauth2/")) {
-                Uri parsed = Uri.parse(url);
+                // work around weirdness in Android's query parser
+                Uri parsed = Uri.parse("http://127.0.0.1:8080" + url);
                 String kind = parsed.getLastPathSegment();
-                createDeviceOAuth2(kind);
+                createDeviceOAuth2(kind, parsed.getQueryParameter("name"));
+            } else if (url.startsWith("/devices/configure/")) {
+                // work around weirdness in Android's query parser
+                Uri parsed = Uri.parse("http://127.0.0.1:8080" + url);
+                String kind = parsed.getLastPathSegment();
+                showConfigureDevice(kind, parsed.getQueryParameter("name"), parsed.getQueryParameter("controls"));
             } else if (url.startsWith("/devices/create")) {
                 showChooseDeviceKindList(Uri.parse(url));
+            } else if (url.startsWith("/apps")) {
+                showMyGoods();
             }
 
             // eat all other links

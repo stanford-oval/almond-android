@@ -86,6 +86,11 @@ public class MainActivity extends Activity implements ActionBar.TabListener, Fra
     }
 
     @Override
+    public void switchToMyGoods() {
+        mViewPager.setCurrentItem(SectionsPagerAdapter.SECTION_MYSTUFF, true);
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
