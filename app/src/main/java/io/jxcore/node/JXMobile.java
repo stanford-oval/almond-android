@@ -4,7 +4,6 @@ package io.jxcore.node;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.Locale;
@@ -24,7 +23,8 @@ public class JXMobile {
         else
           stack = "";
 
-        Log.e("jxcore", "Error!: " + message + "\nStack: " + stack);
+        jxcore.QuitLoop();
+        throw new RuntimeException(message + "\n" + stack);
       }
     });
 
