@@ -62,6 +62,15 @@ public class AssistantDispatcher implements Handler.Callback {
             notificationMessages.clear();
     }
 
+    public void ready() {
+        AsyncTask.THREAD_POOL_EXECUTOR.execute(new Runnable() {
+            @Override
+            public void run() {
+                cmdHandler.ready();
+            }
+        });
+    }
+
     public AssistantMessage.Text handleCommand(final String command) {
         if (BuildConfig.DEBUG) {
             if (command.startsWith("\\r ")) {

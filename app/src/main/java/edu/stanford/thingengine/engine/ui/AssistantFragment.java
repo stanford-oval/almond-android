@@ -86,6 +86,7 @@ public class AssistantFragment extends Fragment implements AssistantOutput, Acti
                 return;
 
             control.getAssistant().setAssistantOutput(AssistantFragment.this);
+            control.getAssistant().ready();
             pullHistory(control.getAssistant());
         }
     };

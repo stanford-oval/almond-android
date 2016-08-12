@@ -84,6 +84,11 @@ public class AssistantAPI extends JavascriptAPI implements AssistantCommandHandl
     }
 
     @Override
+    public void ready() {
+        invokeAsync("onready", null);
+    }
+
+    @Override
     public void handleCommand(String command) {
         invokeAsync("onhandlecommand", command);
     }
