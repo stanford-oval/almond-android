@@ -3,6 +3,7 @@ package edu.stanford.thingengine.engine.ui;
 import android.Manifest;
 import android.app.Activity;
 import android.app.Fragment;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -27,12 +28,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
+import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.RelativeLayout;
-import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -52,6 +53,7 @@ import org.json.JSONException;
 import org.json.JSONTokener;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
@@ -62,6 +64,7 @@ import java.util.concurrent.FutureTask;
 import edu.stanford.thingengine.engine.Config;
 import edu.stanford.thingengine.engine.R;
 import edu.stanford.thingengine.engine.service.AssistantDispatcher;
+import edu.stanford.thingengine.engine.service.AssistantHistoryModel;
 import edu.stanford.thingengine.engine.service.AssistantMessage;
 import edu.stanford.thingengine.engine.service.AssistantOutput;
 import edu.stanford.thingengine.engine.service.ControlBinder;
@@ -76,7 +79,6 @@ public class AssistantFragment extends Fragment implements AssistantOutput, Acti
     private static final int REQUEST_EMAIL = 7;
     private static final int REQUEST_PHONE_NUMBER = 8;
 
-    private boolean mPulledHistory = false;
     private MainServiceConnection mEngine;
     private final Runnable mReadyCallback = new Runnable() {
         @Override
@@ -85,12 +87,14 @@ public class AssistantFragment extends Fragment implements AssistantOutput, Acti
             if (control == null)
                 return;
 
-            control.getAssistant().setAssistantOutput(AssistantFragment.this);
-            control.getAssistant().ready();
-            pullHistory(control.getAssistant());
+            AssistantDispatcher assistant = control.getAssistant();
+            assistant.setAssistantOutput(AssistantFragment.this);
+            mListAdapter.setHistory(assistant.getHistory());
+            assistant.ready();
         }
     };
     private FragmentEmbedder mListener;
+    private AssistantHistoryAdapter mListAdapter = new AssistantHistoryAdapter();
     private final SpeechHandler mSpeechHandler = new SpeechHandler();
 
     private class SpeechHandler implements ISpeechRecognitionServerEvents, TextToSpeech.OnInitListener {
@@ -231,6 +235,279 @@ public class AssistantFragment extends Fragment implements AssistantOutput, Acti
         }
     }
 
+    private class AssistantHistoryAdapter extends BaseAdapter implements AssistantHistoryModel.Listener {
+        private final ArrayList<AssistantMessage> filteredHistory = new ArrayList<>();
+        private Context ctx;
+        private AssistantHistoryModel history;
+
+        @Override
+        public int getCount() {
+            return filteredHistory.size();
+        }
+
+        @Override
+        public AssistantMessage getItem(int position) {
+            return filteredHistory.get(position);
+        }
+
+        @Override
+        public long getItemId(int position) {
+            return position;
+        }
+
+        @Override
+        public boolean areAllItemsEnabled() {
+            return true;
+        }
+
+        private boolean isFiltered(AssistantMessage msg) {
+            if (msg.type == AssistantMessage.Type.ASK_SPECIAL) {
+                AssistantMessage.AskSpecial askSpecial = (AssistantMessage.AskSpecial)msg;
+                if (askSpecial.what != AssistantMessage.AskSpecialType.LOCATION &&
+                        askSpecial.what != AssistantMessage.AskSpecialType.PICTURE &&
+                        askSpecial.what != AssistantMessage.AskSpecialType.PHONE_NUMBER &&
+                        askSpecial.what != AssistantMessage.AskSpecialType.EMAIL_ADDRESS)
+                    return true;
+            }
+
+            return false;
+        }
+
+        @Override
+        public void onAdded(AssistantMessage msg) {
+            if (isFiltered(msg))
+                return;
+
+            filteredHistory.add(msg);
+            notifyDataSetChanged();
+        }
+
+        @Override
+        public void onClear() {
+            filteredHistory.clear();
+            notifyDataSetChanged();
+        }
+
+        public void setContext(Context ctx) {
+            this.ctx = ctx;
+        }
+
+        private Context getContext() {
+            return ctx;
+        }
+
+        public void setHistory(AssistantHistoryModel history) {
+            if (history == this.history)
+                return;
+            if (this.history != null)
+                this.history.removeListener(this);
+            this.history = history;
+            if (history == null)
+                return;
+            history.addListener(this);
+
+            filteredHistory.clear();
+
+            for (AssistantMessage msg : history) {
+                if (isFiltered(msg))
+                    continue;
+                filteredHistory.add(msg);
+            }
+            notifyDataSetChanged();
+        }
+
+        private View wrapView(View view, AssistantMessage.Direction side) {
+            PercentRelativeLayout.LayoutParams params = new PercentRelativeLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT);
+            params.getPercentLayoutInfo().widthPercent = 0.7f;
+
+            PercentRelativeLayout wrapper = new PercentRelativeLayout(getContext());
+            if (view instanceof Button) {
+                view.setBackgroundResource(R.drawable.button_sabrina);
+                view.setStateListAnimator(null);
+            } else if (side == AssistantMessage.Direction.FROM_SABRINA)
+                view.setBackgroundResource(R.drawable.bubble_sabrina);
+            else if (side == AssistantMessage.Direction.FROM_USER)
+                view.setBackgroundResource(R.drawable.bubble_user);
+
+            if (side == AssistantMessage.Direction.FROM_SABRINA) {
+                params.addRule(RelativeLayout.ALIGN_PARENT_START);
+                if (view instanceof TextView)
+                    ((TextView) view).setGravity(Gravity.START);
+                wrapper.addView(view, params);
+                view.setTextAlignment(View.TEXT_ALIGNMENT_VIEW_START);
+            } else if (side == AssistantMessage.Direction.FROM_USER) {
+                params.addRule(RelativeLayout.ALIGN_PARENT_END);
+                if (view instanceof TextView)
+                    ((TextView) view).setGravity(Gravity.END);
+                wrapper.addView(view, params);
+                view.setTextAlignment(View.TEXT_ALIGNMENT_VIEW_END);
+            }
+
+            return wrapper;
+        }
+
+        private View display(AssistantMessage msg) {
+            switch (msg.type) {
+                case TEXT:
+                    return display((AssistantMessage.Text) msg);
+                case PICTURE:
+                    return display((AssistantMessage.Picture) msg);
+                case RDL:
+                    return display((AssistantMessage.RDL) msg);
+                case CHOICE:
+                    return display((AssistantMessage.Choice) msg);
+                case LINK:
+                    return display((AssistantMessage.Link) msg);
+                case BUTTON:
+                    return display((AssistantMessage.Button) msg);
+                case ASK_SPECIAL:
+                    return display((AssistantMessage.AskSpecial) msg);
+                default:
+                    throw new RuntimeException();
+            }
+        }
+
+        private Button makeContactPickerButton(final int requestCode) {
+            Button btn = new Button(getContext());
+            btn.setText(R.string.btn_choose_contact);
+            btn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    showContactPicker(requestCode);
+                }
+            });
+            return btn;
+        }
+
+        private View display(AssistantMessage.AskSpecial msg) {
+            Button btn;
+
+            switch (msg.what) {
+                case YESNO:
+                    // do nothing for yes/no
+                    // in the future, if we want to put two buttons up,
+                    // this is the place to do it
+                    throw new RuntimeException();
+
+                case LOCATION:
+                    btn = new Button(getContext());
+                    btn.setText(R.string.btn_choose_location);
+                    btn.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            showLocationPicker();
+                        }
+                    });
+                    return wrapView(btn, msg.direction);
+
+                case PICTURE:
+                    btn = new Button(getContext());
+                    btn.setText(R.string.btn_choose_picture);
+                    btn.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            showImagePicker();
+                        }
+                    });
+                    return wrapView(btn, msg.direction);
+
+                case PHONE_NUMBER:
+                case EMAIL_ADDRESS:
+                    return wrapView(makeContactPickerButton(msg.what == AssistantMessage.AskSpecialType.PHONE_NUMBER ? REQUEST_PHONE_NUMBER : REQUEST_EMAIL),
+                            msg.direction);
+                case UNKNOWN:
+                case ANYTHING:
+                    // we don't recognize this, it should have been filtered by isFiltered()
+                    throw new RuntimeException();
+
+                default:
+                    throw new RuntimeException();
+            }
+        }
+
+        private View display(AssistantMessage.Text msg) {
+            TextView view = new TextView(getContext());
+            view.setText(msg.msg);
+            return wrapView(view, msg.direction);
+        }
+
+        private View display(AssistantMessage.Picture msg) {
+            ImageView view = new ImageView(getContext());
+            view.setBackgroundColor(Color.RED);
+            view.setScaleType(ImageView.ScaleType.FIT_CENTER);
+            view.setAdjustViewBounds(true);
+            (new LoadImageTask(getContext(), view) {
+                @Override
+                public void onPostExecute(Drawable draw) {
+                    super.onPostExecute(draw);
+                    scheduleScroll();
+                }
+            }).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, msg.url);
+            return wrapView(view, msg.direction);
+        }
+
+        private View display(AssistantMessage.RDL msg) {
+            try {
+                // FIXME: we can do a better job for RDLs...
+
+                Button btn = new Button(getContext());
+                btn.setText(msg.rdl.optString("displayTitle"));
+                final String webCallback = msg.rdl.getString("webCallback");
+                btn.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        onLinkActivated(webCallback);
+                    }
+                });
+                return wrapView(btn, msg.direction);
+            } catch (JSONException e) {
+                Log.e(MainActivity.LOG_TAG, "Unexpected JSON exception while unpacking RDL", e);
+                return null;
+            }
+        }
+
+        private View display(final AssistantMessage.Choice msg) {
+            Button btn = new Button(getContext());
+            btn.setText(msg.title);
+            btn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    onChoiceActivated(msg.idx);
+                }
+            });
+            return wrapView(btn, msg.direction);
+        }
+
+        private View display(final AssistantMessage.Link msg) {
+            Button btn = new Button(getContext());
+            btn.setText(msg.title);
+            btn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    onLinkActivated(msg.url);
+                }
+            });
+            return wrapView(btn, msg.direction);
+        }
+
+        private View display(final AssistantMessage.Button msg) {
+            Button btn = new Button(getContext());
+            btn.setText(msg.title);
+            btn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    onButtonActivated(msg.json);
+                }
+            });
+            return wrapView(btn, msg.direction);
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            return display(getItem(position));
+        }
+    }
+
     private boolean mScrollScheduled;
 
     public AssistantFragment() {
@@ -244,42 +521,10 @@ public class AssistantFragment extends Fragment implements AssistantOutput, Acti
         return fragment;
     }
 
-    public void clearHistory() {
-        LinearLayout layout = (LinearLayout) getActivity().findViewById(R.id.assistant_container);
-        layout.removeAllViews();
-    }
-
-    private void addItem(@NonNull View view, @NonNull AssistantMessage.Direction side) {
-        PercentRelativeLayout.LayoutParams params = new PercentRelativeLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT);
-        params.getPercentLayoutInfo().widthPercent = 0.7f;
-
-        PercentRelativeLayout wrapper = new PercentRelativeLayout(getActivity());
-        if (view instanceof Button) {
-            view.setBackgroundResource(R.drawable.button_sabrina);
-            view.setStateListAnimator(null);
-        } else if (side == AssistantMessage.Direction.FROM_SABRINA)
-            view.setBackgroundResource(R.drawable.bubble_sabrina);
-        else if (side == AssistantMessage.Direction.FROM_USER)
-            view.setBackgroundResource(R.drawable.bubble_user);
-
-        if (side == AssistantMessage.Direction.FROM_SABRINA) {
-            params.addRule(RelativeLayout.ALIGN_PARENT_START);
-            if (view instanceof TextView)
-                ((TextView) view).setGravity(Gravity.START);
-            wrapper.addView(view, params);
-            view.setTextAlignment(View.TEXT_ALIGNMENT_VIEW_START);
-        } else if (side == AssistantMessage.Direction.FROM_USER) {
-            params.addRule(RelativeLayout.ALIGN_PARENT_END);
-            if (view instanceof TextView)
-                ((TextView) view).setGravity(Gravity.END);
-            wrapper.addView(view, params);
-            view.setTextAlignment(View.TEXT_ALIGNMENT_VIEW_END);
-        }
-
-        LinearLayout layout = (LinearLayout) getActivity().findViewById(R.id.assistant_container);
-
-        LinearLayout.LayoutParams outerParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        layout.addView(wrapper, outerParams);
+    public void display(AssistantMessage msg) {
+        if (msg.direction == AssistantMessage.Direction.FROM_SABRINA &&
+                msg.type == AssistantMessage.Type.TEXT)
+            mSpeechHandler.say(msg.toText());
 
         scheduleScroll();
     }
@@ -289,121 +534,14 @@ public class AssistantFragment extends Fragment implements AssistantOutput, Acti
             return;
         mScrollScheduled = true;
 
-        final ScrollView scrollView = (ScrollView)getActivity().findViewById(R.id.assistant_scroll_view);
-        scrollView.post(new Runnable() {
+        final ListView listView = (ListView)getActivity().findViewById(R.id.chat_list);
+        listView.post(new Runnable() {
             @Override
             public void run() {
                 mScrollScheduled = false;
-                scrollView.fullScroll(ScrollView.FOCUS_DOWN);
+                listView.smoothScrollToPosition(mListAdapter.getCount()-1);
             }
         });
-    }
-
-    @Override
-    public void display(AssistantMessage msg) {
-        if (msg.direction == AssistantMessage.Direction.FROM_SABRINA &&
-                msg.type == AssistantMessage.Type.TEXT)
-            mSpeechHandler.say(msg.toText());
-
-        switch (msg.type) {
-            case TEXT:
-                display((AssistantMessage.Text)msg);
-                break;
-            case PICTURE:
-                display((AssistantMessage.Picture)msg);
-                break;
-            case RDL:
-                display((AssistantMessage.RDL)msg);
-                break;
-            case CHOICE:
-                display((AssistantMessage.Choice)msg);
-                break;
-            case LINK:
-                display((AssistantMessage.Link)msg);
-                break;
-            case BUTTON:
-                display((AssistantMessage.Button)msg);
-                break;
-            case ASK_SPECIAL:
-                display((AssistantMessage.AskSpecial)msg);
-                break;
-        }
-    }
-
-    private void display(AssistantMessage.Text msg) {
-        TextView view = new TextView(getActivity());
-        view.setText(msg.msg);
-        addItem(view, msg.direction);
-    }
-
-    private void display(AssistantMessage.Picture msg) {
-        ImageView view = new ImageView(getActivity());
-        view.setBackgroundColor(Color.RED);
-        view.setScaleType(ImageView.ScaleType.FIT_CENTER);
-        view.setAdjustViewBounds(true);
-        addItem(view, msg.direction);
-        (new LoadImageTask(getActivity(), view) {
-            @Override
-            public void onPostExecute(Drawable draw) {
-                super.onPostExecute(draw);
-                scheduleScroll();
-            }
-        }).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, msg.url);
-    }
-
-    private void display(AssistantMessage.RDL msg) {
-        try {
-            // FIXME: we can do a better job for RDLs...
-
-            Button btn = new Button(getActivity());
-            btn.setText(msg.rdl.optString("displayTitle"));
-            final String webCallback = msg.rdl.getString("webCallback");
-            btn.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    onLinkActivated(webCallback);
-                }
-            });
-            addItem(btn, msg.direction);
-        } catch(JSONException e) {
-            Log.e(MainActivity.LOG_TAG, "Unexpected JSON exception while unpacking RDL", e);
-        }
-    }
-
-    private void display(final AssistantMessage.Choice msg) {
-        Button btn = new Button(getActivity());
-        btn.setText(msg.title);
-        btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                onChoiceActivated(msg.idx);
-            }
-        });
-        addItem(btn, msg.direction);
-    }
-
-    private void display(final AssistantMessage.Link msg) {
-        Button btn = new Button(getActivity());
-        btn.setText(msg.title);
-        btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                onLinkActivated(msg.url);
-            }
-        });
-        addItem(btn, msg.direction);
-    }
-
-    private void display(final AssistantMessage.Button msg) {
-        Button btn = new Button(getActivity());
-        btn.setText(msg.title);
-        btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                onButtonActivated(msg.json);
-            }
-        });
-        addItem(btn, msg.direction);
     }
 
     private void showLocationPicker() {
@@ -437,77 +575,17 @@ public class AssistantFragment extends Fragment implements AssistantOutput, Acti
         else
             intent.setType(ContactsContract.CommonDataKinds.Email.CONTENT_TYPE);
         startActivityForResult(intent, requestCode);
-
-    }
-
-    private Button makeContactPickerButton(final int requestCode) {
-        Button btn = new Button(getActivity());
-        btn.setText(R.string.btn_choose_contact);
-        btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showContactPicker(requestCode);
-            }
-        });
-        return btn;
-    }
-
-    private void display(AssistantMessage.AskSpecial msg) {
-        Button btn;
-
-        switch (msg.what) {
-            case YESNO:
-                // do nothing for yes/no
-                // in the future, if we want to put two buttons up,
-                // this is the place to do it
-                return;
-
-            case LOCATION:
-                btn = new Button(getActivity());
-                btn.setText(R.string.btn_choose_location);
-                btn.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        showLocationPicker();
-                    }
-                });
-                addItem(btn, msg.direction);
-                return;
-
-            case PICTURE:
-                btn = new Button(getActivity());
-                btn.setText(R.string.btn_choose_picture);
-                btn.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        showImagePicker();
-                    }
-                });
-                addItem(btn, msg.direction);
-
-            case PHONE_NUMBER:
-            case EMAIL_ADDRESS:
-                addItem(makeContactPickerButton(msg.what == AssistantMessage.AskSpecialType.PHONE_NUMBER ? REQUEST_PHONE_NUMBER : REQUEST_EMAIL),
-                        msg.direction);
-
-            case UNKNOWN:
-            case ANYTHING:
-                // we don't recognize this, nothing to do
-        }
-    }
-
-    private void pullHistory(AssistantDispatcher dispatcher) {
-        if (mPulledHistory)
-            return;
-        mPulledHistory = true;
-
-        for (AssistantMessage msg : dispatcher.getHistory(10))
-            display(msg);
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        mListAdapter.setHistory(null);
     }
 
     @Override
@@ -534,6 +612,8 @@ public class AssistantFragment extends Fragment implements AssistantOutput, Acti
                 mSpeechHandler.startRecording();
             }
         });
+
+        ((ListView)getActivity().findViewById(R.id.chat_list)).setAdapter(mListAdapter);
 
         mSpeechHandler.onCreate();
     }
@@ -732,6 +812,7 @@ public class AssistantFragment extends Fragment implements AssistantOutput, Acti
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
+        mListAdapter.setContext(activity);
         if (activity instanceof FragmentEmbedder) {
             mListener = (FragmentEmbedder) activity;
             mEngine = mListener.getEngine();
@@ -744,6 +825,7 @@ public class AssistantFragment extends Fragment implements AssistantOutput, Acti
     @Override
     public void onDetach() {
         super.onDetach();
+        mListAdapter.setContext(null);
         mListener = null;
         mEngine = null;
     }

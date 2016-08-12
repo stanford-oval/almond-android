@@ -24,6 +24,7 @@ import net.hockeyapp.android.metrics.MetricsManager;
 import edu.stanford.thingengine.engine.AutoStarter;
 import edu.stanford.thingengine.engine.BuildConfig;
 import edu.stanford.thingengine.engine.R;
+import edu.stanford.thingengine.engine.service.ControlBinder;
 
 public class MainActivity extends Activity implements ActionBar.TabListener, FragmentEmbedder, ActivityCompat.OnRequestPermissionsResultCallback {
     public static final String LOG_TAG = "thingengine.UI";
@@ -156,8 +157,11 @@ public class MainActivity extends Activity implements ActionBar.TabListener, Fra
         }
 
         if (id == R.id.action_clear_chat) {
-            AssistantFragment fragment = (AssistantFragment) getFragmentManager().findFragmentByTag("android:switcher:" + R.id.container + ":0");
-            fragment.clearHistory();
+            ControlBinder control = engine.getControl();
+            if (control == null)
+                return true;
+
+            control.getAssistant().clearHistory();
             return true;
         }
 

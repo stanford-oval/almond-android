@@ -22,9 +22,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.Deque;
-import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 
 import edu.stanford.thingengine.engine.BuildConfig;
@@ -39,7 +36,7 @@ public class AssistantDispatcher implements Handler.Callback {
 
     private static final int NOTIFICATION_ID = 42;
 
-    private final Deque<AssistantMessage> history = new LinkedList<>();
+    private final AssistantHistoryModel history = new AssistantHistoryModel();
     private final Context ctx;
     private final Handler assistantHandler;
     private final AssistantCommandHandler cmdHandler;
@@ -88,7 +85,7 @@ public class AssistantDispatcher implements Handler.Callback {
         });
 
         AssistantMessage.Text text = new AssistantMessage.Text(AssistantMessage.Direction.FROM_USER, command);
-        history.addLast(text);
+        history.add(text);
         return text;
     }
 
@@ -135,7 +132,7 @@ public class AssistantDispatcher implements Handler.Callback {
         }
 
         AssistantMessage.Text loc = new AssistantMessage.Text(AssistantMessage.Direction.FROM_USER, place.getName());
-        history.addLast(loc);
+        history.add(loc);
         return loc;
     }
 
@@ -155,7 +152,7 @@ public class AssistantDispatcher implements Handler.Callback {
         }
 
         AssistantMessage.Picture pic = new AssistantMessage.Picture(AssistantMessage.Direction.FROM_USER, url);
-        history.addLast(pic);
+        history.add(pic);
         return pic;
     }
 
@@ -176,29 +173,16 @@ public class AssistantDispatcher implements Handler.Callback {
         }
 
         AssistantMessage.Text contact = new AssistantMessage.Text(AssistantMessage.Direction.FROM_USER, displayName);
-        history.addLast(contact);
+        history.add(contact);
         return contact;
     }
 
-    private static <E> void reverseList(List<E> list) {
-        int n = list.size();
-        for (int i = 0; i < n/2; i++) {
-            E tmp = list.get(i);
-            list.set(i, list.get(n-i-1));
-            list.set(n-i-1, tmp);
-        }
+    public AssistantHistoryModel getHistory() {
+        return history;
     }
 
-    public List<AssistantMessage> getHistory(int maxElements) {
-        ArrayList<AssistantMessage> list = new ArrayList<>();
-        list.ensureCapacity(maxElements);
-
-        Iterator<AssistantMessage> iter = history.descendingIterator();
-        while (iter.hasNext() && list.size() < maxElements)
-            list.add(iter.next());
-
-        reverseList(list);
-        return list;
+    public void clearHistory() {
+        history.clear();
     }
 
     @Override
@@ -207,7 +191,7 @@ public class AssistantDispatcher implements Handler.Callback {
             return false;
 
         AssistantMessage msg = (AssistantMessage) m.obj;
-        history.addLast(msg);
+        history.add(msg);
 
         if (!maybeInformUI(msg))
             maybeNotify(msg);
