@@ -65,6 +65,12 @@ class AppControlChannel extends ControlChannel {
         return true;
     }
 
+    upgradeDevice(kind) {
+        return _engine.devices.factory.updateFactory(kind).then(() => {
+            return true;
+        });
+    }
+
     getDeviceInfos() {
         return _waitReady.then(function() {
             var devices = _engine.devices.getAllDevices();
@@ -75,6 +81,7 @@ class AppControlChannel extends ControlChannel {
                          description: d.description || "Description not available",
                          kind: d.kind,
                          ownerTier: d.ownerTier,
+                         version: d.constructor.version || 0,
                          isTransient: d.isTransient,
                          isOnlineAccount: d.hasKind('online-account'),
                          isDataSource: d.hasKind('data-source'),
@@ -96,6 +103,7 @@ class AppControlChannel extends ControlChannel {
                      description: d.description || "Description not available",
                      kind: d.kind,
                      ownerTier: d.ownerTier,
+                     version: d.constructor.version || 0,
                      isTransient: d.isTransient,
                      isOnlineAccount: d.hasKind('online-account'),
                      isDataSource: d.hasKind('data-source'),

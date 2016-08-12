@@ -54,6 +54,10 @@ public class ControlBinder extends IThingEngine.Stub {
         return channel.sendDeleteDevice(uniqueId);
     }
 
+    public boolean upgradeDevice(String kind) throws Exception {
+        return channel.sendUpgradeDevice(kind);
+    }
+
     public List<DeviceInfo> getDeviceInfos() throws Exception {
         JSONArray jsonDeviceInfos = channel.sendGetDeviceInfos();
 

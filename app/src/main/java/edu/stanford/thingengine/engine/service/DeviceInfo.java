@@ -18,6 +18,7 @@ public class DeviceInfo implements Serializable {
     public final String name;
     public final String description;
     public final Tier ownerTier;
+    public final int version;
     public final boolean isTransient;
     public final boolean isOnlineAccount;
     public final boolean isDataSource;
@@ -29,6 +30,7 @@ public class DeviceInfo implements Serializable {
         name = json.getString("name");
         description = json.getString("description");
         ownerTier = Tier.valueOf(json.getString("ownerTier").toUpperCase());
+        version = json.getInt("version");
         isTransient = json.getBoolean("isTransient");
         isOnlineAccount = json.getBoolean("isOnlineAccount");
         isDataSource = json.getBoolean("isDataSource");

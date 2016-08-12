@@ -29,4 +29,6 @@
     <string name="audio_permission_needed">You must allow Sabrina to record audio in order to use voice interaction</string>
     <string name="speak_now">Speak now…</string>
     <string name="btn_choose_contact">Choose a contact…</string>
+    <string name="btn_upgrade">Update</string>
+    <string name="device_version">Version: %d</string>
 </resources>

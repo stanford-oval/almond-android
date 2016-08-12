@@ -219,6 +219,10 @@ public class ControlChannel implements AutoCloseable, Closeable {
         return (Boolean)expectReply(sendCall("deleteDevice", uniqueId));
     }
 
+    public boolean sendUpgradeDevice(String kind) throws Exception {
+        return (Boolean)expectReply(sendCall("upgradeDevice", kind));
+    }
+
     public JSONArray sendGetDeviceInfos() throws Exception {
         return (JSONArray)expectReply(sendCall("getDeviceInfos"));
     }

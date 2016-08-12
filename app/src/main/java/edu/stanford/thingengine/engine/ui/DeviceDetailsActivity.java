@@ -78,6 +78,42 @@ public class DeviceDetailsActivity extends Activity {
         });
     }
 
+    private class UpgradeDeviceTask extends AsyncTask<String, Void, Exception> {
+        @Override
+        protected Exception doInBackground(String... params) {
+            String kind = params[0];
+
+            try {
+                ControlBinder control = mEngine.getControl();
+                if (control == null)
+                    return null;
+
+                control.upgradeDevice(kind);
+                return null;
+            } catch(Exception e) {
+                return e;
+            }
+        }
+
+        @Override
+        public void onPostExecute(Exception e) {
+            if (e != null) {
+                DialogUtils.showAlertDialog(DeviceDetailsActivity.this, "Failed to upgrade device: " + e.getMessage(), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        // do nothing
+                    }
+                });
+            } else {
+                refresh();
+            }
+        }
+    }
+
+    private void upgrade() {
+        new UpgradeDeviceTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, mDeviceInfo.kind);
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -96,6 +132,14 @@ public class DeviceDetailsActivity extends Activity {
             @Override
             public void onClick(View v) {
                 refresh();
+            }
+        });
+
+        Button upgradeBtn = (Button) findViewById(R.id.btn_upgrade_device);
+        upgradeBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                upgrade();
             }
         });
 
@@ -176,6 +220,14 @@ public class DeviceDetailsActivity extends Activity {
 
         View status = findViewById(R.id.device_status);
         status.setVisibility((mDeviceInfo.isOnlineAccount || mDeviceInfo.isDataSource) ? View.INVISIBLE : View.VISIBLE);
+
+        boolean isBuiltin = mDeviceInfo.kind.startsWith("org.thingpedia.builtin");
+
+        TextView version = (TextView) findViewById(R.id.device_version);
+        version.setText(getString(R.string.device_version, mDeviceInfo.version));
+        version.setVisibility(isBuiltin ? View.INVISIBLE : View.VISIBLE);
+        View upgradeBtn = findViewById(R.id.btn_upgrade_device);
+        upgradeBtn.setVisibility(isBuiltin ? View.INVISIBLE : View.VISIBLE);
     }
 
     public void refresh() {

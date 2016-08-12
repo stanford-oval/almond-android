@@ -25,8 +25,7 @@
         android:layout_centerHorizontal="true"
         android:textStyle="italic"
         android:gravity="center_horizontal"
-        android:layout_marginTop="10dp"
-        android:layout_marginBottom="10dp" />
+        android:layout_marginTop="10dp" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -34,7 +33,17 @@
         android:text="New Text"
         android:id="@+id/device_status"
         android:layout_below="@+id/device_description"
-        android:layout_centerHorizontal="true" />
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="10dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="New Text"
+        android:id="@+id/device_version"
+        android:layout_below="@+id/device_status"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="10dp" />
 
     <Button
         android:layout_width="wrap_content"
@@ -50,4 +59,13 @@
         android:id="@+id/btn_refresh_device"
         android:layout_alignParentBottom="true"
         android:layout_toStartOf="@+id/btn_delete_device" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/btn_upgrade"
+        android:id="@+id/btn_upgrade_device"
+        android:layout_alignParentBottom="true"
+        android:layout_toStartOf="@+id/btn_refresh_device" />
+
 </RelativeLayout>
