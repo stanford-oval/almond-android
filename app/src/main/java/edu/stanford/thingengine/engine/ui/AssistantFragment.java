@@ -172,6 +172,10 @@ public class AssistantFragment extends Fragment implements AssistantOutput, Acti
                 requestPermission();
         }
 
+        public void switchToTextMode() {
+            mIsSpeechMode = false;
+        }
+
         private void requestPermission() {
             if (ActivityCompat.shouldShowRequestPermissionRationale(getActivity(), Manifest.permission.RECORD_AUDIO))
                 Toast.makeText(getActivity(), R.string.audio_permission_needed, Toast.LENGTH_LONG).show();
@@ -207,7 +211,7 @@ public class AssistantFragment extends Fragment implements AssistantOutput, Acti
         public void onFinalResponseReceived(RecognitionResult recognitionResult) {
             mMicClient.endMicAndRecognition();
             mMicrophoneOn = false;
-            onTextActivated();
+            onTextActivated(true);
         }
 
         @Override
@@ -297,7 +301,7 @@ public class AssistantFragment extends Fragment implements AssistantOutput, Acti
     @Override
     public void display(AssistantMessage msg) {
         if (msg.direction == AssistantMessage.Direction.FROM_SABRINA &&
-                msg.type != AssistantMessage.Type.ASK_SPECIAL)
+                msg.type == AssistantMessage.Type.TEXT)
             mSpeechHandler.say(msg.toText());
 
         switch (msg.type) {
@@ -514,7 +518,7 @@ public class AssistantFragment extends Fragment implements AssistantOutput, Acti
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 if (actionId == EditorInfo.IME_ACTION_SEND || actionId == EditorInfo.IME_NULL) {
-                    onTextActivated();
+                    onTextActivated(false);
                     return true;
                 } else {
                     return false;
@@ -559,7 +563,10 @@ public class AssistantFragment extends Fragment implements AssistantOutput, Acti
         return inflater.inflate(R.layout.fragment_chat, container, false);
     }
 
-    private void onTextActivated() {
+    private void onTextActivated(boolean fromVoice) {
+        if (!fromVoice)
+            mSpeechHandler.switchToTextMode();
+
         if (mEngine != null) {
             EditText input = (EditText)getActivity().findViewById(R.id.assistant_input);
 
