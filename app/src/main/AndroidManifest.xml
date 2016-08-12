@@ -24,10 +24,12 @@
         android:icon="@drawable/sabrina"
         android:label="@string/app_name"
         android:theme="@style/Stanford">
-
-        <meta-data android:name="com.google.android.geo.API_KEY"
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyAEf8ciG2C6ZBj_ZlT1kkeM8OJRqG-dxJg" />
-        <meta-data android:name="net.hockeyapp.android.appIdentifier" android:value="${HOCKEYAPP_APP_ID}" />
+        <meta-data
+            android:name="net.hockeyapp.android.appIdentifier"
+            android:value="${HOCKEYAPP_APP_ID}" />
 
         <service
             android:name=".service.EngineService"
@@ -63,6 +65,32 @@
         <activity
             android:name=".ui.DeviceDetailsActivity"
             android:parentActivityName=".ui.MainActivity" />
+        <activity android:name=".ui.SettingsActivity" android:parentActivityName=".ui.MainActivity" />
+        <activity android:name=".ui.ThingpediaWebsiteActivity"
+            android:parentActivityName=".ui.SettingsActivity" >
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data
+                    android:host="thingengine.stanford.edu"
+                    android:pathPrefix="/qrcode/"
+                    android:scheme="https" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data
+                    android:host="thingengine.stanford.edu"
+                    android:pathPrefix="/qrcode-cloud/"
+                    android:scheme="https" />
+            </intent-filter>
+        </activity>
     </application>
 
 </manifest>

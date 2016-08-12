@@ -31,4 +31,13 @@
     <string name="btn_choose_contact">Choose a contact…</string>
     <string name="btn_upgrade">Update</string>
     <string name="device_version">Version: %d</string>
+    <string name="pref_cloud_sync_summary">Enable cloud sync</string>
+    <string name="pref_cloud_sync_title">Enable cloud sync</string>
+    <string name="pref_developer_key_title">Developer Key</string>
+    <string name="pref_developer_key_summary">A developer key allows you to use devices before they are approved</string>
+    <string name="pref_cloud_username_summary">Your username on thingengine.stanford.edu</string>
+    <string name="pref_cloud_username_title">Thingpedia Username</string>
+    <string name="cloud_sync_enabled">Cloud sync is enabled</string>
+    <string name="cloud_sync_disabled">Cloud sync is disabled. Click to enable...</string>
+    <string name="no_developer_key">You don\'t have a developer key. Sign in to Thingpedia to obtain one.</string>
 </resources>

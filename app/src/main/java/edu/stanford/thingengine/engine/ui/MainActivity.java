@@ -3,11 +3,9 @@ package edu.stanford.thingengine.engine.ui;
 
 import android.app.ActionBar;
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -153,6 +151,7 @@ public class MainActivity extends Activity implements ActionBar.TabListener, Fra
         int id = item.getItemId();
 
         if (id == R.id.action_settings) {
+            startActivity(new Intent(this, SettingsActivity.class));
             return true;
         }
 
@@ -179,21 +178,6 @@ public class MainActivity extends Activity implements ActionBar.TabListener, Fra
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent intent) {
         engine.onActivityResult(requestCode, resultCode, intent);
-    }
-
-
-    private void showConfirmDialog(boolean success) {
-        new AlertDialog.Builder(this)
-                .setMessage(success ? "Congratulations, you're now all set to use ThingEngine!"
-                        : "Sorry, that did not work")
-                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                    }
-                })
-                .setIcon(android.R.drawable.ic_dialog_info)
-                .show();
     }
 
     @Override

@@ -164,7 +164,7 @@ class AppControlChannel extends ControlChannel {
             return false;
 
         _engine.devices.loadOneDevice({ kind: 'org.thingpedia.builtin.thingengine',
-                                        tier: 'cloid',
+                                        tier: 'cloud',
                                         cloudId: cloudId,
                                         own: true }, true).done();
         return true;
