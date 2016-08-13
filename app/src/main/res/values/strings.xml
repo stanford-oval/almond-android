@@ -3,7 +3,7 @@
     <string name="title_activity_web_ui">Sabrina</string>
 
     <string name="action_settings">Settings</string>
-    <string name="action_clear_chat">Clear</string>
+    <string name="action_clear_chat">Reset</string>
     <string name="title_activity_main">Sabrina</string>
 
     <string name="chat_tab">Chat</string>
@@ -31,13 +31,10 @@
     <string name="btn_choose_contact">Choose a contact…</string>
     <string name="btn_upgrade">Update</string>
     <string name="device_version">Version: %d</string>
-    <string name="pref_cloud_sync_summary">Enable cloud sync</string>
     <string name="pref_cloud_sync_title">Enable cloud sync</string>
     <string name="pref_developer_key_title">Developer Key</string>
-    <string name="pref_developer_key_summary">A developer key allows you to use devices before they are approved</string>
-    <string name="pref_cloud_username_summary">Your username on thingengine.stanford.edu</string>
-    <string name="pref_cloud_username_title">Thingpedia Username</string>
     <string name="cloud_sync_enabled">Cloud sync is enabled</string>
-    <string name="cloud_sync_disabled">Cloud sync is disabled. Click to enable...</string>
+    <string name="cloud_sync_disabled">Cloud sync is disabled. Click to enable…</string>
     <string name="no_developer_key">You don\'t have a developer key. Sign in to Thingpedia to obtain one.</string>
+    <string name="action_help">Help</string>
 </resources>

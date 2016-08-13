@@ -160,7 +160,16 @@ public class MainActivity extends Activity implements ActionBar.TabListener, Fra
             if (control == null)
                 return true;
 
-            control.getAssistant().clearHistory();
+            control.getAssistant().handleClear();
+            return true;
+        }
+
+        if (id == R.id.action_help) {
+            ControlBinder control = engine.getControl();
+            if (control == null)
+                return true;
+
+            control.getAssistant().handleHelp();
             return true;
         }
 

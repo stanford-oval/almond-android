@@ -1,12 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
     <Preference android:key="pref_cloud_sync"
-        android:summary="@string/pref_cloud_sync_summary"
         android:title="@string/pref_cloud_sync_title">
     </Preference>
     <EditTextPreference
         android:enabled="false"
         android:key="pref_developer_key"
-        android:summary="@string/pref_developer_key_summary"
         android:title="@string/pref_developer_key_title" />
 </PreferenceScreen>

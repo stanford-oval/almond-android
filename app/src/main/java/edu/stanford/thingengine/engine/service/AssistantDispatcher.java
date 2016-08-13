@@ -9,7 +9,6 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.media.AudioManager;
 import android.media.RingtoneManager;
-import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
@@ -23,6 +22,8 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 import edu.stanford.thingengine.engine.BuildConfig;
 import edu.stanford.thingengine.engine.R;
@@ -33,9 +34,11 @@ import edu.stanford.thingengine.engine.ui.MainActivity;
  */
 public class AssistantDispatcher implements Handler.Callback {
     private static final int MSG_ASSISTANT_MESSAGE = 1;
+    private static final int MSG_CLEAR = 2;
 
     private static final int NOTIFICATION_ID = 42;
 
+    private final Executor async = Executors.newSingleThreadExecutor();
     private final AssistantHistoryModel history = new AssistantHistoryModel();
     private final Context ctx;
     private final Handler assistantHandler;
@@ -60,7 +63,7 @@ public class AssistantDispatcher implements Handler.Callback {
     }
 
     public void ready() {
-        AsyncTask.THREAD_POOL_EXECUTOR.execute(new Runnable() {
+        async.execute(new Runnable() {
             @Override
             public void run() {
                 cmdHandler.ready();
@@ -77,7 +80,7 @@ public class AssistantDispatcher implements Handler.Callback {
             }
         }
 
-        AsyncTask.THREAD_POOL_EXECUTOR.execute(new Runnable() {
+        async.execute(new Runnable() {
             @Override
             public void run() {
                 cmdHandler.handleCommand(command);
@@ -90,12 +93,26 @@ public class AssistantDispatcher implements Handler.Callback {
     }
 
     public void handleParsedCommand(final String json) {
-        AsyncTask.THREAD_POOL_EXECUTOR.execute(new Runnable() {
+        async.execute(new Runnable() {
             @Override
             public void run() {
                 cmdHandler.handleParsedCommand(json);
             }
         });
+    }
+
+    public void handleClear() {
+        async.execute(new Runnable() {
+            @Override
+            public void run() {
+                cmdHandler.handleParsedCommand("{\"special\":\"tt:root.special.nevermind\"}");
+                assistantHandler.sendMessage(assistantHandler.obtainMessage(MSG_CLEAR));
+            }
+        });
+    }
+
+    public void handleHelp() {
+        handleParsedCommand("{\"special\":\"tt:root.special.help\"}");
     }
 
     public void handleChoice(int idx) {
@@ -181,12 +198,13 @@ public class AssistantDispatcher implements Handler.Callback {
         return history;
     }
 
-    public void clearHistory() {
-        history.clear();
-    }
-
     @Override
     public boolean handleMessage(Message m) {
+        if (m.what == MSG_CLEAR) {
+            history.clear();
+            return true;
+        }
+
         if (m.what != MSG_ASSISTANT_MESSAGE)
             return false;
 

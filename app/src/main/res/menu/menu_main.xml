@@ -2,14 +2,22 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="edu.stanford.thingengine.engine.ui.MainActivity">
     <item
-        android:id="@+id/action_clear_chat"
+        android:id="@+id/action_help"
         android:orderInCategory="0"
+        android:menuCategory="alternative"
+        android:showAsAction="always"
+        android:title="@string/action_help"
+        />
+    <item
+        android:id="@+id/action_clear_chat"
+        android:orderInCategory="1"
         android:menuCategory="alternative"
         android:showAsAction="ifRoom"
         android:title="@string/action_clear_chat" />
     <item
         android:id="@+id/action_settings"
         android:orderInCategory="100"
+        android:menuCategory="secondary"
         android:showAsAction="never"
         android:title="@string/action_settings" />
 </menu>
