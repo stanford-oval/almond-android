@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Sabrina</string>
-    <string name="action_clear_chat">Svuota</string>
     <string name="action_settings">Impostazioni</string>
     <string name="audio_permission_needed">Devi consentire a Sabrina di registrare l\'audio per potere usare i comandi vocali</string>
     <string name="btn_choose_location">Scegli una località…</string>
@@ -11,7 +10,6 @@
     <string name="btn_delete_account">Dimentica account</string>
     <string name="btn_delete_datasource">Disabilita sorgente dati</string>
     <string name="btn_delete_device">Cancella dispositivo</string>
-    <string name="btn_refresh">Aggiorna</string>
     <string name="button_configure_text">Configura</string>
     <string name="chat_tab">Chat</string>
     <string name="create_account_title">Aggiungi nuovo account</string>
@@ -28,4 +26,13 @@
     <string name="speak_now">Parla ora…</string>
     <string name="btn_choose_contact">Scegli contatto…</string>
     <string name="myrules_tab">Le mie regole</string>
+    <string name="action_clear_chat">Azzera</string>
+    <string name="btn_upgrade">Aggiorna</string>
+    <string name="btn_refresh">Ricarica</string>
+    <string name="cloud_sync_disabled">La sincronizzazione in cloud è disabilitata. Clicca per abilitarla…</string>
+    <string name="device_version">Versione: %d</string>
+    <string name="cloud_sync_enabled">La sincronizzazione in cloud è abilitata</string>
+    <string name="no_developer_key">Non hai una chiave sviluppatore. Entra in Thingpedia per ottenerne una.</string>
+    <string name="pref_cloud_sync_title">Abilita cloud sync</string>
+    <string name="pref_developer_key_title">Chiave sviluppatore</string>
 </resources>

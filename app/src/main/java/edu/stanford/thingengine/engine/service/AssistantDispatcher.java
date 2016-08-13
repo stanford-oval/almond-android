@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.media.AudioManager;
 import android.media.RingtoneManager;
+import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
@@ -34,7 +35,6 @@ import edu.stanford.thingengine.engine.ui.MainActivity;
  */
 public class AssistantDispatcher implements Handler.Callback {
     private static final int MSG_ASSISTANT_MESSAGE = 1;
-    private static final int MSG_CLEAR = 2;
 
     private static final int NOTIFICATION_ID = 42;
 
@@ -47,6 +47,7 @@ public class AssistantDispatcher implements Handler.Callback {
     private long lastNotificationTime = -1;
     private final List<AssistantMessage> notificationMessages = new ArrayList<>();
     private AssistantOutput output;
+    private AssistantLifecycleCallbacks callbacks;
 
     public AssistantDispatcher(Context ctx, AssistantCommandHandler cmdHandler) {
         this.ctx = ctx;
@@ -62,6 +63,10 @@ public class AssistantDispatcher implements Handler.Callback {
             notificationMessages.clear();
     }
 
+    public void setAssistantCallbacks(AssistantLifecycleCallbacks callbacks) {
+        this.callbacks = callbacks;
+    }
+
     public void ready() {
         async.execute(new Runnable() {
             @Override
@@ -71,7 +76,29 @@ public class AssistantDispatcher implements Handler.Callback {
         });
     }
 
-    public AssistantMessage.Text handleCommand(final String command) {
+    private abstract class CommandTask extends AsyncTask<String, Void, Void> {
+        @Override
+        public void onPreExecute() {
+            if (callbacks != null)
+                callbacks.onBeforeCommand();
+        }
+
+        protected abstract void run(String command);
+
+        @Override
+        protected Void doInBackground(String... params) {
+            run(params[0]);
+            return null;
+        }
+
+        @Override
+        public void onPostExecute(Void unused) {
+            if (callbacks != null)
+                callbacks.onAfterCommand();
+        }
+    }
+
+    public AssistantMessage.Text handleCommand(String command) {
         if (BuildConfig.DEBUG) {
             if (command.startsWith("\\r ")) {
                 String json = command.substring(3);
@@ -80,12 +107,12 @@ public class AssistantDispatcher implements Handler.Callback {
             }
         }
 
-        async.execute(new Runnable() {
+        (new CommandTask() {
             @Override
-            public void run() {
+            protected void run(String command) {
                 cmdHandler.handleCommand(command);
             }
-        });
+        }).executeOnExecutor(async, command);
 
         AssistantMessage.Text text = new AssistantMessage.Text(AssistantMessage.Direction.FROM_USER, command);
         history.add(text);
@@ -93,22 +120,27 @@ public class AssistantDispatcher implements Handler.Callback {
     }
 
     public void handleParsedCommand(final String json) {
-        async.execute(new Runnable() {
+        (new CommandTask() {
             @Override
-            public void run() {
-                cmdHandler.handleParsedCommand(json);
+            protected void run(String command) {
+                cmdHandler.handleParsedCommand(command);
             }
-        });
+        }).executeOnExecutor(async, json);
     }
 
     public void handleClear() {
-        async.execute(new Runnable() {
+        (new CommandTask() {
             @Override
-            public void run() {
-                cmdHandler.handleParsedCommand("{\"special\":\"tt:root.special.nevermind\"}");
-                assistantHandler.sendMessage(assistantHandler.obtainMessage(MSG_CLEAR));
+            protected void run(String command) {
+                cmdHandler.handleParsedCommand(command);
             }
-        });
+
+            @Override
+            public void onPostExecute(Void unused) {
+                history.clear();
+                super.onPostExecute(unused);
+            }
+        }).executeOnExecutor(async, "{\"special\":\"tt:root.special.nevermind\"}");
     }
 
     public void handleHelp() {
@@ -200,11 +232,6 @@ public class AssistantDispatcher implements Handler.Callback {
 
     @Override
     public boolean handleMessage(Message m) {
-        if (m.what == MSG_CLEAR) {
-            history.clear();
-            return true;
-        }
-
         if (m.what != MSG_ASSISTANT_MESSAGE)
             return false;
 

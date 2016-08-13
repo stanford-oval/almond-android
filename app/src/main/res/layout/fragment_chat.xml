@@ -37,6 +37,13 @@
             android:focusableInTouchMode="true"
             android:layout_weight="1" />
 
+        <ProgressBar
+            style="@android:style/Widget.ProgressBar.Small"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:id="@+id/assistant_progress"
+            android:indeterminate="false" />
+
         <ImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

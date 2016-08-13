@@ -65,11 +65,12 @@ import edu.stanford.thingengine.engine.Config;
 import edu.stanford.thingengine.engine.R;
 import edu.stanford.thingengine.engine.service.AssistantDispatcher;
 import edu.stanford.thingengine.engine.service.AssistantHistoryModel;
+import edu.stanford.thingengine.engine.service.AssistantLifecycleCallbacks;
 import edu.stanford.thingengine.engine.service.AssistantMessage;
 import edu.stanford.thingengine.engine.service.AssistantOutput;
 import edu.stanford.thingengine.engine.service.ControlBinder;
 
-public class AssistantFragment extends Fragment implements AssistantOutput, ActivityCompat.OnRequestPermissionsResultCallback {
+public class AssistantFragment extends Fragment implements AssistantOutput, AssistantLifecycleCallbacks, ActivityCompat.OnRequestPermissionsResultCallback {
     private static final int REQUEST_OAUTH2 = 1;
     private static final int REQUEST_CREATE_DEVICE = 2;
     private static final int REQUEST_LOCATION = 3;
@@ -89,6 +90,7 @@ public class AssistantFragment extends Fragment implements AssistantOutput, Acti
 
             AssistantDispatcher assistant = control.getAssistant();
             assistant.setAssistantOutput(AssistantFragment.this);
+            assistant.setAssistantCallbacks(AssistantFragment.this);
             mListAdapter.setHistory(assistant.getHistory());
             assistant.ready();
         }
@@ -96,6 +98,7 @@ public class AssistantFragment extends Fragment implements AssistantOutput, Acti
     private FragmentEmbedder mListener;
     private AssistantHistoryAdapter mListAdapter = new AssistantHistoryAdapter();
     private final SpeechHandler mSpeechHandler = new SpeechHandler();
+    private boolean mInCommand = false;
 
     private class SpeechHandler implements ISpeechRecognitionServerEvents, TextToSpeech.OnInitListener {
         private boolean mMicrophoneOn;
@@ -615,6 +618,8 @@ public class AssistantFragment extends Fragment implements AssistantOutput, Acti
 
         ((ListView)getActivity().findViewById(R.id.chat_list)).setAdapter(mListAdapter);
 
+        getActivity().findViewById(R.id.assistant_progress).setVisibility(View.GONE);
+
         mSpeechHandler.onCreate();
     }
 
@@ -631,8 +636,11 @@ public class AssistantFragment extends Fragment implements AssistantOutput, Acti
         super.onPause();
 
         ControlBinder control = mEngine.getControl();
-        if (control != null)
-            control.getAssistant().setAssistantOutput(null);
+        if (control != null) {
+            AssistantDispatcher assistant = control.getAssistant();
+            assistant.setAssistantOutput(null);
+            assistant.setAssistantCallbacks(null);
+        }
         mEngine.removeEngineReadyCallback(mReadyCallback);
         mSpeechHandler.onPause();
     }
@@ -642,6 +650,33 @@ public class AssistantFragment extends Fragment implements AssistantOutput, Acti
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_chat, container, false);
+    }
+
+    @Override
+    public void onBeforeCommand() {
+        mInCommand = true;
+
+        final View view = getView();
+        if (view == null)
+            return;
+
+        view.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                if (mInCommand)
+                    view.findViewById(R.id.assistant_progress).setVisibility(View.VISIBLE);
+            }
+        }, 500);
+    }
+
+    @Override
+    public void onAfterCommand() {
+        mInCommand = false;
+
+        final View view = getView();
+        if (view == null)
+            return;
+        view.findViewById(R.id.assistant_progress).setVisibility(View.GONE);
     }
 
     private void onTextActivated(boolean fromVoice) {

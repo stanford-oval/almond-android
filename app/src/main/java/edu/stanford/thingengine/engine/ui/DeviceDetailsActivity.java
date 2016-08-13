@@ -216,18 +216,18 @@ public class DeviceDetailsActivity extends Activity {
         description.setText(mDeviceInfo.description);
 
         View deleteBtn = findViewById(R.id.btn_delete_device);
-        deleteBtn.setVisibility(mDeviceInfo.isTransient ? View.INVISIBLE : View.VISIBLE);
+        deleteBtn.setVisibility(mDeviceInfo.isTransient ? View.GONE : View.VISIBLE);
 
         View status = findViewById(R.id.device_status);
-        status.setVisibility((mDeviceInfo.isOnlineAccount || mDeviceInfo.isDataSource) ? View.INVISIBLE : View.VISIBLE);
+        status.setVisibility((mDeviceInfo.isOnlineAccount || mDeviceInfo.isDataSource) ? View.GONE : View.VISIBLE);
 
         boolean isBuiltin = mDeviceInfo.kind.startsWith("org.thingpedia.builtin");
 
         TextView version = (TextView) findViewById(R.id.device_version);
         version.setText(getString(R.string.device_version, mDeviceInfo.version));
-        version.setVisibility(isBuiltin ? View.INVISIBLE : View.VISIBLE);
+        version.setVisibility(isBuiltin ? View.GONE : View.VISIBLE);
         View upgradeBtn = findViewById(R.id.btn_upgrade_device);
-        upgradeBtn.setVisibility(isBuiltin ? View.INVISIBLE : View.VISIBLE);
+        upgradeBtn.setVisibility(isBuiltin ? View.GONE : View.VISIBLE);
     }
 
     public void refresh() {
