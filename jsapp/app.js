@@ -163,10 +163,12 @@ class AppControlChannel extends ControlChannel {
         if (!platform.setAuthToken(authToken))
             return false;
 
-        _engine.devices.loadOneDevice({ kind: 'org.thingpedia.builtin.thingengine',
-                                        tier: 'cloud',
-                                        cloudId: cloudId,
-                                        own: true }, true).done();
+        // we used to call loadOneDevice() with thingengine kind, tier: cloud here
+        // but is incompatible with syncing the developer key (and causes
+        // spurious device database writes)
+        // instead we set the platform state and reopen the connection
+        platform.getSharedPreferences().set('cloud-id', cloudId);
+        _engine.tiers.reopenOne('cloud').done();
         return true;
     }
 

@@ -338,6 +338,14 @@ module.exports = {
         return 'http://127.0.0.1:3000';
     },
 
+    getCloudId() {
+        return _prefs.get('cloud-id');
+    },
+
+    getAuthToken() {
+        return _prefs.get('auth-token');
+    },
+
     // Change the auth token
     // Returns true if a change actually occurred, false if the change
     // was rejected
