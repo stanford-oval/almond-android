@@ -22,6 +22,7 @@ import android.widget.TextView;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import edu.stanford.thingengine.engine.Config;
@@ -42,7 +43,6 @@ public class MyStuffFragment extends Fragment {
     private FragmentEmbedder mListener;
 
     private ArrayAdapter<DeviceInfo> mDevices;
-    private ArrayAdapter<DeviceInfo> mAccounts;
 
     public MyStuffFragment() {}
 
@@ -114,8 +114,8 @@ public class MyStuffFragment extends Fragment {
             linearLayout.setOrientation(LinearLayout.VERTICAL);
 
             ImageView icon = new ImageView(getContext());
-            int eigthy_dp = Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 80.f, getResources().getDisplayMetrics()));
-            LinearLayout.LayoutParams iconParams = new LinearLayout.LayoutParams(eigthy_dp, eigthy_dp);
+            int sixty_dp = Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 60.f, getResources().getDisplayMetrics()));
+            LinearLayout.LayoutParams iconParams = new LinearLayout.LayoutParams(sixty_dp, sixty_dp);
             iconParams.gravity = Gravity.CENTER_HORIZONTAL;
             int ten_dp = Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 10.f, getResources().getDisplayMetrics()));
             iconParams.bottomMargin = ten_dp;
@@ -157,10 +157,9 @@ public class MyStuffFragment extends Fragment {
         super.onActivityCreated(savedInstanceState);
 
         mDevices = new DeviceArrayAdapter();
-        mAccounts = new DeviceArrayAdapter();
 
-        ListAdapter[] adapters = new ListAdapter[] { mDevices, mAccounts };
-        int[] view_ids = new int[] { R.id.my_devices_view, R.id.my_accounts_view };
+        ListAdapter[] adapters = new ListAdapter[] { mDevices };
+        int[] view_ids = new int[] { R.id.my_devices_view };
         for (int i = 0; i < view_ids.length; i++) {
             ListAdapter adapter = adapters[i];
             GridView view = (GridView) getActivity().findViewById(view_ids[i]);
@@ -214,18 +213,21 @@ public class MyStuffFragment extends Fragment {
 
     private void processDevices(Collection<DeviceInfo> devices) {
         mDevices.clear();
-        mAccounts.clear();
 
         for (DeviceInfo device : devices) {
             if (device.isThingEngine)
                 continue;
             if (device.isDataSource)
                 continue; // we don't have space to show data sources, so we ignore them
-            if (device.isOnlineAccount)
-                mAccounts.add(device);
-            else
-                mDevices.add(device);
+            mDevices.add(device);
         }
+
+        mDevices.sort(new Comparator<DeviceInfo>() {
+            @Override
+            public int compare(DeviceInfo lhs, DeviceInfo rhs) {
+                return lhs.name.compareTo(rhs.name);
+            }
+        });
     }
 
     @Override

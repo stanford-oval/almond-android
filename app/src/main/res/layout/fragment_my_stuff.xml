@@ -1,67 +1,46 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="edu.stanford.thingengine.engine.ui.MyStuffFragment"
-
-        android:orientation="vertical"
+    android:layout_gravity="center_horizontal"
+    android:layout_weight="1"
+    android:paddingBottom="@dimen/activity_horizontal_margin"
     android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingBottom="@dimen/activity_horizontal_margin">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceLarge"
-            android:text="@string/my_devices_title"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginBottom="@dimen/activity_vertical_margin" />
+    android:paddingRight="@dimen/activity_horizontal_margin">
 
         <GridView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
             android:id="@+id/my_devices_view"
-            android:layout_gravity="center_horizontal"
-            android:layout_weight="1"
-            android:horizontalSpacing="@dimen/text_margin"
-            android:verticalSpacing="@dimen/text_margin"
-            android:numColumns="auto_fit"
-            android:columnWidth="100dp" />
-
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/btn_create_device_title"
-            android:id="@+id/btn_create_device"
-            android:layout_gravity="left"
-            android:nestedScrollingEnabled="false"
-            style="?android:attr/buttonStyleSmall" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceLarge"
-            android:text="@string/my_accounts_title"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginTop="@dimen/activity_vertical_margin"
-            android:layout_marginBottom="@dimen/activity_vertical_margin" />
-
-        <GridView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/my_accounts_view"
+            android:layout_above="@+id/btn_create_device"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentStart="false"
+            android:layout_alignParentTop="true"
             android:layout_gravity="center_horizontal"
-            android:layout_weight="1"
-            android:verticalSpacing="@dimen/text_margin"
+            android:columnWidth="100dp"
             android:horizontalSpacing="@dimen/text_margin"
             android:numColumns="auto_fit"
-            android:columnWidth="100dp" />
+            android:verticalSpacing="@dimen/text_margin" />
 
         <Button
+            android:id="@+id/btn_create_device"
             style="?android:attr/buttonStyleSmall"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/btn_create_account_title"
-            android:id="@+id/btn_create_account" />
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentEnd="false"
+            android:layout_gravity="left"
+            android:nestedScrollingEnabled="false"
+            android:text="@string/btn_create_device_title" />
 
-</LinearLayout>
+        <Button
+            android:id="@+id/btn_create_account"
+            style="?android:attr/buttonStyleSmall"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignTop="@+id/btn_create_device"
+            android:layout_toEndOf="@+id/btn_create_device"
+            android:text="@string/btn_create_account_title" />
+
+</RelativeLayout>
+
