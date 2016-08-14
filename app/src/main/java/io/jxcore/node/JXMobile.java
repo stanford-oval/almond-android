@@ -6,7 +6,6 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 
 import java.util.ArrayList;
-import java.util.Locale;
 
 import io.jxcore.node.jxcore.JXcoreCallback;
 
@@ -48,7 +47,8 @@ public class JXMobile {
     jxcore.RegisterMethod("GetLocale", new JXcoreCallback() {
       @Override
       public void Receiver(ArrayList<Object> params, String callbackId) {
-        jxcore.CallJSMethod(callbackId, new String[] { Locale.getDefault().toLanguageTag() });
+        //jxcore.CallJSMethod(callbackId, new String[] { Locale.getDefault().toLanguageTag() });
+        jxcore.CallJSMethod(callbackId, new String[] { "en-US" });
       }
     });
 
