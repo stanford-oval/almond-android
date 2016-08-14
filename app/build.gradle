@@ -3,7 +3,6 @@ apply plugin: 'com.android.application'
 android {
     def keystoreProperties = new Properties()
     keystoreProperties.load(new FileInputStream(rootProject.file("keystore.properties")))
-
     signingConfigs {
         release {
             keyAlias keystoreProperties['keyAlias']
@@ -18,8 +17,8 @@ android {
         applicationId "edu.stanford.thingengine.engine"
         minSdkVersion 21
         targetSdkVersion 23
-        versionCode 5
-        versionName "1.0~beta4~snapshot"
+        versionCode 6
+        versionName '1.0~beta4'
         manifestPlaceholders = [HOCKEYAPP_APP_ID: "d6e09574c0f9434e8e20e8d8f2234285"]
     }
     buildTypes {
@@ -38,6 +37,8 @@ android {
         execTask.commandLine "./build_js.sh", "./src/main/assets/jxcore"
 
         variant.mergeAssets.dependsOn(execTask)
+    }
+    productFlavors {
     }
 }
 

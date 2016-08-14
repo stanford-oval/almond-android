@@ -35,4 +35,5 @@
     <string name="no_developer_key">Non hai una chiave sviluppatore. Entra in Thingpedia per ottenerne una.</string>
     <string name="pref_cloud_sync_title">Abilita cloud sync</string>
     <string name="pref_developer_key_title">Chiave sviluppatore</string>
+    <string name="action_help">Aiuto</string>
 </resources>
