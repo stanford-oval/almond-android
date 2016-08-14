@@ -12,6 +12,8 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import edu.stanford.thingengine.engine.service.ControlBinder;
+
 /**
  * Created by gcampagn on 6/27/16.
  */
@@ -113,6 +115,29 @@ public abstract class DeviceFactory {
             intent.putExtra("extra.CONTROLS", (Serializable)controls);
 
             activity.startActivityForResult(intent, REQUEST_FORM);
+        }
+    }
+
+    public static class Discovery extends DeviceFactory {
+        private final String discoveryType;
+
+        public Discovery(String name, String kind, String _class, String discoveryType) {
+            super(name, kind, _class);
+            this.discoveryType = discoveryType;
+        }
+
+        @Override
+        public void activate(Activity activity, EngineServiceConnection engine) {
+            ControlBinder control = engine.getControl();
+            if (control == null)
+                return;
+
+            control.getAssistant().handleDiscover(discoveryType, kind, name);
+
+            Intent intent = new Intent(activity, MainActivity.class);
+            intent.setAction(Intent.ACTION_MAIN);
+            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            activity.startActivity(intent);
         }
     }
 }

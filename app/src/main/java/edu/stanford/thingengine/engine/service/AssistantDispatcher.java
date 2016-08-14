@@ -147,6 +147,21 @@ public class AssistantDispatcher implements Handler.Callback {
         handleParsedCommand("{\"special\":\"tt:root.special.help\"}");
     }
 
+    public void handleDiscover(String discoveryType, String kind, String name) {
+        try {
+            JSONObject obj = new JSONObject();
+            JSONObject inner = new JSONObject();
+            obj.put("discover", inner);
+            inner.put("type", discoveryType);
+            inner.put("kind", kind);
+            inner.put("text", name);
+
+            handleParsedCommand(obj.toString());
+        } catch(JSONException e) {
+            Log.e(EngineService.LOG_TAG, "Unexpected json exception while constructing choice JSON", e);
+        }
+    }
+
     public void handleChoice(int idx) {
         try {
             JSONObject obj = new JSONObject();

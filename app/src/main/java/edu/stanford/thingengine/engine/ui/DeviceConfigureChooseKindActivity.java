@@ -71,6 +71,10 @@ public class DeviceConfigureChooseKindActivity extends Activity {
                         factory = new DeviceFactory.None(name, kind, _class);
                         break;
 
+                    case "discovery":
+                        factory = new DeviceFactory.Discovery(name, kind, _class, jsonFactory.optString("discoveryType", null));
+                        break;
+
                     default:
                         throw new JSONException("Invalid factory type");
                 }
