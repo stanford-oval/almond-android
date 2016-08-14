@@ -59,8 +59,12 @@ public class AssistantDispatcher implements Handler.Callback {
     public void setAssistantOutput(AssistantOutput output) {
         this.output = output;
 
-        if (output != null)
+        if (output != null) {
             notificationMessages.clear();
+
+            NotificationManager mgr = (NotificationManager) ctx.getSystemService(Context.NOTIFICATION_SERVICE);
+            mgr.cancel(NOTIFICATION_ID);
+        }
     }
 
     public void setAssistantCallbacks(AssistantLifecycleCallbacks callbacks) {
