@@ -151,6 +151,15 @@ public class AssistantDispatcher implements Handler.Callback {
         handleParsedCommand("{\"special\":\"tt:root.special.help\"}");
     }
 
+    public void handleYes() {
+        handleParsedCommand("{\"special\":\"tt:root.special.yes\"}");
+    }
+
+    public void handleNo() {
+        handleParsedCommand("{\"special\":\"tt:root.special.no\"}");
+    }
+
+
     public void handleDiscover(String discoveryType, String kind, String name) {
         try {
             JSONObject obj = new JSONObject();

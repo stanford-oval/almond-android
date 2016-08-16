@@ -32,6 +32,7 @@ import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -266,10 +267,7 @@ public class AssistantFragment extends Fragment implements AssistantOutput, Assi
         private boolean isFiltered(AssistantMessage msg) {
             if (msg.type == AssistantMessage.Type.ASK_SPECIAL) {
                 AssistantMessage.AskSpecial askSpecial = (AssistantMessage.AskSpecial)msg;
-                if (askSpecial.what != AssistantMessage.AskSpecialType.LOCATION &&
-                        askSpecial.what != AssistantMessage.AskSpecialType.PICTURE &&
-                        askSpecial.what != AssistantMessage.AskSpecialType.PHONE_NUMBER &&
-                        askSpecial.what != AssistantMessage.AskSpecialType.EMAIL_ADDRESS)
+                if (askSpecial.what == AssistantMessage.AskSpecialType.UNKNOWN)
                     return true;
             }
 
@@ -382,15 +380,43 @@ public class AssistantFragment extends Fragment implements AssistantOutput, Assi
             return btn;
         }
 
+        private LinearLayout makeYesNoButtons() {
+            Context mContext = getContext();
+            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.WRAP_CONTENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT);
+            LinearLayout yesno = new LinearLayout(mContext);
+            yesno.setOrientation(LinearLayout.HORIZONTAL);
+            yesno.setLayoutParams(params);
+            Button yesbtn = new Button(mContext);
+            Button nobtn = new Button(mContext);
+            yesbtn.setLayoutParams(params);
+            yesbtn.setText(R.string.yes);
+            yesbtn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    onYesActivated();
+                }
+            });
+            nobtn.setLayoutParams(params);
+            nobtn.setText(R.string.no);
+            nobtn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    onNoActivated();
+                }
+            });
+            yesno.addView(yesbtn);
+            yesno.addView(nobtn);
+            return yesno;
+        }
+
         private View display(AssistantMessage.AskSpecial msg) {
             Button btn;
 
             switch (msg.what) {
                 case YESNO:
-                    // do nothing for yes/no
-                    // in the future, if we want to put two buttons up,
-                    // this is the place to do it
-                    throw new RuntimeException();
+                    return wrapView(makeYesNoButtons(), msg.direction);
 
                 case LOCATION:
                     btn = new Button(getContext());
@@ -776,6 +802,22 @@ public class AssistantFragment extends Fragment implements AssistantOutput, Assi
             return;
 
         control.getAssistant().handleParsedCommand(json);
+    }
+
+    private void onYesActivated() {
+        ControlBinder control = mEngine.getControl();
+        if (control == null)
+            return;
+
+        control.getAssistant().handleYes();
+    }
+
+    private void onNoActivated() {
+        ControlBinder control = mEngine.getControl();
+        if (control == null)
+            return;
+
+        control.getAssistant().handleNo();
     }
 
     private void onChoiceActivated(int idx) {

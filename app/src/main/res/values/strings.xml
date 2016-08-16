@@ -37,4 +37,6 @@
     <string name="cloud_sync_disabled">Cloud sync is disabled. Click to enable…</string>
     <string name="no_developer_key">You don\'t have a developer key. Sign in to Thingpedia to obtain one.</string>
     <string name="action_help">Help</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
 </resources>
