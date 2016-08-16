@@ -7,6 +7,7 @@ import android.content.res.AssetManager;
 import android.os.Handler;
 import android.util.Log;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -230,7 +231,9 @@ public class jxcore {
     StringBuilder assets = new StringBuilder();
     assets.append("{");
     boolean first_entry = true;
-    try(ZipFile zf = new ZipFile(context.getApplicationInfo().sourceDir)) {
+    String sourceApk = context.getApplicationInfo().sourceDir;
+    Log.i(LOGTAG, "Source APK is " + sourceApk);
+    try(ZipFile zf = new ZipFile(sourceApk)) {
       for (Enumeration<? extends ZipEntry> e = zf.entries(); e
               .hasMoreElements();) {
         ZipEntry ze = e.nextElement();
