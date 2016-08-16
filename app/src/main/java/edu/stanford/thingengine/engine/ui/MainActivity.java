@@ -14,6 +14,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.view.ViewPager;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import net.hockeyapp.android.CrashManager;
 import net.hockeyapp.android.UpdateManager;
@@ -161,6 +162,8 @@ public class MainActivity extends Activity implements ActionBar.TabListener, Fra
                 return true;
 
             control.getAssistant().handleClear();
+            Toast.makeText(getApplicationContext(), "The conversation has been reset.",
+                    Toast.LENGTH_LONG).show();
             return true;
         }
 
