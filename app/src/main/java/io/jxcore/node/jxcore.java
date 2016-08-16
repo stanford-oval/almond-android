@@ -14,6 +14,8 @@ import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+import edu.stanford.thingengine.engine.BuildConfig;
+
 public class jxcore {
 
   public enum JXType {
@@ -229,6 +231,7 @@ public class jxcore {
         + "/jxcore';};\n"
         + "process.userPath ='" + context.getFilesDir().getAbsolutePath() + "';\n"
         + "};"
+            + "process.DEBUG = " + BuildConfig.DEBUG + ";"
         + mainFile;
 
     defineMainFile(data);
