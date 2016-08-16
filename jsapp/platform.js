@@ -126,6 +126,9 @@ module.exports = {
         }).then((value) => {
             this._locale = value;
             this._gettext.setlocale(value);
+            return Q.nfcall(JXMobile.GetTimezone);
+        }).then((value) => {
+            this._timezone = value;
             return Q.nfcall(JXMobile.GetSharedPreferences);
         }).then((prefs) => {
             _prefs = prefs;
@@ -144,6 +147,18 @@ module.exports = {
     },
 
     type: 'android',
+
+    get encoding() {
+        return encoding;
+    },
+
+    get locale() {
+        return this._locale;
+    },
+
+    get timezone() {
+        return this._timezone;
+    },
 
     // Check if we need to load and run the given thingengine-module on
     // this platform
@@ -355,14 +370,6 @@ module.exports = {
             return false;
         _prefs.set('auth-token', authToken);
         return true;
-    },
-
-    get encoding() {
-        return encoding;
-    },
-
-    get locale() {
-        return this._locale;
     },
 
     // For internal use only

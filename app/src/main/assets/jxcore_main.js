@@ -131,6 +131,16 @@ JXMobile.GetLocale = function(callback) {
   });
 }
 
+JXMobile.GetTimezone = function(callback) {
+  if (typeof callback != "function") {
+    throw new Error("JXMobile.GetTimezone expects a function callback");
+  }
+
+  JXMobile('GetTimezone').callNative(function(res){
+    callback(null, res);
+  });
+}
+
 JXMobile.Exit = function() {
     JXMobile('Exit').callNative(function(res) { });
 };

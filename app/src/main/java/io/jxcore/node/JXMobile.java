@@ -6,6 +6,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 
 import io.jxcore.node.jxcore.JXcoreCallback;
 
@@ -49,6 +50,14 @@ public class JXMobile {
       public void Receiver(ArrayList<Object> params, String callbackId) {
         //jxcore.CallJSMethod(callbackId, new String[] { Locale.getDefault().toLanguageTag() });
         jxcore.CallJSMethod(callbackId, new String[] { "en-US" });
+      }
+    });
+
+    jxcore.RegisterMethod("GetTimezone", new JXcoreCallback() {
+      @Override
+      public void Receiver(ArrayList<Object> params, String callbackId) {
+        String timezone = Calendar.getInstance().getTimeZone().getID();
+        jxcore.CallJSMethod(callbackId, new String[] { timezone });
       }
     });
 
