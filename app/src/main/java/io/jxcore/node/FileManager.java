@@ -7,6 +7,7 @@ import android.content.res.AssetManager;
 import android.util.Log;
 
 import java.io.BufferedReader;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -42,10 +43,11 @@ public class FileManager {
 
     public static int approxFileSize(AssetManager asm, String location) {
         int size = 0;
-        try {
-            InputStream st = asm.open(location, AssetManager.ACCESS_UNKNOWN);
+        try (InputStream st = asm.open(location, AssetManager.ACCESS_UNKNOWN)) {
             size = st.available();
             st.close();
+        } catch (FileNotFoundException e) {
+            return 0;
         } catch (IOException e) {
             Log.w("jxcore-FileManager", "approxFileSize failed");
             e.printStackTrace();

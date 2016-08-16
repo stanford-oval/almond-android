@@ -216,8 +216,8 @@ console.error = function(msg1, msg2) {
     oldError.apply(console, arguments);
 };
 console.verbose = function(msg1, msg2) {
-    if (!process.DEBUG)
-        return;
+    //if (!process.DEBUG)
+    //    return;
     if (msg2)
         logBuffer.push(msg1 + ' ' + JSON.stringify(msg2));
     else
@@ -261,7 +261,7 @@ if (isAndroid) {
           sroot = root.replace(/\/data\/user\/[0-9]+\//, "/data/data/");
           hasRootLink = true;
         }
-    console.verbose('sroot', root);
+    console.verbose('sroot', sroot);
 
     var jxcore_root;
 
@@ -446,9 +446,11 @@ function uploadLog(callback) {
     var url = require('url');
     var parsed = url.parse('http://pepperjack.stanford.edu:8666');
     parsed.method = 'PUT';
-    var req = http.request(parsed, function(res) { res.resume(); callback(); });
+    var req = http.request(parsed, function(res) { res.resume();
+        if (typeof callback === 'function') callback(); });
     req.end(fullLog);
-    req.on('error', callback);
+    if (typeof callback === 'function')
+        req.on('error', callback);
 }
 
 process.on('uncaughtException', function (e) {
