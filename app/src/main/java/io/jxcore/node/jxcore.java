@@ -7,12 +7,16 @@ import android.content.res.AssetManager;
 import android.os.Handler;
 import android.util.Log;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
+
+import edu.stanford.thingengine.engine.BuildConfig;
 
 public class jxcore {
 
@@ -191,37 +195,86 @@ public class jxcore {
     return true;
   }
 
-  private void initializePath(Context context) {
-    String home = context.getFilesDir().getAbsolutePath();
+  private void readAssetListRecursive(AssetManager asm, String prefix, String outprefix, StringBuilder assets) throws IOException {
+    String[] files = asm.list(prefix);
+    for (String name : files) {
+      String fullName = prefix + "/" + name;
+      String outname = outprefix.length() > 0 ? outprefix + "/" + name : name;
+      if (!name.contains(".")) {
+        // assume a directory
+        readAssetListRecursive(asm, fullName, outname, assets);
+      } else {
+        int size = FileManager.approxFileSize(asm, fullName);
+        if (size == 0) {
+          // assume a directory
+          readAssetListRecursive(asm, fullName, outname, assets);
+          continue;
+        }
+        assets.append(",\"");
+        assets.append(outname);
+        assets.append("\":");
+        assets.append(size);
+      }
+    }
+  }
 
-    // assets.list is terribly slow, below trick is literally 100 times faster
+  private String readAssetListSlow(Context context) throws IOException {
+    StringBuilder assets = new StringBuilder();
+    assets.append("{\".dummy\":0");
+    AssetManager asm = context.getAssets();
+    readAssetListRecursive(asm, "jxcore", "", assets);
+    assets.append("}");
+    return assets.toString();
+  }
+
+  private String readAssetListFast(Context context) throws IOException {
     StringBuilder assets = new StringBuilder();
     assets.append("{");
     boolean first_entry = true;
-    try {
-      try(ZipFile zf = new ZipFile(context.getApplicationInfo().sourceDir)) {
-        for (Enumeration<? extends ZipEntry> e = zf.entries(); e
-            .hasMoreElements();) {
-          ZipEntry ze = e.nextElement();
-          String name = ze.getName();
-          if (name.startsWith("assets/jxcore/")) {
-            if (first_entry)
-              first_entry = false;
-            else
-              assets.append(",");
-            int size = FileManager.approxFileSize(context.getAssets(), name.substring("assets/".length()));
-            assets.append("\"");
-            assets.append(name.substring("assets/jxcore/".length()));
-            assets.append("\":");
-            assets.append(size);
-          }
+    String sourceApk = context.getApplicationInfo().sourceDir;
+    Log.i(LOGTAG, "Source APK is " + sourceApk);
+    try(ZipFile zf = new ZipFile(sourceApk)) {
+      for (Enumeration<? extends ZipEntry> e = zf.entries(); e
+              .hasMoreElements();) {
+        ZipEntry ze = e.nextElement();
+        String name = ze.getName();
+        if (name.startsWith("assets/jxcore/")) {
+          if (first_entry)
+            first_entry = false;
+          else
+            assets.append(",");
+          int size = FileManager.approxFileSize(context.getAssets(), name.substring("assets/".length()));
+          assets.append("\"");
+          assets.append(name.substring("assets/jxcore/".length()));
+          assets.append("\":");
+          assets.append(size);
         }
       }
-    } catch (Exception e) {
     }
     assets.append("}");
+    return assets.toString();
+  }
 
-    prepareEngine(home + "/jxcore", assets.toString());
+  private void initializePath(Context context) {
+    String home = context.getFilesDir().getAbsolutePath();
+
+    // assets.list is terribly slow (about 20 seconds to load)
+    // so we first try the trick below, and if that fails miserably
+    // we run the slow path
+    String assets = "{}";
+    try {
+      try {
+        assets = readAssetListFast(context);
+      } catch(IOException e) {
+        Log.w(LOGTAG, "Fast asset read failed", e);
+        assets = readAssetListSlow(context);
+      }
+    } catch (Exception e) {
+      Log.e(LOGTAG, "Failed to read jxcore asset list, app will probably not work", e);
+    }
+
+
+    prepareEngine(home + "/jxcore", assets);
 
     String mainFile = FileManager.readFile(context.getAssets(), "jxcore_main.js");
 
@@ -229,6 +282,7 @@ public class jxcore {
         + "/jxcore';};\n"
         + "process.userPath ='" + context.getFilesDir().getAbsolutePath() + "';\n"
         + "};"
+            + "process.DEBUG = " + BuildConfig.DEBUG + ";"
         + mainFile;
 
     defineMainFile(data);

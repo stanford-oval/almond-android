@@ -15,6 +15,8 @@ import android.support.v4.view.ViewPager;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
+import android.view.Window;
+import android.widget.Toolbar;
 
 import net.hockeyapp.android.CrashManager;
 import net.hockeyapp.android.UpdateManager;
@@ -93,6 +95,8 @@ public class MainActivity extends Activity implements ActionBar.TabListener, Fra
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        requestWindowFeature(Window.FEATURE_ACTION_BAR);
+
         setContentView(R.layout.activity_main);
 
         mSectionsPagerAdapter = new SectionsPagerAdapter(getFragmentManager());
@@ -100,24 +104,28 @@ public class MainActivity extends Activity implements ActionBar.TabListener, Fra
         mViewPager = (ViewPager) findViewById(R.id.container);
         mViewPager.setAdapter(mSectionsPagerAdapter);
 
-        final ActionBar actionBar = getActionBar();
-        if (actionBar == null) // silence a warning
-            throw new RuntimeException("Action bar is missing");
+        ActionBar actionBar = getActionBar();
+        if (actionBar == null) {
+            Toolbar toolbar = new Toolbar(this);
+            setActionBar(toolbar);
+            actionBar = getActionBar();
+        }
+        if (actionBar != null) {
+            actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
 
-        actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
+            final ActionBar finalActionBar = actionBar;
+            mViewPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
+                @Override
+                public void onPageSelected(int position) {
+                    finalActionBar.setSelectedNavigationItem(position);
+                }
+            });
 
-        mViewPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
-            @Override
-            public void onPageSelected(int position) {
-                actionBar.setSelectedNavigationItem(position);
+            for (int i = 0; i < mSectionsPagerAdapter.getCount(); i++) {
+                actionBar.addTab(actionBar.newTab()
+                        .setText(mSectionsPagerAdapter.getPageTitle(i))
+                        .setTabListener(this));
             }
-        });
-
-        for (int i = 0; i < mSectionsPagerAdapter.getCount(); i++) {
-            actionBar.addTab(
-                    actionBar.newTab()
-                            .setText(mSectionsPagerAdapter.getPageTitle(i))
-                            .setTabListener(this));
         }
 
         AutoStarter.startService(this);
