@@ -225,30 +225,30 @@ console.verbose = function(msg1, msg2) {
 }
 
 if (isAndroid) {
-  // bring APK support into 'fs'
-  process.registerAssets = function (from) {
-    var fs = from;
-    if (!fs || !fs.existsSync)
-      fs = require('fs');
+    // bring APK support into 'fs'
+    process.registerAssets = function (from) {
+        var fs = from;
+        if (!fs || !fs.existsSync)
+            fs = require('fs');
 
-    var path = require('path');
-    var folders = process.natives.assetReadDirSync();
-    var root = process.cwd();
+        var path = require('path');
+        var folders = process.natives.assetReadDirSync();
+        var root = process.cwd();
 
-    // patch execPath to APK folder
-    process.execPath = root;
-    console.verbose('root', root);
+        // patch execPath to APK folder
+        process.execPath = root;
+        console.verbose('root', root);
 
-    function createRealPath(pd) {
-          var arr = [ pd, pd + "/jxcore" ];
+        function createRealPath(pd) {
+            var arr = [ pd, pd + "/jxcore" ];
 
-          for (var i = 0; i < 2; i++) {
-            try {
-              if (!fs.existsSync(arr[i])) fs.mkdirSync(arr[i]);
-            } catch (e) {
-              console.error("Permission issues ? ", arr[i], e)
+            for (var i = 0; i < 2; i++) {
+                try {
+                    if (!fs.existsSync(arr[i])) fs.mkdirSync(arr[i]);
+                } catch (e) {
+                    console.error("Permission issues ? ", arr[i], e)
+                }
             }
-          }
         }
 
         createRealPath(process.userPath);
@@ -256,43 +256,43 @@ if (isAndroid) {
         var sroot = root;
         var hasRootLink = false;
         if (root.indexOf('/data/user/') === 0) {
-          var pd = process.userPath.replace(/\/data\/user\/[0-9]+\//, "/data/data/");
-          createRealPath(pd);
-          sroot = root.replace(/\/data\/user\/[0-9]+\//, "/data/data/");
-          hasRootLink = true;
+            var pd = process.userPath.replace(/\/data\/user\/[0-9]+\//, "/data/data/");
+            createRealPath(pd);
+            sroot = root.replace(/\/data\/user\/[0-9]+\//, "/data/data/");
+            hasRootLink = true;
         }
-    console.verbose('sroot', sroot);
+        console.verbose('sroot', sroot);
 
-    var jxcore_root;
+        var jxcore_root;
 
-    var prepVirtualDirs = function() {
-          var _ = {};
-          for (var o in folders) {
-            var sub = o.split('/');
-            var last = _;
-            for (var i = 0, _ln = sub.length; i < _ln; i++) {
-              var loc = sub[i];
-              if (!last.hasOwnProperty(loc)) last[loc] = {};
-              last = last[loc];
+        var prepVirtualDirs = function() {
+            var _ = {};
+            for (var o in folders) {
+                var sub = o.split('/');
+                var last = _;
+                for (var i = 0, _ln = sub.length; i < _ln; i++) {
+                    var loc = sub[i];
+                    if (!last.hasOwnProperty(loc)) last[loc] = {};
+                        last = last[loc];
+                }
+
+                last['!s'] = folders[o];
             }
 
-            last['!s'] = folders[o];
-          }
+            folders = {};
+            var sp = sroot.split('/');
+            if (sp[0] === '') sp.shift();
+            jxcore_root = folders;
+            for (var o = 0, _ln = sp.length; o < _ln; o++) {
+                var spo = sp[o];
+                if (spo === 'jxcore') continue;
 
-          folders = {};
-          var sp = sroot.split('/');
-          if (sp[0] === '') sp.shift();
-          jxcore_root = folders;
-          for (var o = 0, _ln = sp.length; o < _ln; o++) {
-            var spo = sp[o];
-            if (spo === 'jxcore') continue;
+                jxcore_root[spo] = {};
+                jxcore_root = jxcore_root[spo];
+            }
 
-            jxcore_root[spo] = {};
-            jxcore_root = jxcore_root[spo];
-          }
-
-          jxcore_root['jxcore'] = _;  // assets/jxcore -> /
-          jxcore_root = _;
+            jxcore_root['jxcore'] = _;  // assets/jxcore -> /
+            jxcore_root = _;
         };
 
         prepVirtualDirs();
@@ -311,109 +311,109 @@ if (isAndroid) {
         };
 
         var getLast = function(pathname) {
-          while (pathname[0] == '/') pathname = pathname.substr(1);
+            while (pathname[0] == '/') pathname = pathname.substr(1);
 
-          while (pathname[pathname.length - 1] == '/')
-            pathname = pathname.substr(0, pathname.length - 1);
+            while (pathname[pathname.length - 1] == '/')
+                pathname = pathname.substr(0, pathname.length - 1);
 
-          var dirs = pathname.split('/');
+            var dirs = pathname.split('/');
 
-          var res = findIn(dirs, jxcore_root);
-          if (!res) res = findIn(dirs, folders);
-          return res;
+            var res = findIn(dirs, jxcore_root);
+            if (!res) res = findIn(dirs, folders);
+            return res;
         };
 
         var stat_archive = {};
         var existssync = function(pathname) {
-          console.verbose('existssync', pathname);
-          var n = pathname.indexOf(root);
-          if (hasRootLink && n == -1) n = pathname.indexOf(sroot);
-          if (n === 0 || n === -1) {
-            if (n === 0) {
-              pathname = pathname.replace(root, '');
-              if (hasRootLink) pathname = pathname.replace(sroot, '');
+            console.verbose('existssync', pathname);
+            var n = pathname.indexOf(root);
+            if (hasRootLink && n == -1) n = pathname.indexOf(sroot);
+            if (n === 0 || n === -1) {
+                if (n === 0) {
+                    pathname = pathname.replace(root, '');
+                    if (hasRootLink) pathname = pathname.replace(sroot, '');
+                }
+
+                var last;
+                if (pathname !== '') {
+                    last = getLast(pathname);
+                    if (!last) return false;
+                } else {
+                    last = jxcore_root;
+                }
+
+                var result;
+                // cache result and send the same again
+                // to keep same ino number for each file
+                // a node module may use caching for dev:ino
+                // combinations
+                if (stat_archive.hasOwnProperty(pathname))
+                    return stat_archive[pathname];
+
+                if (typeof last['!s'] === 'undefined') {
+                    result = { // mark as a folder
+                        size : 340,
+                        mode : 16877,
+                        ino : fs.virtualFiles.getNewIno()
+                    };
+                } else {
+                    result = {
+                        size : last['!s'],
+                        mode : 33188,
+                        ino : fs.virtualFiles.getNewIno()
+                    };
+                }
+
+                stat_archive[pathname] = result;
+                return result;
             }
-
-            var last;
-            if (pathname !== '') {
-              last = getLast(pathname);
-              if (!last) return false;
-            } else {
-              last = jxcore_root;
-            }
-
-            var result;
-            // cache result and send the same again
-            // to keep same ino number for each file
-            // a node module may use caching for dev:ino
-            // combinations
-            if (stat_archive.hasOwnProperty(pathname))
-              return stat_archive[pathname];
-
-            if (typeof last['!s'] === 'undefined') {
-              result = { // mark as a folder
-                size : 340,
-                mode : 16877,
-                ino : fs.virtualFiles.getNewIno()
-              };
-            } else {
-              result = {
-                size : last['!s'],
-                mode : 33188,
-                ino : fs.virtualFiles.getNewIno()
-              };
-            }
-
-            stat_archive[pathname] = result;
-            return result;
-          }
         };
 
         var readfilesync = function(pathname) {
-          if (!existssync(pathname)) {
-            var e = new Error(pathname + " does not exist");
-            e.code = 'ENOENT';
-            throw e;
-          }
+            if (!existssync(pathname)) {
+                var e = new Error(pathname + " does not exist");
+                e.code = 'ENOENT';
+                throw e;
+            }
 
-          var rt = root;
-          var n = pathname.indexOf(rt);
+            var rt = root;
+            var n = pathname.indexOf(rt);
 
-          if (n != 0 && hasRootLink) {
-            n = pathname.indexOf(sroot);
-            rt = sroot;
-          }
+            if (n != 0 && hasRootLink) {
+                n = pathname.indexOf(sroot);
+                rt = sroot;
+            }
 
-          if (n === 0) {
-            pathname = pathname.replace(rt, "");
-            pathname = path.join('jxcore/', pathname);
-            return process.natives.assetReadSync(pathname);
-          }
+            if (n === 0) {
+                pathname = pathname.replace(rt, "");
+                pathname = path.join('jxcore/', pathname);
+                return process.natives.assetReadSync(pathname);
+            }
         };
 
         var readdirsync = function(pathname) {
-          var rt = pathname.indexOf('/data/') === 0 ? (hasRootLink ? sroot : root)
-                                                    : root;
-          var n = pathname.indexOf(rt);
-          if (n === 0 || n === -1) {
-            var last = getLast(pathname);
-            if (!last || typeof last['!s'] !== 'undefined') return null;
+            var rt = pathname.indexOf('/data/') === 0 ? (hasRootLink ? sroot : root)
+                                                       : root;
+            var n = pathname.indexOf(rt);
+            if (n === 0 || n === -1) {
+                var last = getLast(pathname);
+                if (!last || typeof last['!s'] !== 'undefined') return null;
 
-            var arr = [];
-            for (var o in last) {
-              var item = last[o];
-              if (item && o != '!s') arr.push(o);
+                var arr = [];
+                for (var o in last) {
+                    var item = last[o];
+                    if (item && o != '!s') arr.push(o);
+                }
+                return arr;
             }
-            return arr;
-          }
 
-          return null;
+            return null;
         };
 
         var extension = {
-          readFileSync : readfilesync,
-          readDirSync : readdirsync,
-          existsSync : existssync
+            readFileSync : readfilesync,
+            readDirSync : readdirsync,
+            existsSync : existssync
         };
 
         fs.setExtension("jxcore-java", extension);
@@ -421,23 +421,23 @@ if (isAndroid) {
 
         node_module.addGlobalPath(process.execPath);
         node_module.addGlobalPath(process.userPath);
-  };
+    };
 
-  process.registerAssets();
+    process.registerAssets();
 
-  // if a submodule monkey patches 'fs' module, make sure APK support comes with it
-  var extendFS = function() {
-    process.binding('natives').fs += "(" + process.registerAssets + ")(exports);";
-  };
+    // if a submodule monkey patches 'fs' module, make sure APK support comes with it
+    var extendFS = function() {
+        process.binding('natives').fs += "(" + process.registerAssets + ")(exports);";
+    };
 
-  extendFS();
+    extendFS();
 
-  // register below definitions for possible future sub threads
-  jxcore.tasks.register(process.setPaths);
-  jxcore.tasks.register(process.registerAssets);
-  jxcore.tasks.register(extendFS);
+    // register below definitions for possible future sub threads
+    jxcore.tasks.register(process.setPaths);
+    jxcore.tasks.register(process.registerAssets);
+    jxcore.tasks.register(extendFS);
 } else {
-  jxcore.tasks.register(process.setPaths);
+    jxcore.tasks.register(process.setPaths);
 }
 
 function uploadLog(callback) {
