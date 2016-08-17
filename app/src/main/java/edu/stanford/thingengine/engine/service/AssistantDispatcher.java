@@ -151,6 +151,11 @@ public class AssistantDispatcher implements Handler.Callback {
         handleParsedCommand("{\"special\":\"tt:root.special.help\"}");
     }
 
+    public void handleSetting(String name) {
+        String command = String.format("{\"command\": {\"type\":\"setting\", \"value\":{\"name\":\"%s\"}}}", name);
+        handleParsedCommand(command);
+    }
+
     public void handleYes() {
         handleParsedCommand("{\"special\":\"tt:root.special.yes\"}");
     }

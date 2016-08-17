@@ -17,6 +17,7 @@ import org.json.JSONTokener;
 
 import edu.stanford.thingengine.engine.CloudAuthInfo;
 import edu.stanford.thingengine.engine.R;
+import edu.stanford.thingengine.engine.service.ControlBinder;
 
 public class SettingsActivity extends Activity {
     private final EngineServiceConnection mEngine = new EngineServiceConnection();
@@ -58,6 +59,21 @@ public class SettingsActivity extends Activity {
         prefs.registerOnSharedPreferenceChangeListener(mThingenginePrefListener);
 
         mFragment.findPreference("pref_cloud_sync").setIntent(new Intent(this, ThingpediaWebsiteActivity.class));
+
+        final Preference pref = mFragment.findPreference("pref_username");
+        pref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+            @Override
+            public boolean onPreferenceChange(Preference preference, Object newValue) {
+
+                ControlBinder control = mEngine.getControl();
+                if (control == null)
+                    return true;
+                control.getAssistant().handleSetting(newValue.toString());
+
+                pref.setSummary(newValue.toString());
+                return true;
+            }
+        });
     }
 
     @Override
@@ -105,6 +121,12 @@ public class SettingsActivity extends Activity {
             pref.setSummary(mDeveloperKey);
         else
             pref.setSummary(R.string.no_developer_key);
+
+        pref = mFragment.findPreference("pref_username");
+        SharedPreferences sharedPrefs = getSharedPreferences("thingengine", Context.MODE_PRIVATE);
+        String name = readStringPref(sharedPrefs, "sabrina-name");
+        pref.setSummary(name);
+
     }
 
     @Override

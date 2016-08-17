@@ -1,8 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <EditTextPreference
+        android:key="pref_username"
+        android:title="@string/pref_username_title"
+        android:inputType="text"
+        android:singleLine="true" />
+
     <Preference android:key="pref_cloud_sync"
         android:title="@string/pref_cloud_sync_title">
     </Preference>
+
     <EditTextPreference
         android:enabled="false"
         android:key="pref_developer_key"
