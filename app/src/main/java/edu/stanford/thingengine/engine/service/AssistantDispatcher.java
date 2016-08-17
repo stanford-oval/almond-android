@@ -152,8 +152,19 @@ public class AssistantDispatcher implements Handler.Callback {
     }
 
     public void handleSetting(String name) {
-        String command = String.format("{\"command\": {\"type\":\"setting\", \"value\":{\"name\":\"%s\"}}}", name);
-        handleParsedCommand(command);
+        try {
+            JSONObject obj = new JSONObject();
+            JSONObject inner = new JSONObject();
+            obj.put("command", inner);
+            inner.put("type", "setting");
+            JSONObject value = new JSONObject();
+            inner.put("value", value);
+            value.put("name", name);
+
+            handleParsedCommand(obj.toString());
+        } catch(JSONException e) {
+            Log.e(EngineService.LOG_TAG, "Unexpected json exception while constructing setting JSON", e);
+        }
     }
 
     public void handleYes() {
