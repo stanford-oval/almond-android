@@ -101,7 +101,7 @@ endif
 include $(PREBUILT_STATIC_LIBRARY)
 
 include $(CLEAR_VARS)
-NDK_TOOLCHAIN_VERSION := 4.8
+NDK_TOOLCHAIN_VERSION := 4.9
 LOCAL_CFLAGS := -std=gnu++11 
 APP_STL := gnustl_static
 LOCAL_MODULE    := jxcore
@@ -111,6 +111,7 @@ LOCAL_LDLIBS := -llog \
                 -lz \
                 -ldl \
                 -landroid
+LOCAL_LDLIBS += -Wl,--no-warn-shared-textrel
 LOCAL_STATIC_LIBRARIES := cares openssl
 LOCAL_WHOLE_STATIC_LIBRARIES := zlib http_parser sqlite3 libuv liblevel libsnappy libdown libmozjs jxcore_native
 include $(BUILD_SHARED_LIBRARY)

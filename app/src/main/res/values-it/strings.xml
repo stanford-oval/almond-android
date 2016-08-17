@@ -36,4 +36,6 @@
     <string name="pref_cloud_sync_title">Abilita cloud sync</string>
     <string name="pref_developer_key_title">Chiave sviluppatore</string>
     <string name="action_help">Aiuto</string>
+    <string name="no">No</string>
+    <string name="yes">Sì</string>
 </resources>

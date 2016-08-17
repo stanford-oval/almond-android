@@ -7,7 +7,6 @@ import android.content.res.AssetManager;
 import android.os.Handler;
 import android.util.Log;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Enumeration;
