@@ -7,10 +7,22 @@ import android.content.Context;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Locale;
 
 import io.jxcore.node.jxcore.JXcoreCallback;
 
 public class JXMobile {
+  private static final String[] SUPPORTED_LANGUAGES = new String[] { "en", "it", "zh" };
+
+  private static boolean isSupported(String lang) {
+    for (String supported : SUPPORTED_LANGUAGES) {
+      if (supported.equals(lang))
+        return true;
+    }
+
+    return false;
+  }
+
   public static void Initialize(final Context context) {
     jxcore.RegisterMethod("OnError", new JXcoreCallback() {
       @SuppressLint("NewApi")
@@ -48,8 +60,14 @@ public class JXMobile {
     jxcore.RegisterMethod("GetLocale", new JXcoreCallback() {
       @Override
       public void Receiver(ArrayList<Object> params, String callbackId) {
-        //jxcore.CallJSMethod(callbackId, new String[] { Locale.getDefault().toLanguageTag() });
-        jxcore.CallJSMethod(callbackId, new String[] { "en-US" });
+        Locale locale = Locale.getDefault();
+        String localeTag;
+        if (isSupported(locale.getLanguage()))
+          localeTag = locale.toLanguageTag();
+        else
+          localeTag = "en-US";
+
+        jxcore.CallJSMethod(callbackId, new String[] { localeTag });
       }
     });
 
