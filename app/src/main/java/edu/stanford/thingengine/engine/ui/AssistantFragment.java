@@ -325,6 +325,7 @@ public class AssistantFragment extends Fragment implements AssistantOutput, Assi
             if (view instanceof Button) {
                 view.setBackgroundResource(R.drawable.button_sabrina);
                 view.setStateListAnimator(null);
+                ((Button) view).setTransformationMethod(null);
             } else if (side == AssistantMessage.Direction.FROM_SABRINA)
                 view.setBackgroundResource(R.drawable.bubble_sabrina);
             else if (side == AssistantMessage.Direction.FROM_USER)
