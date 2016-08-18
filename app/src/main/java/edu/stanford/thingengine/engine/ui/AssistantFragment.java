@@ -323,9 +323,11 @@ public class AssistantFragment extends Fragment implements AssistantOutput, Assi
 
             PercentRelativeLayout wrapper = new PercentRelativeLayout(getContext());
             if (view instanceof Button) {
-                view.setBackgroundResource(R.drawable.button_sabrina);
                 view.setStateListAnimator(null);
                 ((Button) view).setTransformationMethod(null);
+                // indent the buttons
+                params.getPercentLayoutInfo().startMarginPercent = 0.05f;
+                params.getPercentLayoutInfo().widthPercent = 0.6f;
             } else if (side == AssistantMessage.Direction.FROM_SABRINA)
                 view.setBackgroundResource(R.drawable.bubble_sabrina);
             else if (side == AssistantMessage.Direction.FROM_USER)
