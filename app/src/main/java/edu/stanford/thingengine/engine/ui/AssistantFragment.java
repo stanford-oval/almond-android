@@ -335,14 +335,18 @@ public class AssistantFragment extends Fragment implements AssistantOutput, Assi
 
             if (side == AssistantMessage.Direction.FROM_SABRINA) {
                 params.addRule(RelativeLayout.ALIGN_PARENT_START);
-                if (view instanceof TextView)
+                if (view instanceof TextView) {
                     ((TextView) view).setGravity(Gravity.START);
+                    ((TextView) view).setTextIsSelectable(true);
+                }
                 wrapper.addView(view, params);
                 view.setTextAlignment(View.TEXT_ALIGNMENT_VIEW_START);
             } else if (side == AssistantMessage.Direction.FROM_USER) {
                 params.addRule(RelativeLayout.ALIGN_PARENT_END);
-                if (view instanceof TextView)
+                if (view instanceof TextView) {
                     ((TextView) view).setGravity(Gravity.END);
+                    ((TextView) view).setTextIsSelectable(true);
+                }
                 wrapper.addView(view, params);
                 view.setTextAlignment(View.TEXT_ALIGNMENT_VIEW_END);
             }
