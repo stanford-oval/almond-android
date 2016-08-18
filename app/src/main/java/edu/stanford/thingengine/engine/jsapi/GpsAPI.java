@@ -1,9 +1,11 @@
 package edu.stanford.thingengine.engine.jsapi;
 
-import android.content.Context;
+import android.Manifest;
+import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Handler;
 import android.support.annotation.Nullable;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -136,9 +138,22 @@ public class GpsAPI extends JavascriptAPI {
         ConnectionResult result = mGoogleApiClient.blockingConnect();
         if (!result.isSuccess())
             throw new IOException("Failed to connect to Google Play Services: " + result.getErrorMessage());
+
+        int permissionCheck = ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION);
+        if (permissionCheck != PackageManager.PERMISSION_GRANTED)
+            requestPermission();
+
         LocationRequest request = requestLocationSync();
         LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, request, this.callback, this.handler.getLooper());
         reportLocation(LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient));
+    }
+
+    private void requestPermission() throws InterruptedException {
+        InteractionCallback callback = context.getInteractionCallback();
+        if (callback == null)
+            return;
+
+        callback.requestPermission(Manifest.permission.ACCESS_FINE_LOCATION, InteractionCallback.REQUEST_GPS);
     }
 
     private void stop() {
