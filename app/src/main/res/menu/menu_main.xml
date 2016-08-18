@@ -15,6 +15,13 @@
         android:showAsAction="ifRoom"
         android:title="@string/action_clear_chat" />
     <item
+        android:id="@+id/action_train"
+        android:orderInCategory="2"
+        android:menuCategory="alternative"
+        android:showAsAction="ifRoom"
+        android:title="@string/action_train"
+        />
+    <item
         android:id="@+id/action_settings"
         android:orderInCategory="100"
         android:menuCategory="secondary"

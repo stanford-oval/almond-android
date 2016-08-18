@@ -184,6 +184,15 @@ public class MainActivity extends Activity implements ActionBar.TabListener, Fra
             return true;
         }
 
+        if (id == R.id.action_train) {
+            ControlBinder control = engine.getControl();
+            if (control == null)
+                return true;
+
+            control.getAssistant().handleTrain();
+            return true;
+        }
+
         return super.onOptionsItemSelected(item);
     }
 

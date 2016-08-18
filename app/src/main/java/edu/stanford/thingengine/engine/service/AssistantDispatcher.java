@@ -151,6 +151,10 @@ public class AssistantDispatcher implements Handler.Callback {
         handleParsedCommand("{\"special\":\"tt:root.special.help\"}");
     }
 
+    public void handleTrain() {
+        handleParsedCommand("{\"special\":\"tt:root.special.train\"}");
+    }
+
     public void handleSetting(String name) {
         try {
             JSONObject obj = new JSONObject();
