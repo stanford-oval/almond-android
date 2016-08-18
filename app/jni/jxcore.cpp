@@ -27,6 +27,7 @@ SOFTWARE.
 #include <stdlib.h>
 #include <string.h>
 #include <sstream>
+#include <memory>
 #include "jxcore_droid.h"
 #include "JniHelper.h"
 #include <android/log.h>
@@ -97,6 +98,78 @@ static void callback(JXValue *results, int argc) {
   cb_values = NULL;
 }
 
+// java strings are NOT UTF-8, they are Modified UTF-8,
+// which means we need to use 6 bytes for characters outside the basic
+// multilingual plane
+static jstring utf8ToJava(JNIEnv *env, const char *utf8) {
+    // first check if all characters are in the BMP
+    // in that case we can fast path it
+
+    bool fast_path = true;
+    for (const char *p = utf8; *p; p++) {
+        if ((*p & 0xf0) == 0xf0) {
+            fast_path = false;
+            break;
+        }
+    }
+
+    if (fast_path)
+        return env->NewStringUTF(utf8);
+
+    // allocate a new buffer of twice the size of utf8
+    // because each 3 byte utf8 char can be 6 byte in modified utf8
+    size_t len = strlen(utf8);
+    std::unique_ptr<char[]> buffer(new char[2*len + 1]);
+
+    const char *p = utf8;
+    char *o = buffer.get();
+    while (*p) {
+        if ((*p & 0xf0) != 0xf0) {
+            *o = *p;
+            o++;
+            p++;
+            continue;
+        }
+
+        // p starts a 4 byte sequence
+        // first check it is valid
+        // if it's not, we do nothing, copy the start of the sequence
+        // (and later copy every other character, and hope for the best)
+        // we'll crash soon, probably
+        char c0 = p[0];
+        char c1 = p[1];
+        if ((c1 & 0xc0) != 0x80) {
+            *(o++) = *(p++);
+            continue;
+        }
+        char c2 = p[2];
+        if ((c2 & 0xc0) != 0x80) {
+            *(o++) = *(p++);
+            continue;
+        }
+        char c3 = p[3];
+        if ((c3 & 0xc0) != 0x80) {
+            *(o++) = *(p++);
+            continue;
+        }
+        p += 4;
+
+        uint32_t utf32 = ((c0 & 0x7) << 18) | ((c1 & 0x3f) << 12) | ((c2 & 0x3f) << 6) | (c3 & 0x3f);
+
+        utf32 -= 0x10000;
+        // 11101101 1010xxxx 10xxxxxx 11101101 1011xxxx 10xxxxxx
+        *(o++) = 0b11101101;
+        *(o++) = 0b10100000 | ((utf32 >> 16) & 0xf);
+        *(o++) = 0b10000000 | ((utf32 >> 10) & 0x3f);
+        *(o++) = 0b11101101;
+        *(o++) = 0b10110000 | ((utf32 >> 6) & 0xf);
+        *(o++) = 0b10000000 | ((utf32 & 0x3f));
+    }
+    *o = 0;
+
+    return env->NewStringUTF(buffer.get());
+}
+
 static void callJXcoreNative(JXValue *results, int argc) {
   JNIEnv *env = jxcore::JniHelper::getEnv();
 
@@ -162,12 +235,12 @@ static void callJXcoreNative(JXValue *results, int argc) {
         const char *data = str_result.c_str();
         int ln = JX_GetDataLength(result);
         if (ln > 0 && *data != '{' && *data != '[') {
-          objValue = (jobject)env->NewStringUTF(str_result.c_str());
+          objValue = (jobject)utf8ToJava(env, str_result.c_str());
         } else {
           jobjectArray ret = (jobjectArray)env->NewObjectArray(
               1, strClass, env->NewStringUTF(""));
 
-          jstring jstr = env->NewStringUTF(str_result.c_str());
+          jstring jstr = utf8ToJava(env, str_result.c_str());
           env->SetObjectArrayElement(ret, 0, jstr);
 
           objValue = (jobject)ret;
@@ -179,7 +252,7 @@ static void callJXcoreNative(JXValue *results, int argc) {
         std::string str_result;
         ConvertResult(result, str_result);
 
-        objValue = env->NewStringUTF(str_result.c_str());
+        objValue = utf8ToJava(env, str_result.c_str());
       } break;
       default:
         break;
@@ -453,7 +526,7 @@ Java_io_jxcore_node_jxcore_convertToString(JNIEnv *env, jobject thiz,
   ConvertResult(val, str_result);
   if (id >= 0) JX_Free(val);
 
-  return env->NewStringUTF(str_result.c_str());
+  return utf8ToJava(env, str_result.c_str());
 }
 
 JNIEXPORT jint JNICALL
@@ -506,7 +579,7 @@ Java_io_jxcore_node_jxcore_getString(JNIEnv *env, jobject thiz, jlong id) {
   char *chrp = JX_GetString(val);
   if (id >= 0) JX_Free(val);
 
-  jstring js = env->NewStringUTF(chrp);
+  jstring js = utf8ToJava(env, chrp);
   free(chrp);
 
   return js;
