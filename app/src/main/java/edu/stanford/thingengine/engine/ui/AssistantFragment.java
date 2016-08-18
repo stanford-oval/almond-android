@@ -481,11 +481,16 @@ public class AssistantFragment extends Fragment implements AssistantOutput, Assi
 
                 Button btn = new Button(getContext());
                 btn.setText(msg.rdl.optString("displayTitle"));
-                final String webCallback = msg.rdl.getString("webCallback");
+                String webCallback = msg.rdl.getString("webCallback");
+                final String url;
+                if (webCallback.startsWith("http"))
+                    url = webCallback;
+                else
+                    url = "http://" + webCallback;
                 btn.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        onLinkActivated(webCallback);
+                        onLinkActivated(url);
                     }
                 });
                 return wrapView(btn, msg.direction);
