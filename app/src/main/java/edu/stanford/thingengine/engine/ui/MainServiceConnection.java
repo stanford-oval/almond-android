@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.IntentSender;
+import android.content.pm.PackageManager;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
@@ -205,6 +206,20 @@ public class MainServiceConnection extends EngineServiceConnection implements In
         if (state == null)
             return;
         state.complete(resultCode == Activity.RESULT_OK);
+    }
+
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        InteractionState state = interacting.remove(requestCode);
+        if (state == null)
+            return;
+        boolean granted = true;
+        for (int grantResult : grantResults) {
+            if (grantResult != PackageManager.PERMISSION_GRANTED) {
+                granted = false;
+                break;
+            }
+        }
+        state.complete(granted);
     }
 
     public void addEngineReadyCallback(Runnable callback) {

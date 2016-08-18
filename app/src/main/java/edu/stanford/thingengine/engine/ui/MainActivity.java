@@ -202,6 +202,8 @@ public class MainActivity extends Activity implements ActionBar.TabListener, Fra
 
         if (fragment instanceof ActivityCompat.OnRequestPermissionsResultCallback)
             ((ActivityCompat.OnRequestPermissionsResultCallback)fragment).onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        engine.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
     @Override
