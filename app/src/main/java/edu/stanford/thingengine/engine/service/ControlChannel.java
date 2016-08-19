@@ -106,17 +106,17 @@ public class ControlChannel implements AutoCloseable, Closeable {
         try {
             while (value == null) {
                 try {
-                    char[] buffer = new char[64];
-                    int read = controlReader.read(buffer);
-                    partialMsg.append(buffer, 0, read);
-
                     int newLine = partialMsg.indexOf("\n");
                     while (newLine == 0) {
                         partialMsg.deleteCharAt(0);
                         newLine = partialMsg.indexOf("\n");
                     }
-                    if (newLine < 0)
+                    if (newLine < 0) {
+                        char[] buffer = new char[64];
+                        int read = controlReader.read(buffer);
+                        partialMsg.append(buffer, 0, read);
                         continue;
+                    }
 
                     String prefix = partialMsg.substring(0, newLine);
                     JSONTokener tokener = new JSONTokener(prefix);
