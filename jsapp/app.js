@@ -29,7 +29,7 @@ class AppControlChannel extends ControlChannel {
     // handle control methods here...
 
     invokeCallback(callbackId, error, value) {
-        JavaAPI.invokeCallback(callbackId, error, value);
+        return JavaAPI.invokeCallback(callbackId, error, value);
     }
 
     stop() {
