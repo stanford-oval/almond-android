@@ -41,4 +41,9 @@
     <string name="no">No</string>
     <string name="pref_username_title">User name</string>
     <string name="action_train">Train</string>
+    <string name="btn_share">Share&#8230;</string>
+    <string name="btn_download">Download</string>
+    <string name="toast_downloaded">Saved to gallery</string>
+    <string name="toast_download_failed">Failed to download picture</string>
+    <string name="download_permission_needed">Sabrina must be able to write to the SD card to download this picture</string>
 </resources>

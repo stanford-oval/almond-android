@@ -16,6 +16,19 @@
         <item name="android:textColor">#ffffff</item>
     </style>
 
+    <style name="FullscreenTheme" parent="Stanford">
+        <item name="android:actionBarStyle">@style/FullscreenActionBarStyle</item>
+        <item name="android:windowActionBarOverlay">true</item>
+        <item name="android:windowBackground">@null</item>
+        <item name="metaButtonBarStyle">?android:attr/buttonBarStyle</item>
+        <item name="metaButtonBarButtonStyle">?android:attr/buttonBarButtonStyle</item>
+    </style>
+
+    <style name="FullscreenActionBarStyle" parent="android:Widget.Material.Light.ActionBar">
+        <item name="android:background">@color/black_overlay</item>
+    </style>
+
     <color name="stanford_cardinal">#8c1515</color>
     <color name="dark_stanford_cardinal">#670000</color>
+    <color name="black_overlay">#66000000</color>
 </resources>

@@ -65,9 +65,12 @@
         <activity
             android:name=".ui.DeviceDetailsActivity"
             android:parentActivityName=".ui.MainActivity" />
-        <activity android:name=".ui.SettingsActivity" android:parentActivityName=".ui.MainActivity" />
-        <activity android:name=".ui.ThingpediaWebsiteActivity"
-            android:parentActivityName=".ui.SettingsActivity" >
+        <activity
+            android:name=".ui.SettingsActivity"
+            android:parentActivityName=".ui.MainActivity" />
+        <activity
+            android:name=".ui.ThingpediaWebsiteActivity"
+            android:parentActivityName=".ui.SettingsActivity">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 
@@ -90,6 +93,12 @@
                     android:pathPrefix="/qrcode-cloud/"
                     android:scheme="https" />
             </intent-filter>
+        </activity>
+        <activity
+            android:name=".ui.FullscreenPictureActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:parentActivityName=".ui.MainActivity"
+            android:theme="@style/FullscreenTheme">
         </activity>
     </application>
 

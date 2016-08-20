@@ -1,6 +1,7 @@
 package edu.stanford.thingengine.engine.jsapi;
 
 import java.io.IOException;
+import java.io.InputStream;
 
 import edu.stanford.thingengine.engine.ContentUtils;
 import edu.stanford.thingengine.engine.service.ControlChannel;
@@ -34,7 +35,9 @@ public class ContentAPI extends JavascriptAPI {
             @Override
             public void run() {
                 try {
-                    stream.forwardSync(ContentUtils.readUrl(ctx, url));
+                    try (InputStream is = ContentUtils.readUrl(ctx, url).first) {
+                        stream.forwardSync(is);
+                    }
                 } catch(IOException e) {
                     stream.error(e);
                 }

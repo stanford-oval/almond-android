@@ -28,6 +28,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
+import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -654,7 +655,16 @@ public class AssistantFragment extends Fragment implements AssistantOutput, Assi
             }
         });
 
-        ((ListView)getActivity().findViewById(R.id.chat_list)).setAdapter(mListAdapter);
+        ListView chatList = ((ListView)getActivity().findViewById(R.id.chat_list));
+        chatList.setAdapter(mListAdapter);
+        chatList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                AssistantMessage msg = (AssistantMessage) parent.getAdapter().getItem(position);
+                if (msg instanceof AssistantMessage.Picture)
+                    showPictureFullscreen(((AssistantMessage.Picture) msg).url);
+            }
+        });
 
         getActivity().findViewById(R.id.assistant_progress).setVisibility(View.GONE);
 
@@ -737,6 +747,13 @@ public class AssistantFragment extends Fragment implements AssistantOutput, Assi
                 input.setText("");
             }
         }
+    }
+
+    private void showPictureFullscreen(String url) {
+        Intent intent = new Intent(getActivity(), FullscreenPictureActivity.class);
+        intent.setAction(Intent.ACTION_VIEW);
+        intent.setData(Uri.parse(url));
+        startActivity(intent);
     }
 
     private void createDeviceOAuth2(String kind, String name) {

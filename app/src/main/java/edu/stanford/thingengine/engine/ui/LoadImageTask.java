@@ -4,9 +4,11 @@ import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.util.Log;
+import android.util.Pair;
 import android.widget.ImageView;
 
 import java.io.IOException;
+import java.io.InputStream;
 
 import edu.stanford.thingengine.engine.ContentUtils;
 
@@ -25,7 +27,11 @@ public class LoadImageTask extends AsyncTask<String, Void, Drawable> {
     @Override
     protected Drawable doInBackground(String... params) {
         try {
-            return Drawable.createFromStream(ContentUtils.readUrl(ctx, params[0]), "src");
+            Pair<InputStream, String> pair = ContentUtils.readUrl(ctx, params[0]);
+            try (InputStream stream = pair.first) {
+                String mimeType = pair.second;
+                return Drawable.createFromStream(stream, "src");
+            }
         } catch (IOException | OutOfMemoryError e) {
             Log.e(MainActivity.LOG_TAG, "Failed to retrieve image from server", e);
             return null;
