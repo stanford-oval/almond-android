@@ -1,4 +1,4 @@
-<resources>
+<resources tools:locale="en-US" xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
     <string name="app_name">Sabrina</string>
     <string name="title_activity_web_ui">Sabrina</string>
 
