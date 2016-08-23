@@ -32,7 +32,7 @@ public class LoadImageTask extends AsyncTask<String, Void, Drawable> {
                 String mimeType = pair.second;
                 return Drawable.createFromStream(stream, "src");
             }
-        } catch (IOException | OutOfMemoryError e) {
+        } catch (IOException | OutOfMemoryError | SecurityException e) {
             Log.e(MainActivity.LOG_TAG, "Failed to retrieve image from server", e);
             return null;
         }
