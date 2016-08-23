@@ -9,25 +9,22 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="edu.stanford.thingengine.engine.ui.DeviceCreateFormActivity">
 
-    <LinearLayout
-        android:orientation="vertical"
+    <ListView
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="wrap_content"
+        android:id="@+id/device_create_form_container"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:layout_weight="1"
+        android:layout_above="@+id/button_configure" />
 
-        <ListView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/device_create_form_container"
-            android:layout_alignParentTop="true"
-            android:layout_alignParentEnd="true"
-            android:layout_weight="1" />
-
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/button_configure_text"
-            android:id="@+id/button_configure"
-            android:layout_gravity="center_horizontal" />
-    </LinearLayout>
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/button_configure_text"
+        android:id="@+id/button_configure"
+        android:layout_gravity="center_horizontal"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true" />
 
 </RelativeLayout>
