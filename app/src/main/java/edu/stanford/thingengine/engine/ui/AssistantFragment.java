@@ -259,7 +259,8 @@ public class AssistantFragment extends Fragment implements AssistantOutput, Assi
             @Override
             public void run() {
                 mScrollScheduled = false;
-                listView.smoothScrollToPosition(mListAdapter.getItemCount()-1);
+                if (mListAdapter.getItemCount() > 0)
+                    listView.smoothScrollToPosition(mListAdapter.getItemCount()-1);
             }
         });
     }
