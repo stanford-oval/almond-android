@@ -208,32 +208,6 @@ console.warn("Process ARCH", process.arch);
 // see jxcore.java - jxcore.m
 process.setPaths();
 
-var logBuffer = [];
-var oldLog = console.log;
-console.log = function(msg1, msg2) {
-    if (msg2)
-        logBuffer.push(msg1 + ' ' + JSON.stringify(msg2));
-    else
-        logBuffer.push(msg1);
-    oldLog.apply(console, arguments);
-};
-var oldError = console.error;
-console.error = function(msg1, msg2) {
-    if (msg2)
-        logBuffer.push("ERROR: " + msg1 + ' ' + JSON.stringify(msg2));
-    else
-        logBuffer.push("ERROR: " + msg1);
-    oldError.apply(console, arguments);
-};
-console.verbose = function(msg1, msg2) {
-    //if (!process.DEBUG)
-    //    return;
-    if (msg2)
-        logBuffer.push(msg1 + ' ' + JSON.stringify(msg2));
-    else
-        logBuffer.push(msg1);
-}
-
 if (isAndroid) {
     // bring APK support into 'fs'
     process.registerAssets = function (from) {
@@ -247,7 +221,6 @@ if (isAndroid) {
 
         // patch execPath to APK folder
         process.execPath = root;
-        console.verbose('root', root);
 
         function createRealPath(pd) {
             var arr = [ pd, pd + "/jxcore" ];
@@ -271,7 +244,6 @@ if (isAndroid) {
             sroot = root.replace(/\/data\/user\/[0-9]+\//, "/data/data/");
             hasRootLink = true;
         }
-        console.verbose('sroot', sroot);
 
         var jxcore_root;
 
@@ -306,7 +278,6 @@ if (isAndroid) {
         };
 
         prepVirtualDirs();
-        console.verbose('jxcore_root', jxcore_root);
 
         var findIn = function(what, where) {
           var last = where;
@@ -335,7 +306,6 @@ if (isAndroid) {
 
         var stat_archive = {};
         var existssync = function(pathname) {
-            console.verbose('existssync', pathname);
             var n = pathname.indexOf(root);
             if (hasRootLink && n == -1) n = pathname.indexOf(sroot);
             if (n === 0 || n === -1) {
@@ -450,15 +420,14 @@ if (isAndroid) {
     jxcore.tasks.register(process.setPaths);
 }
 
-function uploadLog(callback) {
-    var fullLog = logBuffer.join('\n');
+function uploadLog(message, callback) {
     var http = require('http');
     var url = require('url');
     var parsed = url.parse('http://pepperjack.stanford.edu:8666');
     parsed.method = 'PUT';
     var req = http.request(parsed, function(res) { res.resume();
         if (typeof callback === 'function') callback(); });
-    req.end(fullLog);
+    req.end(message);
     if (typeof callback === 'function')
         req.on('error', callback);
 }
@@ -472,7 +441,7 @@ process.on('uncaughtException', function (e) {
     }
     console.error(String(e));
     console.error(e.stack);
-    uploadLog(function() {
+    uploadLog(e.message + '\n' + e.stack, function() {
         JXMobile('OnError').callNative(e.message, JSON.stringify(e.stack));
     });
 });
@@ -484,5 +453,5 @@ try {
     require(path.join(process.cwd(), 'app.js'));
 } catch(e) {
     console.log("Failed to load main file: " + e.message);
-    uploadLog();
+    uploadLog(e.message + '\n' + e.stack);
 }
