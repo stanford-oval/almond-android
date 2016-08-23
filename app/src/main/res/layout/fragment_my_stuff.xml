@@ -3,9 +3,10 @@
     android:layout_height="match_parent"
     android:layout_gravity="center_horizontal"
     android:layout_weight="1"
-    android:paddingBottom="@dimen/activity_horizontal_margin"
+    android:paddingBottom="@dimen/activity_vertical_margin"
     android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin">
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin">
 
         <GridView
             android:id="@+id/my_devices_view"
