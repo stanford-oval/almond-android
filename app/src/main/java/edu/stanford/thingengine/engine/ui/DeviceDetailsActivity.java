@@ -261,6 +261,7 @@ public class DeviceDetailsActivity extends Activity {
 
         @Override
         public void onPostExecute(Integer avail) {
+            mCheckingAvailable = false;
             TextView status = (TextView) findViewById(R.id.device_status);
 
             switch (avail) {
