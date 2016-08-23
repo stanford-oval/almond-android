@@ -7,7 +7,7 @@
     android:showDividers="middle"
     android:divider="@android:color/black">
 
-    <ListView
+    <android.support.v7.widget.RecyclerView
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
@@ -18,7 +18,9 @@
         android:paddingTop="@dimen/activity_vertical_margin"
         android:dividerPadding="@dimen/activity_vertical_margin"
         android:transcriptMode="alwaysScroll"
-        android:stackFromBottom="true" />
+        android:stackFromBottom="true"
+        android:scrollingCache="true"
+        android:smoothScrollbar="false" />
 
     <LinearLayout
         android:orientation="horizontal"

@@ -3,39 +3,29 @@ package edu.stanford.thingengine.engine.ui;
 import android.Manifest;
 import android.app.Activity;
 import android.app.Fragment;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
-import android.graphics.Color;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.speech.tts.TextToSpeech;
 import android.support.annotation.NonNull;
-import android.support.percent.PercentRelativeLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.util.ArrayMap;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.util.Pair;
-import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
-import android.widget.AdapterView;
-import android.widget.BaseAdapter;
-import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.ListView;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -55,7 +45,6 @@ import org.json.JSONException;
 import org.json.JSONTokener;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
@@ -66,21 +55,20 @@ import java.util.concurrent.FutureTask;
 import edu.stanford.thingengine.engine.Config;
 import edu.stanford.thingengine.engine.R;
 import edu.stanford.thingengine.engine.service.AssistantDispatcher;
-import edu.stanford.thingengine.engine.service.AssistantHistoryModel;
 import edu.stanford.thingengine.engine.service.AssistantLifecycleCallbacks;
 import edu.stanford.thingengine.engine.service.AssistantMessage;
 import edu.stanford.thingengine.engine.service.AssistantOutput;
 import edu.stanford.thingengine.engine.service.ControlBinder;
 
 public class AssistantFragment extends Fragment implements AssistantOutput, AssistantLifecycleCallbacks, ActivityCompat.OnRequestPermissionsResultCallback {
-    private static final int REQUEST_OAUTH2 = 1;
-    private static final int REQUEST_CREATE_DEVICE = 2;
-    private static final int REQUEST_LOCATION = 3;
-    private static final int REQUEST_ENABLE_PLAY_SERVICES = 4;
-    private static final int REQUEST_PICTURE = 5;
-    private static final int REQUEST_AUDIO_PERMISSION = 6;
-    private static final int REQUEST_EMAIL = 7;
-    private static final int REQUEST_PHONE_NUMBER = 8;
+    static final int REQUEST_OAUTH2 = 1;
+    static final int REQUEST_CREATE_DEVICE = 2;
+    static final int REQUEST_LOCATION = 3;
+    static final int REQUEST_ENABLE_PLAY_SERVICES = 4;
+    static final int REQUEST_PICTURE = 5;
+    static final int REQUEST_AUDIO_PERMISSION = 6;
+    static final int REQUEST_EMAIL = 7;
+    static final int REQUEST_PHONE_NUMBER = 8;
 
     private MainServiceConnection mEngine;
     private final Runnable mReadyCallback = new Runnable() {
@@ -98,7 +86,7 @@ public class AssistantFragment extends Fragment implements AssistantOutput, Assi
         }
     };
     private FragmentEmbedder mListener;
-    private AssistantHistoryAdapter mListAdapter = new AssistantHistoryAdapter();
+    private AssistantHistoryAdapter mListAdapter = new AssistantHistoryAdapter(this);
     private final SpeechHandler mSpeechHandler = new SpeechHandler();
     private boolean mInCommand = false;
 
@@ -240,316 +228,6 @@ public class AssistantFragment extends Fragment implements AssistantOutput, Assi
         }
     }
 
-    private class AssistantHistoryAdapter extends BaseAdapter implements AssistantHistoryModel.Listener {
-        private final ArrayList<AssistantMessage> filteredHistory = new ArrayList<>();
-        private Context ctx;
-        private AssistantHistoryModel history;
-
-        @Override
-        public int getCount() {
-            return filteredHistory.size();
-        }
-
-        @Override
-        public AssistantMessage getItem(int position) {
-            return filteredHistory.get(position);
-        }
-
-        @Override
-        public long getItemId(int position) {
-            return position;
-        }
-
-        @Override
-        public boolean areAllItemsEnabled() {
-            return true;
-        }
-
-        private boolean isFiltered(AssistantMessage msg) {
-            if (msg.type == AssistantMessage.Type.ASK_SPECIAL) {
-                AssistantMessage.AskSpecial askSpecial = (AssistantMessage.AskSpecial)msg;
-                if (askSpecial.what == AssistantMessage.AskSpecialType.UNKNOWN)
-                    return true;
-            }
-
-            return false;
-        }
-
-        @Override
-        public void onAdded(AssistantMessage msg) {
-            if (isFiltered(msg))
-                return;
-
-            filteredHistory.add(msg);
-            notifyDataSetChanged();
-        }
-
-        @Override
-        public void onClear() {
-            filteredHistory.clear();
-            notifyDataSetChanged();
-        }
-
-        public void setContext(Context ctx) {
-            this.ctx = ctx;
-        }
-
-        private Context getContext() {
-            return ctx;
-        }
-
-        public void setHistory(AssistantHistoryModel history) {
-            if (history == this.history)
-                return;
-            if (this.history != null)
-                this.history.removeListener(this);
-            this.history = history;
-            if (history == null)
-                return;
-            history.addListener(this);
-
-            filteredHistory.clear();
-
-            for (AssistantMessage msg : history) {
-                if (isFiltered(msg))
-                    continue;
-                filteredHistory.add(msg);
-            }
-            notifyDataSetChanged();
-        }
-
-        private View wrapView(View view, AssistantMessage.Direction side) {
-            PercentRelativeLayout.LayoutParams params = new PercentRelativeLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT);
-            params.getPercentLayoutInfo().widthPercent = 0.7f;
-
-            PercentRelativeLayout wrapper = new PercentRelativeLayout(getContext());
-            if (view instanceof Button) {
-                view.setStateListAnimator(null);
-                ((Button) view).setTransformationMethod(null);
-                // indent the buttons
-                params.getPercentLayoutInfo().startMarginPercent = 0.05f;
-                params.getPercentLayoutInfo().widthPercent = 0.6f;
-            } else if (side == AssistantMessage.Direction.FROM_SABRINA)
-                view.setBackgroundResource(R.drawable.bubble_sabrina);
-            else if (side == AssistantMessage.Direction.FROM_USER)
-                view.setBackgroundResource(R.drawable.bubble_user);
-
-            if (side == AssistantMessage.Direction.FROM_SABRINA) {
-                params.addRule(RelativeLayout.ALIGN_PARENT_START);
-                if (view instanceof TextView && !(view instanceof Button)) {
-                    ((TextView) view).setGravity(Gravity.START);
-                    ((TextView) view).setTextIsSelectable(true);
-                }
-                wrapper.addView(view, params);
-                view.setTextAlignment(View.TEXT_ALIGNMENT_VIEW_START);
-            } else if (side == AssistantMessage.Direction.FROM_USER) {
-                params.addRule(RelativeLayout.ALIGN_PARENT_END);
-                if (view instanceof TextView && !(view instanceof Button)) {
-                    ((TextView) view).setGravity(Gravity.END);
-                    ((TextView) view).setTextIsSelectable(true);
-                }
-                wrapper.addView(view, params);
-                view.setTextAlignment(View.TEXT_ALIGNMENT_VIEW_END);
-            }
-
-            return wrapper;
-        }
-
-        private View display(AssistantMessage msg) {
-            switch (msg.type) {
-                case TEXT:
-                    return display((AssistantMessage.Text) msg);
-                case PICTURE:
-                    return display((AssistantMessage.Picture) msg);
-                case RDL:
-                    return display((AssistantMessage.RDL) msg);
-                case CHOICE:
-                    return display((AssistantMessage.Choice) msg);
-                case LINK:
-                    return display((AssistantMessage.Link) msg);
-                case BUTTON:
-                    return display((AssistantMessage.Button) msg);
-                case ASK_SPECIAL:
-                    return display((AssistantMessage.AskSpecial) msg);
-                default:
-                    throw new RuntimeException();
-            }
-        }
-
-        private Button makeContactPickerButton(final int requestCode) {
-            Button btn = new Button(getContext());
-            btn.setText(R.string.btn_choose_contact);
-            btn.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    showContactPicker(requestCode);
-                }
-            });
-            return btn;
-        }
-
-        private LinearLayout makeYesNoButtons() {
-            Context mContext = getContext();
-            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.WRAP_CONTENT,
-                    LinearLayout.LayoutParams.WRAP_CONTENT);
-            LinearLayout yesno = new LinearLayout(mContext);
-            yesno.setOrientation(LinearLayout.HORIZONTAL);
-            yesno.setLayoutParams(params);
-            Button yesbtn = new Button(mContext);
-            Button nobtn = new Button(mContext);
-            yesbtn.setLayoutParams(params);
-            yesbtn.setText(R.string.yes);
-            yesbtn.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    onYesActivated();
-                }
-            });
-            nobtn.setLayoutParams(params);
-            nobtn.setText(R.string.no);
-            nobtn.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    onNoActivated();
-                }
-            });
-            yesno.addView(yesbtn);
-            yesno.addView(nobtn);
-            return yesno;
-        }
-
-        private View display(AssistantMessage.AskSpecial msg) {
-            Button btn;
-
-            switch (msg.what) {
-                case YESNO:
-                    return wrapView(makeYesNoButtons(), msg.direction);
-
-                case LOCATION:
-                    btn = new Button(getContext());
-                    btn.setText(R.string.btn_choose_location);
-                    btn.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            showLocationPicker();
-                        }
-                    });
-                    return wrapView(btn, msg.direction);
-
-                case PICTURE:
-                    btn = new Button(getContext());
-                    btn.setText(R.string.btn_choose_picture);
-                    btn.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            showImagePicker();
-                        }
-                    });
-                    return wrapView(btn, msg.direction);
-
-                case PHONE_NUMBER:
-                case EMAIL_ADDRESS:
-                    return wrapView(makeContactPickerButton(msg.what == AssistantMessage.AskSpecialType.PHONE_NUMBER ? REQUEST_PHONE_NUMBER : REQUEST_EMAIL),
-                            msg.direction);
-                case UNKNOWN:
-                case ANYTHING:
-                    // we don't recognize this, it should have been filtered by isFiltered()
-                    throw new RuntimeException();
-
-                default:
-                    throw new RuntimeException();
-            }
-        }
-
-        private View display(AssistantMessage.Text msg) {
-            TextView view = new TextView(getContext());
-            view.setText(msg.msg);
-            return wrapView(view, msg.direction);
-        }
-
-        private View display(AssistantMessage.Picture msg) {
-            ImageView view = new ImageView(getContext());
-            view.setBackgroundColor(Color.RED);
-            view.setScaleType(ImageView.ScaleType.FIT_CENTER);
-            view.setAdjustViewBounds(true);
-            (new LoadImageTask(getContext(), view) {
-                @Override
-                public void onPostExecute(Drawable draw) {
-                    super.onPostExecute(draw);
-                    scheduleScroll();
-                }
-            }).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, msg.url);
-            return wrapView(view, msg.direction);
-        }
-
-        private View display(AssistantMessage.RDL msg) {
-            try {
-                // FIXME: we can do a better job for RDLs...
-
-                Button btn = new Button(getContext());
-                btn.setText(msg.rdl.optString("displayTitle"));
-                String webCallback = msg.rdl.getString("webCallback");
-                final String url;
-                if (webCallback.startsWith("http"))
-                    url = webCallback;
-                else
-                    url = "http://" + webCallback;
-                btn.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        onLinkActivated(url);
-                    }
-                });
-                return wrapView(btn, msg.direction);
-            } catch (JSONException e) {
-                Log.e(MainActivity.LOG_TAG, "Unexpected JSON exception while unpacking RDL", e);
-                return null;
-            }
-        }
-
-        private View display(final AssistantMessage.Choice msg) {
-            Button btn = new Button(getContext());
-            btn.setText(msg.title);
-            btn.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    onChoiceActivated(msg.idx);
-                }
-            });
-            return wrapView(btn, msg.direction);
-        }
-
-        private View display(final AssistantMessage.Link msg) {
-            Button btn = new Button(getContext());
-            btn.setText(msg.title);
-            btn.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    onLinkActivated(msg.url);
-                }
-            });
-            return wrapView(btn, msg.direction);
-        }
-
-        private View display(final AssistantMessage.Button msg) {
-            Button btn = new Button(getContext());
-            btn.setText(msg.title);
-            btn.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    onButtonActivated(msg.json);
-                }
-            });
-            return wrapView(btn, msg.direction);
-        }
-
-        @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-            return display(getItem(position));
-        }
-    }
-
     private boolean mScrollScheduled;
 
     public AssistantFragment() {
@@ -571,22 +249,22 @@ public class AssistantFragment extends Fragment implements AssistantOutput, Assi
         scheduleScroll();
     }
 
-    private void scheduleScroll() {
+    void scheduleScroll() {
         if (mScrollScheduled)
             return;
         mScrollScheduled = true;
 
-        final ListView listView = (ListView)getActivity().findViewById(R.id.chat_list);
+        final RecyclerView listView = (RecyclerView)getActivity().findViewById(R.id.chat_list);
         listView.post(new Runnable() {
             @Override
             public void run() {
                 mScrollScheduled = false;
-                listView.smoothScrollToPosition(mListAdapter.getCount()-1);
+                listView.smoothScrollToPosition(mListAdapter.getItemCount()-1);
             }
         });
     }
 
-    private void showLocationPicker() {
+    void showLocationPicker() {
         try {
             Intent pickerIntent = new PlacePicker.IntentBuilder().build(getActivity());
             startActivityForResult(pickerIntent, REQUEST_LOCATION);
@@ -603,14 +281,14 @@ public class AssistantFragment extends Fragment implements AssistantOutput, Assi
         }
     }
 
-    private void showImagePicker() {
+    void showImagePicker() {
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
         intent.setType("image/*");
         intent.addCategory(Intent.CATEGORY_OPENABLE);
         startActivityForResult(intent, REQUEST_PICTURE);
     }
 
-    private void showContactPicker(int requestCode) {
+    void showContactPicker(int requestCode) {
         Intent intent = new Intent(Intent.ACTION_PICK);
         if (requestCode == REQUEST_PHONE_NUMBER)
             intent.setType(ContactsContract.CommonDataKinds.Phone.CONTENT_TYPE);
@@ -655,16 +333,13 @@ public class AssistantFragment extends Fragment implements AssistantOutput, Assi
             }
         });
 
-        ListView chatList = ((ListView)getActivity().findViewById(R.id.chat_list));
+        RecyclerView chatList = ((RecyclerView)getActivity().findViewById(R.id.chat_list));
         chatList.setAdapter(mListAdapter);
-        chatList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                AssistantMessage msg = (AssistantMessage) parent.getAdapter().getItem(position);
-                if (msg instanceof AssistantMessage.Picture)
-                    showPictureFullscreen(((AssistantMessage.Picture) msg).url);
-            }
-        });
+
+        LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
+        layoutManager.setStackFromEnd(true);
+        layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+        chatList.setLayoutManager(layoutManager);
 
         getActivity().findViewById(R.id.assistant_progress).setVisibility(View.GONE);
 
@@ -727,7 +402,7 @@ public class AssistantFragment extends Fragment implements AssistantOutput, Assi
         view.findViewById(R.id.assistant_progress).setVisibility(View.GONE);
     }
 
-    private void onTextActivated(boolean fromVoice) {
+    void onTextActivated(boolean fromVoice) {
         if (!fromVoice)
             mSpeechHandler.switchToTextMode();
 
@@ -749,7 +424,7 @@ public class AssistantFragment extends Fragment implements AssistantOutput, Assi
         }
     }
 
-    private void showPictureFullscreen(String url) {
+    void showPictureFullscreen(String url) {
         Intent intent = new Intent(getActivity(), FullscreenPictureActivity.class);
         intent.setAction(Intent.ACTION_VIEW);
         intent.setData(Uri.parse(url));
@@ -797,7 +472,7 @@ public class AssistantFragment extends Fragment implements AssistantOutput, Assi
         }
     }
 
-    private void onLinkActivated(String url) {
+    void onLinkActivated(String url) {
         if (url.startsWith("/")) {
             // recognize relative urls as local intents
             if (url.startsWith("/devices/oauth2/")) {
@@ -825,7 +500,7 @@ public class AssistantFragment extends Fragment implements AssistantOutput, Assi
         startActivity(intent);
     }
 
-    private void onButtonActivated(String json) {
+    void onButtonActivated(String json) {
         ControlBinder control = mEngine.getControl();
         if (control == null)
             return;
@@ -833,7 +508,7 @@ public class AssistantFragment extends Fragment implements AssistantOutput, Assi
         control.getAssistant().handleParsedCommand(json);
     }
 
-    private void onYesActivated() {
+    void onYesActivated() {
         ControlBinder control = mEngine.getControl();
         if (control == null)
             return;
@@ -841,7 +516,7 @@ public class AssistantFragment extends Fragment implements AssistantOutput, Assi
         control.getAssistant().handleYes();
     }
 
-    private void onNoActivated() {
+    void onNoActivated() {
         ControlBinder control = mEngine.getControl();
         if (control == null)
             return;
@@ -849,7 +524,7 @@ public class AssistantFragment extends Fragment implements AssistantOutput, Assi
         control.getAssistant().handleNo();
     }
 
-    private void onChoiceActivated(int idx) {
+    void onChoiceActivated(int idx) {
         ControlBinder control = mEngine.getControl();
         if (control == null)
             return;
