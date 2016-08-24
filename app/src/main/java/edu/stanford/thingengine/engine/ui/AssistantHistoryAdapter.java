@@ -64,9 +64,7 @@ class AssistantHistoryAdapter extends RecyclerView.Adapter<AssistantHistoryAdapt
             params.setMargins(0, 0, 0, 0);
 
             if (view instanceof android.widget.Button) {
-                view.setStateListAnimator(null);
                 ((android.widget.Button) view).setTransformationMethod(null);
-                view.setPadding(0, 0, 0, 0);
                 // indent the buttons
                 params.getPercentLayoutInfo().startMarginPercent = 0.05f;
                 params.getPercentLayoutInfo().widthPercent = 0.6f;
