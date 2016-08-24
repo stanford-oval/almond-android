@@ -1,19 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="Stanford" parent="@android:style/Theme.Material.Light">
-        <item name="android:actionBarStyle">@style/StanfordActionBar</item>
+    <style name="Stanford" parent="@android:style/Theme.Material.Light.DarkActionBar">
+        <item name="android:actionBarTheme">@style/StanfordActionBar</item>
         <item name="android:colorPrimary">@color/stanford_cardinal</item>
         <item name="android:colorPrimaryDark">@color/dark_stanford_cardinal</item>
+        <item name="android:colorAccent">@color/stanford_almost_cardinal</item>
+        <item name="android:textColorPrimaryInverse">#ffffff</item>
     </style>
 
-    <style name="StanfordActionBar" parent="@android:style/Widget.Material.Light.ActionBar">
-        <item name="android:background">@color/stanford_cardinal</item>
-        <item name="android:titleTextStyle">@style/StanfordActionBarTitle</item>
-    </style>
-
-    <style name="StanfordActionBarTitle" parent="@android:style/TextAppearance.Material.Widget.ActionBar.Title">
-        <item name="android:foreground">#ffffff</item>
-        <item name="android:textColor">#ffffff</item>
+    <style name="StanfordActionBar" parent="@android:style/ThemeOverlay.Material.Dark.ActionBar">
+        <item name="android:colorAccent">#ffffff</item>
     </style>
 
     <style name="FullscreenTheme" parent="Stanford">
@@ -29,6 +25,7 @@
     </style>
 
     <color name="stanford_cardinal">#8c1515</color>
+    <color name="stanford_almost_cardinal">#6d1010</color>
     <color name="dark_stanford_cardinal">#670000</color>
     <color name="black_overlay">#66000000</color>
 </resources>

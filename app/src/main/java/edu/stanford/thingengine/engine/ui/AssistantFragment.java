@@ -340,6 +340,7 @@ public class AssistantFragment extends Fragment implements AssistantOutput, Assi
         LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
         layoutManager.setStackFromEnd(true);
         layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+        layoutManager.setSmoothScrollbarEnabled(false);
         chatList.setLayoutManager(layoutManager);
 
         getActivity().findViewById(R.id.assistant_progress).setVisibility(View.GONE);

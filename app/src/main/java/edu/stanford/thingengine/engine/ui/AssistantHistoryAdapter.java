@@ -34,6 +34,7 @@ class AssistantHistoryAdapter extends RecyclerView.Adapter<AssistantHistoryAdapt
 
         public AssistantMessageViewHolder(Context ctx) {
             super(new PercentRelativeLayout(ctx));
+            itemView.setPadding(0, 0, 0, 0);
             this.ctx = ctx;
         }
 
@@ -42,6 +43,13 @@ class AssistantHistoryAdapter extends RecyclerView.Adapter<AssistantHistoryAdapt
         }
 
         public abstract void bind(AssistantMessage msg);
+
+        protected void applyBubbleStyle(View view, AssistantMessage.Direction side) {
+            if (side == AssistantMessage.Direction.FROM_SABRINA)
+                view.setBackgroundResource(R.drawable.bubble_sabrina);
+            else if (side == AssistantMessage.Direction.FROM_USER)
+                view.setBackgroundResource(R.drawable.bubble_user);
+        }
 
         protected void setSideAndAlignment(View view, AssistantMessage.Direction side) {
             if (side == cachedSide)
@@ -53,17 +61,16 @@ class AssistantHistoryAdapter extends RecyclerView.Adapter<AssistantHistoryAdapt
 
             PercentRelativeLayout.LayoutParams params = new PercentRelativeLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT);
             params.getPercentLayoutInfo().widthPercent = 0.7f;
+            params.setMargins(0, 0, 0, 0);
 
             if (view instanceof android.widget.Button) {
                 view.setStateListAnimator(null);
                 ((android.widget.Button) view).setTransformationMethod(null);
+                view.setPadding(0, 0, 0, 0);
                 // indent the buttons
                 params.getPercentLayoutInfo().startMarginPercent = 0.05f;
                 params.getPercentLayoutInfo().widthPercent = 0.6f;
-            } else if (side == AssistantMessage.Direction.FROM_SABRINA)
-                view.setBackgroundResource(R.drawable.bubble_sabrina);
-            else if (side == AssistantMessage.Direction.FROM_USER)
-                view.setBackgroundResource(R.drawable.bubble_user);
+            }
 
             if (side == AssistantMessage.Direction.FROM_SABRINA) {
                 params.addRule(RelativeLayout.ALIGN_PARENT_START);
@@ -96,6 +103,7 @@ class AssistantHistoryAdapter extends RecyclerView.Adapter<AssistantHistoryAdapt
                 if (view == null)
                     view = new TextView(ctx);
                 view.setText(((AssistantMessage.Text) msg).msg);
+                applyBubbleStyle(view, msg.direction);
                 setSideAndAlignment(view, msg.direction);
             }
         }
@@ -129,6 +137,7 @@ class AssistantHistoryAdapter extends RecyclerView.Adapter<AssistantHistoryAdapt
                     return;
                 cachedUrl = msg.url;
                 new LoadImageTask(ctx, view).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, msg.url);
+                applyBubbleStyle(view, msg.direction);
                 setSideAndAlignment(view, msg.direction);
             }
         }
