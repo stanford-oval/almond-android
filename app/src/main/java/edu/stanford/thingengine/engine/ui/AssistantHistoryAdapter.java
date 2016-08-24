@@ -29,6 +29,7 @@ class AssistantHistoryAdapter extends RecyclerView.Adapter<AssistantHistoryAdapt
 
     public abstract static class AssistantMessageViewHolder extends RecyclerView.ViewHolder {
         protected final Context ctx;
+        private ImageView sabrinaHead = null;
         private AssistantMessage.Direction cachedSide = null;
 
         public AssistantMessageViewHolder(Context ctx) {
@@ -68,10 +69,13 @@ class AssistantHistoryAdapter extends RecyclerView.Adapter<AssistantHistoryAdapt
 
             if (cachedSide != null)
                 getWrapper().removeView(view);
+            if (sabrinaHead != null)
+                getWrapper().removeView(sabrinaHead);
             cachedSide = side;
 
             PercentRelativeLayout.LayoutParams params = new PercentRelativeLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT);
             params.setMargins(0, 0, 0, 0);
+            params.addRule(RelativeLayout.ALIGN_PARENT_TOP);
 
             if (msg.type.isButton()) {
                 params.getPercentLayoutInfo().widthPercent = 0.6f;
@@ -87,15 +91,31 @@ class AssistantHistoryAdapter extends RecyclerView.Adapter<AssistantHistoryAdapt
                     params.getPercentLayoutInfo().endMarginPercent = 0.05f;
                 }
             } else {
-                params.getPercentLayoutInfo().widthPercent = 0.7f;
                 if (side == AssistantMessage.Direction.FROM_SABRINA) {
-                    params.addRule(RelativeLayout.ALIGN_PARENT_START);
+                    if (sabrinaHead == null) {
+                        sabrinaHead = new ImageView(ctx);
+                        sabrinaHead.setImageResource(R.drawable.sabrina_head);
+                        sabrinaHead.setId(R.id.sabrina_head_bubble);
+                    }
+                    PercentRelativeLayout.LayoutParams headParams = new PercentRelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                    headParams.setMarginStart(16);
+                    headParams.topMargin = 16;
+                    headParams.addRule(RelativeLayout.ALIGN_PARENT_TOP);
+                    headParams.addRule(RelativeLayout.ALIGN_PARENT_START);
+                    getWrapper().addView(sabrinaHead, headParams);
+
+                    params.getPercentLayoutInfo().widthPercent = 0.8f;
+                    params.addRule(RelativeLayout.RIGHT_OF, R.id.sabrina_head_bubble);
                     if (view instanceof TextView) {
                         ((TextView) view).setGravity(Gravity.START);
                         ((TextView) view).setTextIsSelectable(true);
                         view.setTextAlignment(View.TEXT_ALIGNMENT_VIEW_START);
                     }
+                    view.setId(R.id.sabrina_chat_bubble);
+
+
                 } else if (side == AssistantMessage.Direction.FROM_USER) {
+                    params.getPercentLayoutInfo().widthPercent = 0.8f;
                     params.addRule(RelativeLayout.ALIGN_PARENT_END);
                     if (view instanceof TextView) {
                         ((TextView) view).setGravity(Gravity.END);
