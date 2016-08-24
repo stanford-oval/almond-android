@@ -502,12 +502,12 @@ public class AssistantFragment extends Fragment implements AssistantOutput, Assi
         startActivity(intent);
     }
 
-    void onButtonActivated(String json) {
+    void onButtonActivated(String title, String json) {
         ControlBinder control = mEngine.getControl();
         if (control == null)
             return;
 
-        control.getAssistant().handleParsedCommand(json);
+        display(control.getAssistant().handleButton(title, json));
     }
 
     void onYesActivated() {
@@ -515,7 +515,7 @@ public class AssistantFragment extends Fragment implements AssistantOutput, Assi
         if (control == null)
             return;
 
-        control.getAssistant().handleYes();
+        display(control.getAssistant().handleYes());
     }
 
     void onNoActivated() {
@@ -523,15 +523,15 @@ public class AssistantFragment extends Fragment implements AssistantOutput, Assi
         if (control == null)
             return;
 
-        control.getAssistant().handleNo();
+        display(control.getAssistant().handleNo());
     }
 
-    void onChoiceActivated(int idx) {
+    void onChoiceActivated(String title, int idx) {
         ControlBinder control = mEngine.getControl();
         if (control == null)
             return;
 
-        control.getAssistant().handleChoice(idx);
+        display(control.getAssistant().handleChoice(title, idx));
     }
 
     private void onLocationSelected(Place place) {

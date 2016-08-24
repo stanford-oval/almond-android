@@ -119,11 +119,12 @@ public class AssistantDispatcher implements Handler.Callback {
         }).executeOnExecutor(async, command);
 
         AssistantMessage.Text text = new AssistantMessage.Text(AssistantMessage.Direction.FROM_USER, command);
+        history.removeButtons();
         history.add(text);
         return text;
     }
 
-    public void handleParsedCommand(final String json) {
+    private void handleParsedCommand(final String json) {
         (new CommandTask() {
             @Override
             protected void run(String command) {
@@ -149,10 +150,12 @@ public class AssistantDispatcher implements Handler.Callback {
 
     public void handleHelp() {
         handleParsedCommand("{\"special\":\"tt:root.special.help\"}");
+        history.removeButtons();
     }
 
     public void handleTrain() {
         handleParsedCommand("{\"special\":\"tt:root.special.train\"}");
+        history.removeButtons();
     }
 
     public void handleSetting(String name) {
@@ -171,12 +174,22 @@ public class AssistantDispatcher implements Handler.Callback {
         }
     }
 
-    public void handleYes() {
+    public AssistantMessage handleYes() {
         handleParsedCommand("{\"special\":\"tt:root.special.yes\"}");
+
+        AssistantMessage.Text msg = new AssistantMessage.Text(AssistantMessage.Direction.FROM_USER, ctx.getString(R.string.yes));
+        history.removeButtons();
+        history.add(msg);
+        return msg;
     }
 
-    public void handleNo() {
+    public AssistantMessage handleNo() {
         handleParsedCommand("{\"special\":\"tt:root.special.no\"}");
+
+        AssistantMessage.Text msg = new AssistantMessage.Text(AssistantMessage.Direction.FROM_USER, ctx.getString(R.string.no));
+        history.removeButtons();
+        history.add(msg);
+        return msg;
     }
 
 
@@ -193,9 +206,11 @@ public class AssistantDispatcher implements Handler.Callback {
         } catch(JSONException e) {
             Log.e(EngineService.LOG_TAG, "Unexpected json exception while constructing choice JSON", e);
         }
+
+        history.removeButtons();
     }
 
-    public void handleChoice(int idx) {
+    public AssistantMessage handleChoice(String title, int idx) {
         try {
             JSONObject obj = new JSONObject();
             JSONObject inner = new JSONObject();
@@ -207,6 +222,20 @@ public class AssistantDispatcher implements Handler.Callback {
         } catch(JSONException e) {
             Log.e(EngineService.LOG_TAG, "Unexpected json exception while constructing choice JSON", e);
         }
+
+        AssistantMessage.Text msg = new AssistantMessage.Text(AssistantMessage.Direction.FROM_USER, title);
+        history.removeButtons();
+        history.add(msg);
+        return msg;
+    }
+
+    public AssistantMessage handleButton(String title, String json) {
+        handleParsedCommand(json);
+
+        AssistantMessage.Text msg = new AssistantMessage.Text(AssistantMessage.Direction.FROM_USER, title);
+        history.removeButtons();
+        history.add(msg);
+        return msg;
     }
 
     public AssistantMessage handleLocation(Place place) {
@@ -229,6 +258,7 @@ public class AssistantDispatcher implements Handler.Callback {
         }
 
         AssistantMessage.Text loc = new AssistantMessage.Text(AssistantMessage.Direction.FROM_USER, place.getName());
+        history.removeButtons();
         history.add(loc);
         return loc;
     }
@@ -249,6 +279,7 @@ public class AssistantDispatcher implements Handler.Callback {
         }
 
         AssistantMessage.Picture pic = new AssistantMessage.Picture(AssistantMessage.Direction.FROM_USER, url);
+        history.removeButtons();
         history.add(pic);
         return pic;
     }
@@ -270,6 +301,7 @@ public class AssistantDispatcher implements Handler.Callback {
         }
 
         AssistantMessage.Text contact = new AssistantMessage.Text(AssistantMessage.Direction.FROM_USER, displayName);
+        history.removeButtons();
         history.add(contact);
         return contact;
     }

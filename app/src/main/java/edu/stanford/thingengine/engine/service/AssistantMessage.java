@@ -15,7 +15,25 @@ public abstract class AssistantMessage implements Serializable {
         FROM_SABRINA, FROM_USER
     }
     public enum Type {
-        TEXT, PICTURE, RDL, CHOICE, LINK, BUTTON, ASK_SPECIAL
+        TEXT, PICTURE, RDL, CHOICE, LINK, BUTTON, ASK_SPECIAL;
+
+        // true if this is some output from sabrina
+        public boolean isOutput() {
+            return this == TEXT || this == PICTURE;
+        }
+        // true if this is sabrina prompting the user to click something
+        // as a replacement for typing
+        public boolean isInteraction() {
+            return this == CHOICE || this == BUTTON || this == ASK_SPECIAL;
+        }
+        // true if this is a link that opens in another window
+        public boolean isLinK() {
+            return this == RDL || this == LINK;
+        }
+        // true if this is a button or button-like object (Interaction or Link)
+        public boolean isButton() {
+            return this != TEXT && this != PICTURE;
+        }
     };
     public enum AskSpecialType {
         YESNO, LOCATION, PICTURE, PHONE_NUMBER, EMAIL_ADDRESS, ANYTHING, UNKNOWN

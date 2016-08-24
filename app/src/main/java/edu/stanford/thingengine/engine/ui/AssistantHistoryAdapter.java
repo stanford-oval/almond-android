@@ -16,8 +16,7 @@ import android.widget.TextView;
 
 import org.json.JSONException;
 
-import java.util.ArrayList;
-
+import edu.stanford.thingengine.engine.BuildConfig;
 import edu.stanford.thingengine.engine.R;
 import edu.stanford.thingengine.engine.service.AssistantHistoryModel;
 import edu.stanford.thingengine.engine.service.AssistantMessage;
@@ -51,7 +50,19 @@ class AssistantHistoryAdapter extends RecyclerView.Adapter<AssistantHistoryAdapt
                 view.setBackgroundResource(R.drawable.bubble_user);
         }
 
-        protected void setSideAndAlignment(View view, AssistantMessage.Direction side) {
+        protected void setSideAndAlignment(View view, AssistantMessage msg) {
+            AssistantMessage.Direction side = msg.direction;
+
+            // override pickers, multiple choices and buttons
+            if (msg.type.isInteraction()) {
+                if (BuildConfig.DEBUG) {
+                    if (side != AssistantMessage.Direction.FROM_SABRINA)
+                        throw new AssertionError();
+                }
+
+                side = AssistantMessage.Direction.FROM_USER;
+            }
+
             if (side == cachedSide)
                 return;
 
@@ -60,33 +71,41 @@ class AssistantHistoryAdapter extends RecyclerView.Adapter<AssistantHistoryAdapt
             cachedSide = side;
 
             PercentRelativeLayout.LayoutParams params = new PercentRelativeLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT);
-            params.getPercentLayoutInfo().widthPercent = 0.7f;
             params.setMargins(0, 0, 0, 0);
 
-            if (view instanceof android.widget.Button) {
-                ((android.widget.Button) view).setTransformationMethod(null);
-                // indent the buttons
-                params.getPercentLayoutInfo().startMarginPercent = 0.05f;
+            if (msg.type.isButton()) {
                 params.getPercentLayoutInfo().widthPercent = 0.6f;
+                if (view instanceof android.widget.Button)
+                    ((android.widget.Button) view).setTransformationMethod(null);
+
+                // indent the buttons
+                if (side == AssistantMessage.Direction.FROM_SABRINA) {
+                    params.addRule(RelativeLayout.ALIGN_PARENT_START);
+                    params.getPercentLayoutInfo().startMarginPercent = 0.05f;
+                } else {
+                    params.addRule(RelativeLayout.ALIGN_PARENT_END);
+                    params.getPercentLayoutInfo().endMarginPercent = 0.05f;
+                }
+            } else {
+                params.getPercentLayoutInfo().widthPercent = 0.7f;
+                if (side == AssistantMessage.Direction.FROM_SABRINA) {
+                    params.addRule(RelativeLayout.ALIGN_PARENT_START);
+                    if (view instanceof TextView) {
+                        ((TextView) view).setGravity(Gravity.START);
+                        ((TextView) view).setTextIsSelectable(true);
+                        view.setTextAlignment(View.TEXT_ALIGNMENT_VIEW_START);
+                    }
+                } else if (side == AssistantMessage.Direction.FROM_USER) {
+                    params.addRule(RelativeLayout.ALIGN_PARENT_END);
+                    if (view instanceof TextView) {
+                        ((TextView) view).setGravity(Gravity.END);
+                        ((TextView) view).setTextIsSelectable(true);
+                        view.setTextAlignment(View.TEXT_ALIGNMENT_VIEW_END);
+                    }
+                }
             }
 
-            if (side == AssistantMessage.Direction.FROM_SABRINA) {
-                params.addRule(RelativeLayout.ALIGN_PARENT_START);
-                if (view instanceof TextView && !(view instanceof android.widget.Button)) {
-                    ((TextView) view).setGravity(Gravity.START);
-                    ((TextView) view).setTextIsSelectable(true);
-                }
-                getWrapper().addView(view, params);
-                view.setTextAlignment(View.TEXT_ALIGNMENT_VIEW_START);
-            } else if (side == AssistantMessage.Direction.FROM_USER) {
-                params.addRule(RelativeLayout.ALIGN_PARENT_END);
-                if (view instanceof TextView && !(view instanceof android.widget.Button)) {
-                    ((TextView) view).setGravity(Gravity.END);
-                    ((TextView) view).setTextIsSelectable(true);
-                }
-                getWrapper().addView(view, params);
-                view.setTextAlignment(View.TEXT_ALIGNMENT_VIEW_END);
-            }
+            getWrapper().addView(view, params);
         }
 
         public static class Text extends AssistantMessageViewHolder {
@@ -102,7 +121,7 @@ class AssistantHistoryAdapter extends RecyclerView.Adapter<AssistantHistoryAdapt
                     view = new TextView(ctx);
                 view.setText(((AssistantMessage.Text) msg).msg);
                 applyBubbleStyle(view, msg.direction);
-                setSideAndAlignment(view, msg.direction);
+                setSideAndAlignment(view, msg);
             }
         }
 
@@ -136,7 +155,7 @@ class AssistantHistoryAdapter extends RecyclerView.Adapter<AssistantHistoryAdapt
                 cachedUrl = msg.url;
                 new LoadImageTask(ctx, view).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, msg.url);
                 applyBubbleStyle(view, msg.direction);
-                setSideAndAlignment(view, msg.direction);
+                setSideAndAlignment(view, msg);
             }
         }
 
@@ -153,7 +172,7 @@ class AssistantHistoryAdapter extends RecyclerView.Adapter<AssistantHistoryAdapt
             public void bind(AssistantMessage msg) {
                 if (btn == null)
                     btn = new android.widget.Button(ctx);
-                setSideAndAlignment(btn, msg.direction);
+                setSideAndAlignment(btn, msg);
             }
         }
 
@@ -199,7 +218,7 @@ class AssistantHistoryAdapter extends RecyclerView.Adapter<AssistantHistoryAdapt
                 btn.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        owner.onButtonActivated(msg.json);
+                        owner.onButtonActivated(msg.title, msg.json);
                     }
                 });
             }
@@ -237,7 +256,7 @@ class AssistantHistoryAdapter extends RecyclerView.Adapter<AssistantHistoryAdapt
                 btn.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        owner.onChoiceActivated(msg.idx);
+                        owner.onChoiceActivated(msg.title, msg.idx);
                     }
                 });
             }
@@ -261,8 +280,8 @@ class AssistantHistoryAdapter extends RecyclerView.Adapter<AssistantHistoryAdapt
                     yesno.setOrientation(LinearLayout.HORIZONTAL);
                 }
                 LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
-                        LinearLayout.LayoutParams.WRAP_CONTENT,
-                        LinearLayout.LayoutParams.WRAP_CONTENT);
+                        0, LinearLayout.LayoutParams.WRAP_CONTENT);
+                params.weight = 1;
                 if (yesbtn == null) {
                     yesbtn = new android.widget.Button(ctx);
                     yesbtn.setText(R.string.yes);
@@ -289,7 +308,7 @@ class AssistantHistoryAdapter extends RecyclerView.Adapter<AssistantHistoryAdapt
                     yesno.addView(nobtn);
                 }
 
-                setSideAndAlignment(yesno, msg.direction);
+                setSideAndAlignment(yesno, msg);
             }
         }
 
@@ -351,7 +370,6 @@ class AssistantHistoryAdapter extends RecyclerView.Adapter<AssistantHistoryAdapt
         }
     }
 
-    private final ArrayList<AssistantMessage> filteredHistory = new ArrayList<>();
     private Context ctx;
     private AssistantHistoryModel history;
 
@@ -361,11 +379,13 @@ class AssistantHistoryAdapter extends RecyclerView.Adapter<AssistantHistoryAdapt
 
     @Override
     public int getItemCount() {
-        return filteredHistory.size();
+        if (history == null)
+            return 0;
+        return history.size();
     }
 
     public AssistantMessage getItem(int position) {
-        return filteredHistory.get(position);
+        return history.get(position);
     }
 
     @Override
@@ -442,28 +462,18 @@ class AssistantHistoryAdapter extends RecyclerView.Adapter<AssistantHistoryAdapt
         }
     }
 
-    private boolean isFiltered(AssistantMessage msg) {
-        if (msg.type == AssistantMessage.Type.ASK_SPECIAL) {
-            AssistantMessage.AskSpecial askSpecial = (AssistantMessage.AskSpecial) msg;
-            if (askSpecial.what == AssistantMessage.AskSpecialType.UNKNOWN)
-                return true;
-        }
-
-        return false;
+    @Override
+    public void onAdded(AssistantMessage msg, int idx) {
+        notifyItemInserted(idx);
     }
 
     @Override
-    public void onAdded(AssistantMessage msg) {
-        if (isFiltered(msg))
-            return;
-
-        filteredHistory.add(msg);
-        notifyItemInserted(filteredHistory.size() - 1);
+    public void onRemoved(AssistantMessage msg, int idx) {
+        notifyItemRemoved(idx);
     }
 
     @Override
     public void onClear() {
-        filteredHistory.clear();
         notifyDataSetChanged();
     }
 
@@ -485,13 +495,6 @@ class AssistantHistoryAdapter extends RecyclerView.Adapter<AssistantHistoryAdapt
             return;
         history.addListener(this);
 
-        filteredHistory.clear();
-
-        for (AssistantMessage msg : history) {
-            if (isFiltered(msg))
-                continue;
-            filteredHistory.add(msg);
-        }
         notifyDataSetChanged();
     }
 }
