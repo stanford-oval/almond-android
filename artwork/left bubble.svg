@@ -9,9 +9,9 @@
    xmlns="http://www.w3.org/2000/svg"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   width="79.5"
-   height="34"
-   viewBox="0 0 79.500001 34.000001"
+   width="44.5"
+   height="28"
+   viewBox="0 0 44.500001 28.000001"
    id="svg2"
    version="1.1"
    inkscape:version="0.91 r13725"
@@ -20,7 +20,15 @@
    inkscape:export-xdpi="600"
    inkscape:export-ydpi="600">
   <defs
-     id="defs4" />
+     id="defs4">
+    <inkscape:perspective
+       sodipodi:type="inkscape:persp3d"
+       inkscape:vp_x="0 : 17 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_z="79.500002 : 17 : 1"
+       inkscape:persp3d-origin="39.75 : 11.333334 : 1"
+       id="perspective4719" />
+  </defs>
   <sodipodi:namedview
      id="base"
      pagecolor="#ffffff"
@@ -28,9 +36,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="13.858029"
-     inkscape:cx="43.392099"
-     inkscape:cy="21.027193"
+     inkscape:zoom="19.598213"
+     inkscape:cx="19.431414"
+     inkscape:cy="16.248384"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -57,29 +65,30 @@
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
      id="layer1"
-     transform="translate(0,-1018.3622)">
+     transform="translate(0,-1024.3622)">
     <rect
        style="fill:#6d1010;fill-opacity:1;stroke:none;stroke-width:1;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        id="rect4136"
-       width="60"
-       height="26"
+       width="25"
+       height="20"
        x="13"
-       y="1022.3622"
-       rx="9.6751108"
-       ry="9.8020926" />
+       y="1028.3622"
+       rx="8"
+       ry="8" />
     <rect
        style="fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:1;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        id="rect4136-3"
-       width="60"
-       height="26"
+       width="25"
+       height="20.200001"
        x="15.5"
-       y="1022.3622"
-       rx="9.9266043"
-       ry="9.8020916" />
+       y="1028.2622"
+       rx="8"
+       ry="8.0799999" />
     <path
        style="fill:#6d1010;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       d="m 15,1030.1479 0,8.2143 -11,-4.1071 z"
+       d="m 21.8,1028.3622 -2.800001,1 -2.999999,3 -2,4 -12,-8 z"
        id="path4157"
-       inkscape:connector-curvature="0" />
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="cccccc" />
   </g>
 </svg>

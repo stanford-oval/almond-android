@@ -5,6 +5,7 @@
         <item name="android:colorPrimary">@color/stanford_cardinal</item>
         <item name="android:colorPrimaryDark">@color/dark_stanford_cardinal</item>
         <item name="android:colorAccent">@color/stanford_almost_cardinal</item>
+        <item name="android:colorBackground">@color/stanford_cool_gray</item>
         <item name="android:textColorPrimaryInverse">#ffffff</item>
     </style>
 
@@ -27,5 +28,6 @@
     <color name="stanford_cardinal">#8c1515</color>
     <color name="stanford_almost_cardinal">#6d1010</color>
     <color name="dark_stanford_cardinal">#670000</color>
+    <color name="stanford_cool_gray">#DAD7CB</color>
     <color name="black_overlay">#66000000</color>
 </resources>
