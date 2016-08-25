@@ -29,7 +29,7 @@ public abstract class AssistantMessage implements Serializable {
             return this == CHOICE || this == BUTTON || this == ASK_SPECIAL;
         }
         // true if this is a link that opens in another window
-        public boolean isLinK() {
+        public boolean isLink() {
             return this == RDL || this == LINK;
         }
         // true if this is a button or button-like object (Interaction or Link)
@@ -38,10 +38,13 @@ public abstract class AssistantMessage implements Serializable {
         }
     };
     public enum AskSpecialType {
-        YESNO, LOCATION, PICTURE, PHONE_NUMBER, EMAIL_ADDRESS, GENERIC, NULL, UNKNOWN;
+        YESNO, LOCATION, PICTURE, PHONE_NUMBER, EMAIL_ADDRESS, NUMBER, DATE, TIME, GENERIC, NULL, UNKNOWN;
 
         public boolean isChooser() {
             switch (this) {
+                case NUMBER:
+                case DATE:
+                case TIME:
                 case GENERIC:
                 case NULL:
                 case UNKNOWN:

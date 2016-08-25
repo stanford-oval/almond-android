@@ -32,7 +32,6 @@
         android:minLines="1"
         android:maxLines="1"
         android:enabled="true"
-        android:inputType="text"
         android:imeOptions="actionSend"
         android:singleLine="true"
         android:focusable="true"

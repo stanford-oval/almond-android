@@ -46,6 +46,7 @@ public class AssistantDispatcher implements Handler.Callback {
 
     private long lastNotificationTime = -1;
     private final List<AssistantMessage> notificationMessages = new ArrayList<>();
+    private AssistantMessage.AskSpecial asking;
     private AssistantOutput output;
     private AssistantLifecycleCallbacks callbacks;
 
@@ -64,6 +65,9 @@ public class AssistantDispatcher implements Handler.Callback {
 
             NotificationManager mgr = (NotificationManager) ctx.getSystemService(Context.NOTIFICATION_SERVICE);
             mgr.cancel(NOTIFICATION_ID);
+
+            if (asking != null)
+                output.display(asking);
         }
     }
 
@@ -326,6 +330,9 @@ public class AssistantDispatcher implements Handler.Callback {
 
         AssistantMessage msg = (AssistantMessage) m.obj;
         history.add(msg);
+
+        if (msg instanceof AssistantMessage.AskSpecial)
+            asking = (AssistantMessage.AskSpecial)msg;
 
         if (!maybeInformUI(msg))
             maybeNotify(msg);

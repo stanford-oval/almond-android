@@ -18,6 +18,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.util.ArrayMap;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.InputType;
 import android.util.Log;
 import android.util.Pair;
 import android.view.KeyEvent;
@@ -246,12 +247,40 @@ public class AssistantFragment extends Fragment implements AssistantOutput, Assi
         getActivity().findViewById(R.id.btn_never_mind).setVisibility(visible ? View.VISIBLE : View.GONE);
     }
 
+    private void syncKeyboardType(AssistantMessage.AskSpecial msg) {
+        int type;
+
+        switch (msg.what) {
+            case NUMBER:
+                type = InputType.TYPE_CLASS_NUMBER;
+                break;
+            case EMAIL_ADDRESS:
+                type = InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS;
+                break;
+            case PHONE_NUMBER:
+                type = InputType.TYPE_CLASS_PHONE;
+                break;
+            case DATE:
+                type = InputType.TYPE_CLASS_DATETIME;
+                break;
+            case TIME:
+                type = InputType.TYPE_CLASS_DATETIME | InputType.TYPE_DATETIME_VARIATION_TIME;
+                break;
+            default:
+                type = InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_AUTO_CORRECT;
+                break;
+        }
+        ((TextView)getActivity().findViewById(R.id.assistant_input)).setInputType(type);
+    }
+
     public void display(AssistantMessage msg) {
         if (msg.direction == AssistantMessage.Direction.FROM_SABRINA &&
                 msg.type == AssistantMessage.Type.TEXT)
             mSpeechHandler.say(msg.toText());
-        if (msg.type == AssistantMessage.Type.ASK_SPECIAL)
-            syncNeverMindButton((AssistantMessage.AskSpecial)msg);
+        if (msg.type == AssistantMessage.Type.ASK_SPECIAL) {
+            syncNeverMindButton((AssistantMessage.AskSpecial) msg);
+            syncKeyboardType((AssistantMessage.AskSpecial) msg);
+        }
 
         scheduleScroll();
     }
@@ -332,6 +361,7 @@ public class AssistantFragment extends Fragment implements AssistantOutput, Assi
                 }
             }
         });
+        input.setInputType(InputType.TYPE_CLASS_TEXT|InputType.TYPE_TEXT_FLAG_AUTO_CORRECT);
 
         View voicebtn = getActivity().findViewById(R.id.btn_assistant_voice);
         voicebtn.setOnClickListener(new View.OnClickListener() {
