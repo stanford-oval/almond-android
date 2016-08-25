@@ -261,7 +261,7 @@ public class FullscreenPictureActivity extends Activity {
         url = intent.getData();
         if (url == null)
             return;
-        new LoadImageTask(this, (ImageView) findViewById(R.id.fullscreen_content)).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, url.toString());
+        LoadImageTask.load(this, (ImageView) findViewById(R.id.fullscreen_content), url.toString());
     }
 
     @Override

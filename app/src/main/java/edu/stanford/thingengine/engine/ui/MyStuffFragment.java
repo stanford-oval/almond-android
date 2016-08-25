@@ -99,7 +99,7 @@ public class MyStuffFragment extends Fragment {
 
             TextView name = (TextView)secondChild;
 
-            new LoadImageTask(getActivity(), icon).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, getIcon(device));
+            LoadImageTask.load(getActivity(), icon, getIcon(device));
             name.setText(device.name);
             return true;
         }
@@ -128,7 +128,7 @@ public class MyStuffFragment extends Fragment {
             textParams.gravity = Gravity.CENTER_HORIZONTAL;
             linearLayout.addView(text, textParams);
 
-            new LoadImageTask(getActivity(), icon).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, getIcon(device));
+            LoadImageTask.load(getActivity(), icon, getIcon(device));
             text.setText(device.name);
 
             return linearLayout;

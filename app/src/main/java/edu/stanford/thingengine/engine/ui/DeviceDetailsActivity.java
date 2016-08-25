@@ -210,7 +210,7 @@ public class DeviceDetailsActivity extends Activity {
         setTitle(mDeviceInfo.name);
 
         ImageView icon = (ImageView) findViewById(R.id.device_icon);
-        new LoadImageTask(this, icon).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, Config.S3_CLOUDFRONT_HOST + "/icons/" + mDeviceInfo.kind + ".png");
+        LoadImageTask.load(this, icon, Config.S3_CLOUDFRONT_HOST + "/icons/" + mDeviceInfo.kind + ".png");
 
         TextView description = (TextView) findViewById(R.id.device_description);
         description.setText(mDeviceInfo.description);

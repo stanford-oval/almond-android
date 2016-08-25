@@ -19,9 +19,21 @@ public class LoadImageTask extends AsyncTask<String, Void, Drawable> {
     private final Context ctx;
     private final ImageView view;
 
-    public LoadImageTask(Context ctx, ImageView view) {
+    private static final GenericObjectCache<String, Drawable> cache = new GenericObjectCache<>(16);
+
+    private LoadImageTask(Context ctx, ImageView view) {
         this.ctx = ctx;
         this.view = view;
+    }
+
+    public static void load(Context ctx, ImageView view, String url) {
+        Drawable drawable = cache.hit(url);
+        if (drawable != null) {
+            view.setImageDrawable(drawable);
+            return;
+        }
+
+        new LoadImageTask(ctx, view).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, url);
     }
 
     @Override
@@ -30,7 +42,9 @@ public class LoadImageTask extends AsyncTask<String, Void, Drawable> {
             Pair<InputStream, String> pair = ContentUtils.readUrl(ctx, params[0]);
             try (InputStream stream = pair.first) {
                 String mimeType = pair.second;
-                return Drawable.createFromStream(stream, "src");
+                Drawable drawable = Drawable.createFromStream(stream, "src");
+                cache.store(params[0], drawable, 1000*3600);
+                return drawable;
             }
         } catch (IOException | OutOfMemoryError | SecurityException e) {
             Log.e(MainActivity.LOG_TAG, "Failed to retrieve image from server", e);
