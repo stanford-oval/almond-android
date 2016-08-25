@@ -38,7 +38,18 @@ public abstract class AssistantMessage implements Serializable {
         }
     };
     public enum AskSpecialType {
-        YESNO, LOCATION, PICTURE, PHONE_NUMBER, EMAIL_ADDRESS, ANYTHING, UNKNOWN
+        YESNO, LOCATION, PICTURE, PHONE_NUMBER, EMAIL_ADDRESS, GENERIC, NULL, UNKNOWN;
+
+        public boolean isChooser() {
+            switch (this) {
+                case GENERIC:
+                case NULL:
+                case UNKNOWN:
+                    return false;
+                default:
+                    return true;
+            }
+        }
     }
     public final Direction direction;
     public final Type type;
@@ -49,6 +60,10 @@ public abstract class AssistantMessage implements Serializable {
         this.direction = direction;
         this.type = type;
         this.icon = icon;
+    }
+
+    public boolean shouldNotify() {
+        return true;
     }
 
     public abstract CharSequence toText();
@@ -169,6 +184,11 @@ public abstract class AssistantMessage implements Serializable {
         public AskSpecial(Direction dir, AskSpecialType what) {
             super(dir, Type.ASK_SPECIAL, null);
             this.what = what;
+        }
+
+        @Override
+        public boolean shouldNotify() {
+            return what.isChooser();
         }
 
         @Override

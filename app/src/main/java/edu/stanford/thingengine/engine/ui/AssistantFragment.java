@@ -241,10 +241,17 @@ public class AssistantFragment extends Fragment implements AssistantOutput, Assi
         return fragment;
     }
 
+    private void syncNeverMindButton(AssistantMessage.AskSpecial msg) {
+        boolean visible = msg.what != AssistantMessage.AskSpecialType.NULL;
+        getActivity().findViewById(R.id.btn_never_mind).setVisibility(visible ? View.VISIBLE : View.GONE);
+    }
+
     public void display(AssistantMessage msg) {
         if (msg.direction == AssistantMessage.Direction.FROM_SABRINA &&
                 msg.type == AssistantMessage.Type.TEXT)
             mSpeechHandler.say(msg.toText());
+        if (msg.type == AssistantMessage.Type.ASK_SPECIAL)
+            syncNeverMindButton((AssistantMessage.AskSpecial)msg);
 
         scheduleScroll();
     }
@@ -344,6 +351,19 @@ public class AssistantFragment extends Fragment implements AssistantOutput, Assi
         chatList.setLayoutManager(layoutManager);
 
         getActivity().findViewById(R.id.assistant_progress).setVisibility(View.GONE);
+
+        View nevermind = getActivity().findViewById(R.id.btn_never_mind);
+        nevermind.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ControlBinder control = mEngine.getControl();
+                if (control == null)
+                    return;
+
+                display(control.getAssistant().handleNeverMind());
+            }
+        });
+        nevermind.setVisibility(View.GONE);
 
         mSpeechHandler.onCreate();
     }

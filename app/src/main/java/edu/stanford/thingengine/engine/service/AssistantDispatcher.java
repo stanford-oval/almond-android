@@ -174,6 +174,15 @@ public class AssistantDispatcher implements Handler.Callback {
         }
     }
 
+    public AssistantMessage handleNeverMind() {
+        handleParsedCommand("{\"special\":\"tt:root.special.nevermind\"}");
+
+        AssistantMessage msg = new AssistantMessage.Text(AssistantMessage.Direction.FROM_USER, null, ctx.getString(R.string.never_mind));
+        history.removeButtons();
+        history.add(msg);
+        return msg;
+    }
+
     public AssistantMessage handleYes() {
         handleParsedCommand("{\"special\":\"tt:root.special.yes\"}");
 
@@ -325,6 +334,9 @@ public class AssistantDispatcher implements Handler.Callback {
     }
 
     private void maybeNotify(AssistantMessage msg) {
+        if (!msg.shouldNotify())
+            return;
+
         notificationMessages.add(msg);
 
         Notification.Builder builder = new Notification.Builder(ctx);

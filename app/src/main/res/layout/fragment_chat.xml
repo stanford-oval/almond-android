@@ -1,4 +1,4 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -10,7 +10,6 @@
     <android.support.v7.widget.RecyclerView
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"
         android:id="@+id/chat_list"
         android:paddingBottom="@dimen/activity_vertical_margin"
         android:paddingTop="@dimen/activity_vertical_margin"
@@ -18,43 +17,65 @@
         android:transcriptMode="alwaysScroll"
         android:stackFromBottom="true"
         android:scrollingCache="true"
-        android:smoothScrollbar="false" />
+        android:smoothScrollbar="false"
+        android:layout_alignParentStart="false"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
+        android:layout_above="@+id/assistant_input" />
 
-    <LinearLayout
-        android:orientation="horizontal"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
 
-        <EditText
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:id="@+id/assistant_input"
-            android:minLines="1"
-            android:maxLines="1"
-            android:enabled="true"
-            android:inputType="text"
-            android:imeOptions="actionSend"
-            android:singleLine="true"
-            android:focusable="true"
-            android:focusableInTouchMode="true"
-            android:layout_weight="1" />
+    <EditText
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:id="@+id/assistant_input"
+        android:minLines="1"
+        android:maxLines="1"
+        android:enabled="true"
+        android:inputType="text"
+        android:imeOptions="actionSend"
+        android:singleLine="true"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_toStartOf="@+id/assistant_progress"
+        android:layout_alignTop="@+id/btn_assistant_voice"
+        android:layout_alignParentStart="true" />
 
-        <ProgressBar
-            style="@android:style/Widget.ProgressBar.Small"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:id="@+id/assistant_progress"
-            android:indeterminate="false" />
+    <ProgressBar
+        style="@android:style/Widget.ProgressBar.Small"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/assistant_progress"
+        android:indeterminate="false"
+        android:layout_toStartOf="@+id/btn_never_mind"
+        android:layout_alignTop="@+id/btn_assistant_voice"
+        android:layout_alignParentBottom="true" />
 
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="0"
-            android:id="@+id/btn_assistant_voice"
-            android:src="@android:drawable/ic_btn_speak_now"
-            android:clickable="true"
-            android:padding="5dp"
-            android:layout_gravity="center" />
-    </LinearLayout>
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/btn_never_mind"
+        android:layout_alignParentEnd="false"
+        android:contentDescription="@string/btn_never_mind"
+        android:layout_alignTop="@+id/btn_assistant_voice"
+        android:layout_alignParentBottom="true"
+        android:layout_toStartOf="@+id/btn_assistant_voice"
+        android:src="@android:drawable/ic_menu_revert" />
 
-</LinearLayout>
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/btn_assistant_voice"
+        android:src="@android:drawable/ic_btn_speak_now"
+        android:clickable="true"
+        android:padding="5dp"
+        android:layout_gravity="center"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:contentDescription="@string/btn_assistant_voice" />
+
+
+
+</RelativeLayout>

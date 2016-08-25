@@ -3,7 +3,7 @@
     <string name="title_activity_web_ui">Sabrina</string>
 
     <string name="action_settings">Settings</string>
-    <string name="action_clear_chat">Reset</string>
+    <string name="action_clear_chat">Clear history</string>
     <string name="title_activity_main">Sabrina</string>
 
     <string name="chat_tab">Chat</string>
@@ -46,4 +46,7 @@
     <string name="toast_downloaded">Saved to gallery</string>
     <string name="toast_download_failed">Failed to download picture</string>
     <string name="download_permission_needed">Sabrina must be able to write to the SD card to download this picture</string>
+    <string name="btn_never_mind">Start over</string>
+    <string name="btn_assistant_voice">Use voice</string>
+    <string name="never_mind">Never mind</string>
 </resources>

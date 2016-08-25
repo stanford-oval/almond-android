@@ -35,11 +35,10 @@ public class AssistantHistoryModel extends AbstractList<AssistantMessage> {
     private boolean isFiltered(AssistantMessage msg) {
         if (msg.type == AssistantMessage.Type.ASK_SPECIAL) {
             AssistantMessage.AskSpecial askSpecial = (AssistantMessage.AskSpecial) msg;
-            if (askSpecial.what == AssistantMessage.AskSpecialType.UNKNOWN)
-                return true;
+            return !askSpecial.what.isChooser();
+        } else {
+            return false;
         }
-
-        return false;
     }
 
     public boolean add(AssistantMessage msg) {

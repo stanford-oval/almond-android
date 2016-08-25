@@ -490,12 +490,8 @@ class AssistantHistoryAdapter extends RecyclerView.Adapter<AssistantHistoryAdapt
                     case EMAIL_ADDRESS:
                         return new AssistantMessageViewHolder.ChooseContact(getContext(), fragment);
 
-                    case UNKNOWN:
-                    case ANYTHING:
-                        // we don't recognize this, it should have been filtered by isFiltered()
-                        throw new RuntimeException();
-
                     default:
+                        // we don't recognize this, it should have been filtered by isFiltered()
                         throw new RuntimeException();
                 }
             default:

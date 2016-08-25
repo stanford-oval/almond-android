@@ -124,10 +124,14 @@ public class AssistantAPI extends JavascriptAPI implements AssistantCommandHandl
 
     private void sendAskSpecial(String what) {
         AssistantMessage.AskSpecialType type;
-        try {
-            type = AssistantMessage.AskSpecialType.valueOf(what.toUpperCase());
-        } catch(IllegalArgumentException e) {
-            type = AssistantMessage.AskSpecialType.UNKNOWN;
+        if (what == null) {
+            type = AssistantMessage.AskSpecialType.NULL;
+        } else {
+            try {
+                type = AssistantMessage.AskSpecialType.valueOf(what.toUpperCase());
+            } catch (IllegalArgumentException e) {
+                type = AssistantMessage.AskSpecialType.UNKNOWN;
+            }
         }
         mService.getAssistant().dispatch(new AssistantMessage.AskSpecial(AssistantMessage.Direction.FROM_SABRINA, type));
     }
