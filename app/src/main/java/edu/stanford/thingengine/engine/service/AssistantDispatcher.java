@@ -353,8 +353,8 @@ public class AssistantDispatcher implements Handler.Callback {
         builder.setPublicVersion(new Notification.Builder(ctx)
                 .setSmallIcon(R.drawable.sabrina)
                 .setAutoCancel(true)
-                .setContentTitle("Sabrina says something")
-                .setContentText("Content hidden for privacy")
+                .setContentTitle(ctx.getString(R.string.sabrina_says_something))
+                .setContentText(ctx.getString(R.string.content_hidden))
                 .build()
         );
         builder.setLights(Color.WHITE, 500, 500);
@@ -380,18 +380,18 @@ public class AssistantDispatcher implements Handler.Callback {
 
         switch (msg.type) {
             case TEXT:
-                builder.setContentTitle("Sabrina Says");
+                builder.setContentTitle(ctx.getString(R.string.sabrina_says));
                 break;
             case PICTURE:
-                builder.setContentTitle("Sabrina Sends a Picture");
+                builder.setContentTitle(ctx.getString(R.string.sabrina_sends_picture));
                 break;
             case CHOICE:
             case BUTTON:
-                builder.setContentTitle("Sabrina Sends a Button");
+                builder.setContentTitle(ctx.getString(R.string.sabrina_sends_button));
                 break;
             case RDL:
             case LINK:
-                builder.setContentTitle("Sabrina Sends a Link");
+                builder.setContentTitle(ctx.getString(R.string.sabrina_sends_link));
                 break;
         }
         builder.setContentText(msg.toText());
@@ -404,7 +404,7 @@ public class AssistantDispatcher implements Handler.Callback {
                 body.append(msg2.toText());
             }
             builder.setStyle(new Notification.BigTextStyle()
-                    .setSummaryText("Sabrina Says...")
+                    .setSummaryText(ctx.getString(R.string.sabrina_says_dotdotdot))
                     .bigText(body));
         }
 

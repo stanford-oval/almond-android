@@ -49,4 +49,11 @@
     <string name="btn_never_mind">Start over</string>
     <string name="btn_assistant_voice">Use voice</string>
     <string name="never_mind">Never mind</string>
+    <string name="sabrina_says_something">Sabrina says something</string>
+    <string name="content_hidden">Content hidden for privacy</string>
+    <string name="sabrina_says">Sabrina says</string>
+    <string name="sabrina_sends_picture">Sabrina sends a picture</string>
+    <string name="sabrina_sends_button">Sabrina sends a button</string>
+    <string name="sabrina_sends_link">Sabrina sends a link</string>
+    <string name="sabrina_says_dotdotdot">Sabrina says&#8230;</string>
 </resources>
