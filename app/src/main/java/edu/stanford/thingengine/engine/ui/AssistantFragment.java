@@ -260,12 +260,6 @@ public class AssistantFragment extends Fragment implements AssistantOutput, Assi
             case PHONE_NUMBER:
                 type = InputType.TYPE_CLASS_PHONE;
                 break;
-            case DATE:
-                type = InputType.TYPE_CLASS_DATETIME;
-                break;
-            case TIME:
-                type = InputType.TYPE_CLASS_DATETIME | InputType.TYPE_DATETIME_VARIATION_TIME;
-                break;
             default:
                 type = InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_AUTO_CORRECT;
                 break;
