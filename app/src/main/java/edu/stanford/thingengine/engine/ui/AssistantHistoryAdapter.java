@@ -2,7 +2,7 @@ package edu.stanford.thingengine.engine.ui;
 
 import android.content.Context;
 import android.graphics.Color;
-import android.os.AsyncTask;
+import android.graphics.drawable.Drawable;
 import android.support.percent.PercentRelativeLayout;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -17,6 +17,7 @@ import android.widget.TextView;
 import org.json.JSONException;
 
 import edu.stanford.thingengine.engine.BuildConfig;
+import edu.stanford.thingengine.engine.Config;
 import edu.stanford.thingengine.engine.R;
 import edu.stanford.thingengine.engine.service.AssistantHistoryModel;
 import edu.stanford.thingengine.engine.service.AssistantMessage;
@@ -31,6 +32,14 @@ class AssistantHistoryAdapter extends RecyclerView.Adapter<AssistantHistoryAdapt
         protected final Context ctx;
         private ImageView sabrinaHead = null;
         private AssistantMessage.Direction cachedSide = null;
+
+        private static Drawable sabrinaHeadBubble;
+
+        private static Drawable getSabrinaHeadBubble(Context ctx) {
+            if (sabrinaHeadBubble != null)
+                return sabrinaHeadBubble;
+            return sabrinaHeadBubble = ctx.getDrawable(R.drawable.sabrina_head);
+        }
 
         public AssistantMessageViewHolder(Context ctx) {
             super(new PercentRelativeLayout(ctx));
@@ -49,6 +58,16 @@ class AssistantHistoryAdapter extends RecyclerView.Adapter<AssistantHistoryAdapt
                 view.setBackgroundResource(R.drawable.bubble_sabrina);
             else if (side == AssistantMessage.Direction.FROM_USER)
                 view.setBackgroundResource(R.drawable.bubble_user);
+        }
+
+        protected void setIcon(AssistantMessage msg) {
+            if (sabrinaHead == null)
+                return;
+
+            if (msg.icon == null)
+                sabrinaHead.setImageDrawable(getSabrinaHeadBubble(ctx));
+            else
+                LoadImageTask.load(ctx, sabrinaHead, Config.S3_CLOUDFRONT_HOST + "/icons/" + msg.icon + ".png");
         }
 
         protected void setSideAndAlignment(View view, AssistantMessage msg) {
@@ -94,7 +113,6 @@ class AssistantHistoryAdapter extends RecyclerView.Adapter<AssistantHistoryAdapt
                 if (side == AssistantMessage.Direction.FROM_SABRINA) {
                     if (sabrinaHead == null) {
                         sabrinaHead = new ImageView(ctx);
-                        sabrinaHead.setImageResource(R.drawable.sabrina_head);
                         sabrinaHead.setId(R.id.sabrina_head_bubble);
                     }
                     PercentRelativeLayout.LayoutParams headParams = new PercentRelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -142,6 +160,7 @@ class AssistantHistoryAdapter extends RecyclerView.Adapter<AssistantHistoryAdapt
                 view.setText(((AssistantMessage.Text) msg).msg);
                 applyBubbleStyle(view, msg.direction);
                 setSideAndAlignment(view, msg);
+                setIcon(msg);
             }
         }
 
@@ -170,12 +189,11 @@ class AssistantHistoryAdapter extends RecyclerView.Adapter<AssistantHistoryAdapt
                         owner.showPictureFullscreen(msg.url);
                     }
                 });
-                if (cachedUrl != null && cachedUrl.equals(msg.url))
-                    return;
                 cachedUrl = msg.url;
-                new LoadImageTask(ctx, view).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, msg.url);
+                LoadImageTask.load(ctx, view, msg.url);
                 applyBubbleStyle(view, msg.direction);
                 setSideAndAlignment(view, msg);
+                setIcon(msg);
             }
         }
 
@@ -193,6 +211,7 @@ class AssistantHistoryAdapter extends RecyclerView.Adapter<AssistantHistoryAdapt
                 if (btn == null)
                     btn = new android.widget.Button(ctx);
                 setSideAndAlignment(btn, msg);
+                setIcon(msg);
             }
         }
 
@@ -329,6 +348,7 @@ class AssistantHistoryAdapter extends RecyclerView.Adapter<AssistantHistoryAdapt
                 }
 
                 setSideAndAlignment(yesno, msg);
+                setIcon(msg);
             }
         }
 
@@ -395,6 +415,7 @@ class AssistantHistoryAdapter extends RecyclerView.Adapter<AssistantHistoryAdapt
 
     public AssistantHistoryAdapter(AssistantFragment fragment) {
         this.fragment = fragment;
+        setHasStableIds(false);
     }
 
     @Override

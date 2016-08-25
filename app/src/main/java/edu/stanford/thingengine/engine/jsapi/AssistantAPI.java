@@ -25,7 +25,7 @@ public class AssistantAPI extends JavascriptAPI implements AssistantCommandHandl
         registerSync("send", new GenericCall() {
             @Override
             public Object run(Object... args) throws Exception {
-                send((String)args[0]);
+                send((String)args[0], (String)args[1]);
                 return null;
             }
         });
@@ -33,7 +33,7 @@ public class AssistantAPI extends JavascriptAPI implements AssistantCommandHandl
         registerSync("sendPicture", new GenericCall() {
             @Override
             public Object run(Object... args) throws Exception {
-                sendPicture((String)args[0]);
+                sendPicture((String)args[0], (String)args[1]);
                 return null;
             }
         });
@@ -42,7 +42,7 @@ public class AssistantAPI extends JavascriptAPI implements AssistantCommandHandl
             @Override
             public Object run(Object... args) throws Exception {
                 try {
-                    sendRDL((JSONObject) ((new JSONTokener((String) args[0])).nextValue()));
+                    sendRDL((JSONObject) ((new JSONTokener((String) args[0])).nextValue()), (String)args[1]);
                 } catch (ClassCastException | JSONException e) {
                     Log.e(EngineService.LOG_TAG, "Unexpected exception marshalling sendRDL", e);
                 }
@@ -98,16 +98,16 @@ public class AssistantAPI extends JavascriptAPI implements AssistantCommandHandl
         invokeAsync("onhandleparsedcommand", json);
     }
 
-    private void send(String text) {
-        mService.getAssistant().dispatch(new AssistantMessage.Text(AssistantMessage.Direction.FROM_SABRINA, text));
+    private void send(String text, String icon) {
+        mService.getAssistant().dispatch(new AssistantMessage.Text(AssistantMessage.Direction.FROM_SABRINA, icon, text));
     }
 
-    private void sendPicture(String url) {
-        mService.getAssistant().dispatch(new AssistantMessage.Picture(AssistantMessage.Direction.FROM_SABRINA, url));
+    private void sendPicture(String url, String icon) {
+        mService.getAssistant().dispatch(new AssistantMessage.Picture(AssistantMessage.Direction.FROM_SABRINA, icon, url));
     }
 
-    private void sendRDL(JSONObject rdl) {
-        mService.getAssistant().dispatch(new AssistantMessage.RDL(AssistantMessage.Direction.FROM_SABRINA, rdl));
+    private void sendRDL(JSONObject rdl, String icon) {
+        mService.getAssistant().dispatch(new AssistantMessage.RDL(AssistantMessage.Direction.FROM_SABRINA, icon, rdl));
     }
 
     private void sendChoice(int idx, String what, String title, String text) {

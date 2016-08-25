@@ -118,7 +118,7 @@ public class AssistantDispatcher implements Handler.Callback {
             }
         }).executeOnExecutor(async, command);
 
-        AssistantMessage.Text text = new AssistantMessage.Text(AssistantMessage.Direction.FROM_USER, command);
+        AssistantMessage.Text text = new AssistantMessage.Text(AssistantMessage.Direction.FROM_USER, null, command);
         history.removeButtons();
         history.add(text);
         return text;
@@ -177,7 +177,7 @@ public class AssistantDispatcher implements Handler.Callback {
     public AssistantMessage handleYes() {
         handleParsedCommand("{\"special\":\"tt:root.special.yes\"}");
 
-        AssistantMessage.Text msg = new AssistantMessage.Text(AssistantMessage.Direction.FROM_USER, ctx.getString(R.string.yes));
+        AssistantMessage.Text msg = new AssistantMessage.Text(AssistantMessage.Direction.FROM_USER, null, ctx.getString(R.string.yes));
         history.removeButtons();
         history.add(msg);
         return msg;
@@ -186,7 +186,7 @@ public class AssistantDispatcher implements Handler.Callback {
     public AssistantMessage handleNo() {
         handleParsedCommand("{\"special\":\"tt:root.special.no\"}");
 
-        AssistantMessage.Text msg = new AssistantMessage.Text(AssistantMessage.Direction.FROM_USER, ctx.getString(R.string.no));
+        AssistantMessage.Text msg = new AssistantMessage.Text(AssistantMessage.Direction.FROM_USER, null, ctx.getString(R.string.no));
         history.removeButtons();
         history.add(msg);
         return msg;
@@ -223,7 +223,7 @@ public class AssistantDispatcher implements Handler.Callback {
             Log.e(EngineService.LOG_TAG, "Unexpected json exception while constructing choice JSON", e);
         }
 
-        AssistantMessage.Text msg = new AssistantMessage.Text(AssistantMessage.Direction.FROM_USER, title);
+        AssistantMessage.Text msg = new AssistantMessage.Text(AssistantMessage.Direction.FROM_USER, null, title);
         history.removeButtons();
         history.add(msg);
         return msg;
@@ -232,7 +232,7 @@ public class AssistantDispatcher implements Handler.Callback {
     public AssistantMessage handleButton(String title, String json) {
         handleParsedCommand(json);
 
-        AssistantMessage.Text msg = new AssistantMessage.Text(AssistantMessage.Direction.FROM_USER, title);
+        AssistantMessage.Text msg = new AssistantMessage.Text(AssistantMessage.Direction.FROM_USER, null, title);
         history.removeButtons();
         history.add(msg);
         return msg;
@@ -257,7 +257,7 @@ public class AssistantDispatcher implements Handler.Callback {
             Log.e(EngineService.LOG_TAG, "Unexpected json exception while constructing location JSON", e);
         }
 
-        AssistantMessage.Text loc = new AssistantMessage.Text(AssistantMessage.Direction.FROM_USER, place.getName());
+        AssistantMessage.Text loc = new AssistantMessage.Text(AssistantMessage.Direction.FROM_USER, null, place.getName());
         history.removeButtons();
         history.add(loc);
         return loc;
@@ -278,7 +278,7 @@ public class AssistantDispatcher implements Handler.Callback {
             Log.e(EngineService.LOG_TAG, "Unexpected json exception while constructing picture JSON", e);
         }
 
-        AssistantMessage.Picture pic = new AssistantMessage.Picture(AssistantMessage.Direction.FROM_USER, url);
+        AssistantMessage.Picture pic = new AssistantMessage.Picture(AssistantMessage.Direction.FROM_USER, null, url);
         history.removeButtons();
         history.add(pic);
         return pic;
@@ -300,7 +300,7 @@ public class AssistantDispatcher implements Handler.Callback {
             Log.e(EngineService.LOG_TAG, "Unexpected json exception while constructing picture JSON", e);
         }
 
-        AssistantMessage.Text contact = new AssistantMessage.Text(AssistantMessage.Direction.FROM_USER, displayName);
+        AssistantMessage.Text contact = new AssistantMessage.Text(AssistantMessage.Direction.FROM_USER, null, displayName);
         history.removeButtons();
         history.add(contact);
         return contact;

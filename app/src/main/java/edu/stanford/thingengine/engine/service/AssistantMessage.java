@@ -1,5 +1,7 @@
 package edu.stanford.thingengine.engine.service;
 
+import android.support.annotation.Nullable;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -40,9 +42,13 @@ public abstract class AssistantMessage implements Serializable {
     }
     public final Direction direction;
     public final Type type;
-    protected AssistantMessage(Direction direction, Type type) {
+    @Nullable
+    public final String icon;
+
+    protected AssistantMessage(Direction direction, Type type, @Nullable String icon) {
         this.direction = direction;
         this.type = type;
+        this.icon = icon;
     }
 
     public abstract CharSequence toText();
@@ -52,8 +58,8 @@ public abstract class AssistantMessage implements Serializable {
 
         public final CharSequence msg;
 
-        public Text(Direction dir, CharSequence msg) {
-            super(dir, Type.TEXT);
+        public Text(Direction dir, String icon, CharSequence msg) {
+            super(dir, Type.TEXT, icon);
             this.msg = msg;
         }
 
@@ -68,8 +74,8 @@ public abstract class AssistantMessage implements Serializable {
 
         public final String url;
 
-        public Picture(Direction dir, String url) {
-            super(dir, Type.PICTURE);
+        public Picture(Direction dir, String icon, String url) {
+            super(dir, Type.PICTURE, icon);
             this.url = url;
         }
 
@@ -84,8 +90,8 @@ public abstract class AssistantMessage implements Serializable {
 
         public final JSONObject rdl;
 
-        public RDL(Direction dir, JSONObject rdl) {
-            super(dir, Type.RDL);
+        public RDL(Direction dir, String icon, JSONObject rdl) {
+            super(dir, Type.RDL, icon);
             this.rdl = rdl;
         }
 
@@ -107,7 +113,7 @@ public abstract class AssistantMessage implements Serializable {
         public final String text;
 
         public Choice(Direction dir, int idx, String title, String text) {
-            super(dir, Type.CHOICE);
+            super(dir, Type.CHOICE, null);
             this.idx = idx;
             this.title = title;
             this.text = text;
@@ -126,7 +132,7 @@ public abstract class AssistantMessage implements Serializable {
         public final String url;
 
         public Link(Direction dir, String title, String url) {
-            super(dir, Type.LINK);
+            super(dir, Type.LINK, null);
             this.title = title;
             this.url = url;
         }
@@ -144,7 +150,7 @@ public abstract class AssistantMessage implements Serializable {
         public final String json;
 
         public Button(Direction dir, String title, String json) {
-            super(dir, Type.BUTTON);
+            super(dir, Type.BUTTON, null);
             this.title = title;
             this.json = json;
         }
@@ -161,7 +167,7 @@ public abstract class AssistantMessage implements Serializable {
         public final AskSpecialType what;
 
         public AskSpecial(Direction dir, AskSpecialType what) {
-            super(dir, Type.ASK_SPECIAL);
+            super(dir, Type.ASK_SPECIAL, null);
             this.what = what;
         }
 

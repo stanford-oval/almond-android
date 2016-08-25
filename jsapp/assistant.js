@@ -72,8 +72,8 @@ class AssistantDispatcher {
 
     // sendRDL is special because we need to stringify the rdl before we
     // call the Java API, or jxcore will marshal it weirdly
-    sendRDL(rdl) {
-        return AssistantJavaApi.sendRDL(JSON.stringify(rdl));
+    sendRDL(rdl, icon) {
+        return AssistantJavaApi.sendRDL(JSON.stringify(rdl), icon);
     }
 };
 COMMANDS.forEach(function(c) {
