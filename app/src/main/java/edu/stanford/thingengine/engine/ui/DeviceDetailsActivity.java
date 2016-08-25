@@ -221,6 +221,9 @@ public class DeviceDetailsActivity extends Activity {
         View status = findViewById(R.id.device_status);
         status.setVisibility((mDeviceInfo.isOnlineAccount || mDeviceInfo.isDataSource) ? View.GONE : View.VISIBLE);
 
+        View refreshBtn = findViewById(R.id.btn_refresh_device);
+        refreshBtn.setVisibility((mDeviceInfo.isOnlineAccount || mDeviceInfo.isDataSource) ? View.GONE : View.VISIBLE);
+
         boolean isBuiltin = mDeviceInfo.kind.startsWith("org.thingpedia.builtin");
 
         TextView version = (TextView) findViewById(R.id.device_version);

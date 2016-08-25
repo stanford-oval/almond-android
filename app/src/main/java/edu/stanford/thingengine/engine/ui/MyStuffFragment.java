@@ -217,8 +217,6 @@ public class MyStuffFragment extends Fragment {
         for (DeviceInfo device : devices) {
             if (device.isThingEngine)
                 continue;
-            if (device.isDataSource)
-                continue; // we don't have space to show data sources, so we ignore them
             mDevices.add(device);
         }
 
