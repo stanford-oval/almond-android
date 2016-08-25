@@ -40,4 +40,19 @@
     <string name="yes">Sì</string>
     <string name="pref_username_title">Nome utente</string>
     <string name="action_train">Allena</string>
+    <string name="btn_assistant_voice">Usa comandi vocali</string>
+    <string name="btn_download">Download</string>
+    <string name="btn_never_mind">Ricomincia</string>
+    <string name="btn_share">Condividi…</string>
+    <string name="content_hidden">Contenuto nascosto per la privacy</string>
+    <string name="download_permission_needed">Sabrina deve poter scrivere nella card SD per scaricare questa immagine</string>
+    <string name="never_mind">Lascia stare</string>
+    <string name="sabrina_says">Sabrina dice</string>
+    <string name="sabrina_says_dotdotdot">Sabrina dice…</string>
+    <string name="sabrina_says_something">Sabrina dice qualcosa</string>
+    <string name="sabrina_sends_button">Sabrina invia un pulsante</string>
+    <string name="sabrina_sends_link">Sabrina invia un link</string>
+    <string name="sabrina_sends_picture">Sabrina invia un\'immagine</string>
+    <string name="toast_download_failed">Errore nello scaricare l\'immagine</string>
+    <string name="toast_downloaded">Salvata nella galleria</string>
 </resources>

@@ -12,8 +12,8 @@
     <string name="button_configure_text">Configure</string>
     <string name="my_devices_title">My Devices</string>
     <string name="my_accounts_title">My Accounts</string>
-    <string name="btn_create_device_title">Configure new device&#8230;</string>
-    <string name="btn_create_account_title">Add new account&#8230;</string>
+    <string name="btn_create_device_title">Configure new device…</string>
+    <string name="btn_create_account_title">Add new account…</string>
     <string name="create_device_title">Configure Device</string>
     <string name="create_account_title">Add New Account</string>
     <string name="create_datasource_title">Enable New Data Source</string>
@@ -24,8 +24,8 @@
     <string name="device_unavailable">The device is not available. It might be powered off or disconnected.</string>
     <string name="device_availability_unknown">It was not possible to verify if the device is available. Please check it is powered on and correctly configured.</string>
     <string name="btn_refresh">Refresh</string>
-    <string name="btn_choose_location">Pick a location&#8230;</string>
-    <string name="btn_choose_picture">Choose&#8230;</string><!-- picture is implied by the context -->
+    <string name="btn_choose_location">Pick a location…</string>
+    <string name="btn_choose_picture">Choose…</string><!-- picture is implied by the context -->
     <string name="audio_permission_needed">You must allow Sabrina to record audio in order to use voice interaction</string>
     <string name="speak_now">Speak now…</string>
     <string name="btn_choose_contact">Choose a contact…</string>
@@ -41,7 +41,7 @@
     <string name="no">No</string>
     <string name="pref_username_title">User name</string>
     <string name="action_train">Train</string>
-    <string name="btn_share">Share&#8230;</string>
+    <string name="btn_share">Share…</string>
     <string name="btn_download">Download</string>
     <string name="toast_downloaded">Saved to gallery</string>
     <string name="toast_download_failed">Failed to download picture</string>
@@ -55,5 +55,5 @@
     <string name="sabrina_sends_picture">Sabrina sends a picture</string>
     <string name="sabrina_sends_button">Sabrina sends a button</string>
     <string name="sabrina_sends_link">Sabrina sends a link</string>
-    <string name="sabrina_says_dotdotdot">Sabrina says&#8230;</string>
+    <string name="sabrina_says_dotdotdot">Sabrina says…</string>
 </resources>
