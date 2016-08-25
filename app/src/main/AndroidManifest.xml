@@ -62,7 +62,7 @@
         <activity
             android:name=".ui.DeviceCreateFormActivity"
             android:parentActivityName=".ui.DeviceConfigureChooseKindActivity"
-            android:windowSoftInputMode="adjustResize" />
+            android:windowSoftInputMode="adjustPan" />
         <activity
             android:name=".ui.DeviceDetailsActivity"
             android:parentActivityName=".ui.MainActivity" />
