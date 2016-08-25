@@ -11,11 +11,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.ListView;
 
 import java.util.Collections;
 import java.util.List;
 
+import edu.stanford.thingengine.engine.Config;
 import edu.stanford.thingengine.engine.R;
 import edu.stanford.thingengine.engine.service.AppInfo;
 import edu.stanford.thingengine.engine.service.ControlBinder;
@@ -130,7 +132,18 @@ public class RulesFragment extends Fragment {
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        mApps = new ArrayAdapter<>(getActivity(), R.layout.layout_single_app);
+        mApps = new ArrayAdapter<AppInfo>(getActivity(), R.layout.layout_single_app, R.id.app_description) {
+            @Override
+            public View getView(int position, View recycleView, ViewGroup parent) {
+                View created = super.getView(position, recycleView, parent);
+
+                AppInfo app = getItem(position);
+                if (app.icon != null)
+                    LoadImageTask.load(getContext(), (ImageView)created.findViewById(R.id.app_icon), Config.S3_CLOUDFRONT_HOST + "/icons/" + app.icon + ".png");
+
+                return created;
+            }
+        };
         ListView list = (ListView) getActivity().findViewById(R.id.app_list);
         list.setAdapter(mApps);
 

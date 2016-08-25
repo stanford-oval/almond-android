@@ -139,6 +139,7 @@ class AppControlChannel extends ControlChannel {
                 }).then(function(feed) {
                     var app = { uniqueId: a.uniqueId, name: a.name || "Some app",
                                 description: a.description || a.name || "Some app",
+                                icon: a.icon || null,
                                 isRunning: a.isRunning, isEnabled: a.isEnabled,
                                 error: a.error, feedId: a.state.$F || null, feedName: feed };
                     return app;
