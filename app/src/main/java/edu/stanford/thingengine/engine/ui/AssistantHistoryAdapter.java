@@ -6,6 +6,7 @@ import android.graphics.drawable.Drawable;
 import android.support.percent.PercentRelativeLayout;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -115,7 +116,8 @@ class AssistantHistoryAdapter extends RecyclerView.Adapter<AssistantHistoryAdapt
                         sabrinaHead = new ImageView(ctx);
                         sabrinaHead.setId(R.id.sabrina_head_bubble);
                     }
-                    PercentRelativeLayout.LayoutParams headParams = new PercentRelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                    int forty_dp = Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 40.f, ctx.getResources().getDisplayMetrics()));
+                    PercentRelativeLayout.LayoutParams headParams = new PercentRelativeLayout.LayoutParams(forty_dp, forty_dp);
                     headParams.setMarginStart(16);
                     headParams.topMargin = 16;
                     headParams.addRule(RelativeLayout.ALIGN_PARENT_TOP);
