@@ -15,6 +15,8 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.koushikdutta.ion.Ion;
+
 import org.json.JSONException;
 
 import edu.stanford.thingengine.engine.BuildConfig;
@@ -192,7 +194,7 @@ class AssistantHistoryAdapter extends RecyclerView.Adapter<AssistantHistoryAdapt
                     }
                 });
                 cachedUrl = msg.url;
-                LoadImageTask.load(ctx, view, msg.url);
+                Ion.with(ctx).load(msg.url).intoImageView(view);
                 applyBubbleStyle(view, msg.direction);
                 setSideAndAlignment(view, msg);
                 setIcon(msg);

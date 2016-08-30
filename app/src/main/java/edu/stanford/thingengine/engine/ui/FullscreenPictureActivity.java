@@ -24,6 +24,8 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.koushikdutta.ion.Ion;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -261,7 +263,7 @@ public class FullscreenPictureActivity extends Activity {
         url = intent.getData();
         if (url == null)
             return;
-        LoadImageTask.load(this, (ImageView) findViewById(R.id.fullscreen_content), url.toString());
+        Ion.with(this).load(url.toString()).intoImageView((ImageView) findViewById(R.id.fullscreen_content));
     }
 
     @Override
