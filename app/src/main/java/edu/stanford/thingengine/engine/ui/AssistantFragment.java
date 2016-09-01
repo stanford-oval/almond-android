@@ -3,6 +3,7 @@ package edu.stanford.thingengine.engine.ui;
 import android.Manifest;
 import android.app.Activity;
 import android.app.Fragment;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -23,9 +24,11 @@ import android.util.Log;
 import android.util.Pair;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -355,6 +358,14 @@ public class AssistantFragment extends Fragment implements AssistantOutput, Assi
                 }
             }
         });
+        input.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if(!hasFocus){
+                    //hideKeyboard(v);
+                }
+            }
+        });
         input.setInputType(InputType.TYPE_CLASS_TEXT|InputType.TYPE_TEXT_FLAG_AUTO_CORRECT);
 
         View voicebtn = getActivity().findViewById(R.id.btn_assistant_voice);
@@ -366,6 +377,14 @@ public class AssistantFragment extends Fragment implements AssistantOutput, Assi
         });
 
         RecyclerView chatList = ((RecyclerView)getActivity().findViewById(R.id.chat_list));
+
+        chatList.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                hideKeyboard(v);
+                return false;
+            }
+        });
         chatList.setAdapter(mListAdapter);
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
@@ -390,6 +409,11 @@ public class AssistantFragment extends Fragment implements AssistantOutput, Assi
         nevermind.setVisibility(View.GONE);
 
         mSpeechHandler.onCreate();
+    }
+
+    private void hideKeyboard(View v) {
+        InputMethodManager keyboard = (InputMethodManager) this.getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+        keyboard.hideSoftInputFromWindow(v.getWindowToken(), 0);
     }
 
     @Override
