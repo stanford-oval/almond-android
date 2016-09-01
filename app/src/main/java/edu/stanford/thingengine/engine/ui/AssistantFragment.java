@@ -369,7 +369,7 @@ public class AssistantFragment extends Fragment implements AssistantOutput, Assi
         chatList.setAdapter(mListAdapter);
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
-        layoutManager.setStackFromEnd(true);
+        layoutManager.setStackFromEnd(false);
         layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         layoutManager.setSmoothScrollbarEnabled(false);
         chatList.setLayoutManager(layoutManager);
