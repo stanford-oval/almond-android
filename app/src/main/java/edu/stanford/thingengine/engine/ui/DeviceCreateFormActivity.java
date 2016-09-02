@@ -9,6 +9,7 @@ import android.support.v4.app.NavUtils;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
@@ -61,11 +62,7 @@ public class DeviceCreateFormActivity extends Activity {
         ActionBar actionBar = getActionBar();
         if (actionBar != null)
             actionBar.setDisplayHomeAsUpEnabled(true);
-    }
 
-    @Override
-    public void onStart() {
-        super.onStart();
         Intent intent = getIntent();
 
         if (intent == null || !ACTION.equals(intent.getAction())) {
@@ -98,8 +95,11 @@ public class DeviceCreateFormActivity extends Activity {
         for (Object o : obtained)
             controls.add((DeviceFactory.FormControl)o);
         mControls.addAll(controls);
+    }
 
-
+    @Override
+    public void onStart() {
+        super.onStart();
     }
 
 
