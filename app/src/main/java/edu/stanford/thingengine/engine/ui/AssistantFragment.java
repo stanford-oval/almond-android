@@ -288,14 +288,14 @@ public class AssistantFragment extends Fragment implements AssistantOutput, Assi
         mScrollScheduled = true;
 
         final RecyclerView listView = (RecyclerView)getActivity().findViewById(R.id.chat_list);
-        listView.post(new Runnable() {
+        listView.postDelayed(new Runnable() {
             @Override
             public void run() {
                 mScrollScheduled = false;
                 if (mListAdapter.getItemCount() > 0)
                     listView.smoothScrollToPosition(mListAdapter.getItemCount()-1);
             }
-        });
+        }, 500);
     }
 
     void showLocationPicker() {
@@ -376,7 +376,7 @@ public class AssistantFragment extends Fragment implements AssistantOutput, Assi
             }
         });
 
-        RecyclerView chatList = ((RecyclerView)getActivity().findViewById(R.id.chat_list));
+        final RecyclerView chatList = ((RecyclerView)getActivity().findViewById(R.id.chat_list));
 
         chatList.setOnTouchListener(new View.OnTouchListener() {
             @Override
@@ -385,6 +385,23 @@ public class AssistantFragment extends Fragment implements AssistantOutput, Assi
                 return false;
             }
         });
+
+        chatList.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
+            @Override
+            public void onLayoutChange(View v, int left, int top, int right, int bottom,
+                                       int oldLeft, int oldTop, int oldRight, int oldBottom) {
+                if (oldBottom - bottom > 100) {
+                    chatList.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (mListAdapter.getItemCount() > 0)
+                                chatList.smoothScrollToPosition(mListAdapter.getItemCount() - 1);
+                        }
+                    });
+                }
+            }
+        });
+
         chatList.setAdapter(mListAdapter);
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
