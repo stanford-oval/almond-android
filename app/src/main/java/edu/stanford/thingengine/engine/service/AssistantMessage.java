@@ -34,7 +34,7 @@ public abstract class AssistantMessage implements Serializable {
         }
         // true if this is a button or button-like object (Interaction or Link)
         public boolean isButton() {
-            return this != TEXT && this != PICTURE;
+            return this != TEXT && this != PICTURE && this != RDL;
         }
     };
     public enum AskSpecialType {

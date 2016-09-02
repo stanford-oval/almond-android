@@ -219,24 +219,43 @@ class AssistantHistoryAdapter extends RecyclerView.Adapter<AssistantHistoryAdapt
             }
         }
 
-        public static class RDL extends AbstractButton {
+        public static class RDL extends AssistantMessageViewHolder {
+            private LinearLayout view;
+            private TextView title;
+            private TextView body;
+            private final AssistantFragment owner;
+
             public RDL(Context ctx, AssistantFragment owner) {
-                super(ctx, owner);
+                super(ctx);
+                this.owner = owner;
             }
 
             @Override
             public void bind(AssistantMessage base) {
-                super.bind(base);
                 final AssistantMessage.RDL msg = (AssistantMessage.RDL)base;
+
+                if (view == null) {
+                    view = new LinearLayout(ctx);
+                    view.setOrientation(LinearLayout.VERTICAL);
+                    title = new TextView(ctx);
+                    title.setTextAppearance(ctx, R.style.rdl_title);
+                    body = new TextView(ctx);
+
+                    LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                    view.addView(title, params);
+                    view.addView(body, params);
+                }
+
                 try {
-                    btn.setText(msg.rdl.optString("displayTitle"));
+                    title.setText(msg.rdl.optString("displayTitle"));
+                    body.setText(msg.rdl.optString("displayText"));
                     String webCallback = msg.rdl.getString("webCallback");
                     final String url;
                     if (webCallback.startsWith("http"))
                         url = webCallback;
                     else
                         url = "http://" + webCallback;
-                    btn.setOnClickListener(new View.OnClickListener() {
+                    view.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
                             owner.onLinkActivated(url);
@@ -245,6 +264,9 @@ class AssistantHistoryAdapter extends RecyclerView.Adapter<AssistantHistoryAdapt
                 } catch (JSONException e) {
                     Log.e(MainActivity.LOG_TAG, "Unexpected JSON exception while unpacking RDL", e);
                 }
+                applyBubbleStyle(view, msg.direction);
+                setSideAndAlignment(view, msg);
+                setIcon(msg);
             }
         }
 

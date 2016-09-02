@@ -25,6 +25,10 @@
         <item name="android:background">@color/black_overlay</item>
     </style>
 
+    <style name="rdl_title" parent="android:Widget.Material.Light.TextView">
+        <item name="android:textStyle">bold</item>
+    </style>
+
     <color name="stanford_cardinal">#8c1515</color>
     <color name="stanford_almost_cardinal">#6d1010</color>
     <color name="dark_stanford_cardinal">#670000</color>
