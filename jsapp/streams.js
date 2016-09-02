@@ -29,9 +29,10 @@ module.exports = class Streams {
         return _instance;
     }
 
-    createStream(token) {
-        console.log('Creating stream with token ' + token);
+    createStream(token, contentType) {
+        console.log('Creating stream with token ' + token + ' and content type ' + contentType);
         var readable = new stream.Readable({ read: function() {} });
+        readable.contentType = contentType;
         this._streams[token] = readable;
         return readable;
     }

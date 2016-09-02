@@ -33,11 +33,11 @@ const _audioRouterApi = JavaAPI.makeJavaAPI('AudioRouter',
 const _systemAppsApi = JavaAPI.makeJavaAPI('SystemApps', [], ['startMusic'], []);
 const _graphicsApi = require('./graphics');
 
-const _contentJavaApi = JavaAPI.makeJavaAPI('Content', [], ['getStream'], []);
+const _contentJavaApi = JavaAPI.makeJavaAPI('Content', ['getStream'], [], []);
 const _contentApi = {
     getStream(url) {
-        return _contentJavaApi.getStream(url).then(function(token) {
-            return StreamAPI.get().createStream(token);
+        return _contentJavaApi.getStream(url).then(function(obj) {
+            return StreamAPI.get().createStream(obj.token, obj.contentType);
         });
     }
 }

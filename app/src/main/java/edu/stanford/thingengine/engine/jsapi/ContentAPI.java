@@ -1,7 +1,13 @@
 package edu.stanford.thingengine.engine.jsapi;
 
+import android.util.Pair;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.concurrent.RejectedExecutionException;
 
 import edu.stanford.thingengine.engine.ContentUtils;
 import edu.stanford.thingengine.engine.service.ControlChannel;
@@ -20,7 +26,7 @@ public class ContentAPI extends JavascriptAPI {
         this.ctx = ctx;
         this.streams = streams;
 
-        registerSync("getStream", new GenericCall() {
+        registerAsync("getStream", new GenericCall() {
             @Override
             public Object run(Object... args) throws Exception {
                 return getStream((String)args[0]);
@@ -28,22 +34,29 @@ public class ContentAPI extends JavascriptAPI {
         });
     }
 
-    private int getStream(final String url) {
+    private JSONObject getStream(final String url) throws IOException, JSONException {
         final StreamAPI.Stream stream = streams.createStream();
+        final Pair<InputStream, String> pair = ContentUtils.readUrl(ctx, url);
 
-        streams.getThreadPool().execute(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    try (InputStream is = ContentUtils.readUrl(ctx, url).first) {
-                        stream.forwardSync(is);
+        try {
+            streams.getThreadPool().execute(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        stream.forwardSync(pair.first);
+                        pair.first.close();
+                    } catch (IOException e) {
+                        stream.error(e);
                     }
-                } catch(IOException e) {
-                    stream.error(e);
                 }
-            }
-        });
+            });
+        } catch (RejectedExecutionException e) {
+            pair.first.close();
+        }
 
-        return stream.getToken();
+        JSONObject json = new JSONObject();
+        json.put("token", stream.getToken());
+        json.put("contentType", pair.second);
+        return json;
     }
 }
