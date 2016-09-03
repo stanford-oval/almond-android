@@ -193,8 +193,10 @@ class AssistantHistoryAdapter extends RecyclerView.Adapter<AssistantHistoryAdapt
                         owner.showPictureFullscreen(msg.url);
                     }
                 });
-                cachedUrl = msg.url;
-                Ion.with(ctx).load(msg.url).intoImageView(view);
+                if (cachedUrl != msg.url) {
+                    cachedUrl = msg.url;
+                    Ion.with(ctx).load(msg.url).intoImageView(view);
+                }
                 applyBubbleStyle(view, msg.direction);
                 setSideAndAlignment(view, msg);
                 setIcon(msg);
