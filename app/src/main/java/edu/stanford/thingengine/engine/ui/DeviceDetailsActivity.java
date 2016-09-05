@@ -8,11 +8,27 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
 import android.util.Log;
+import android.util.Pair;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.ListAdapter;
+import android.widget.ListView;
 import android.widget.TextView;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import edu.stanford.thingengine.engine.Config;
 import edu.stanford.thingengine.engine.R;
@@ -23,6 +39,7 @@ public class DeviceDetailsActivity extends Activity {
     public static final String ACTION = "edu.stanford.thingengine.engine.DEVICE_DETAILS";
 
     private final EngineServiceConnection mEngine;
+    private final ThingpediaClient mThingpedia;
     private DeviceInfo mDeviceInfo;
     private String mUniqueId;
     private String mClass;
@@ -30,6 +47,7 @@ public class DeviceDetailsActivity extends Activity {
 
     public DeviceDetailsActivity() {
         mEngine = new EngineServiceConnection();
+        mThingpedia = new ThingpediaClient(this);
     }
 
     private class DeleteDeviceTask extends AsyncTask<String, Void, Exception> {
@@ -229,8 +247,63 @@ public class DeviceDetailsActivity extends Activity {
         TextView version = (TextView) findViewById(R.id.device_version);
         version.setText(getString(R.string.device_version, mDeviceInfo.version));
         version.setVisibility(isBuiltin ? View.GONE : View.VISIBLE);
+
+        new GetExamplesTask().execute();
+
         View upgradeBtn = findViewById(R.id.btn_upgrade_device);
         upgradeBtn.setVisibility(isBuiltin ? View.GONE : View.VISIBLE);
+    }
+
+    private class GetExamplesTask extends AsyncTask<String, Void, List<Pair<String, String>>> {
+        private List<Pair<String, String>> processExamples(JSONArray examples) throws JSONException {
+            List<Pair<String, String>> example_cmds = new ArrayList<>();
+            Set<String> added = new HashSet();
+            for (int i = 0; i < examples.length(); i++) {
+                JSONObject ex = examples.getJSONObject(i);
+                String utterance = ex.getString("utterance");
+                String target_json = ex.getString("target_json");
+                if (!added.contains(target_json)) {
+                    added.add(target_json);
+                    example_cmds.add(new Pair(utterance, target_json));
+                }
+            }
+            return example_cmds;
+        }
+
+        @Override
+        protected List<Pair<String, String>> doInBackground(String... strings) {
+            try {
+                return processExamples(mThingpedia.getExamplesByKinds(mDeviceInfo.name.toLowerCase()));
+            } catch (JSONException | IOException e) {
+                Log.e(MainActivity.LOG_TAG, "Unexpected failure retrieving device examples", e);
+                return Collections.emptyList();
+            }
+        }
+
+        @Override
+        public void onPostExecute(List<Pair<String, String>> example_cmds) {
+            addAdapter(example_cmds);
+        }
+    }
+
+    private void addAdapter(List<Pair<String, String>> example_cmds) {
+        ListAdapter adapter = new ExampleCreateButtonAdapter(example_cmds);
+        ListView listView = (ListView) findViewById(R.id.device_examples);
+        listView.setAdapter(adapter);
+    }
+
+    private class ExampleCreateButtonAdapter extends ArrayAdapter<Pair<String, String>> {
+        ExampleCreateButtonAdapter(List<Pair<String, String>> example_cmds) {
+            super(DeviceDetailsActivity.this, 0, 0, example_cmds);
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            final Pair<String, String> example_cmd = getItem(position);
+            Button btn = new Button(DeviceDetailsActivity.this);
+            btn.setText(example_cmd.first);
+            return btn;
+        }
     }
 
     public void refresh() {

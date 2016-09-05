@@ -59,4 +59,9 @@ public class ThingpediaClient {
     public JSONArray getDeviceFactories(String _class) throws IOException, JSONException {
         return (JSONArray)runSimpleRequest("/api/devices?class=" + _class);
     }
+
+    public JSONArray getExamplesByKinds(String _kinds) throws IOException, JSONException {
+        //TODO: add isBase, locale
+        return (JSONArray)runSimpleRequest("/api/examples/by-kinds/" + _kinds + "?locale=en_US&base=1");
+    }
 }
