@@ -302,6 +302,18 @@ public class DeviceDetailsActivity extends Activity {
             final Pair<String, String> example_cmd = getItem(position);
             Button btn = new Button(DeviceDetailsActivity.this);
             btn.setText(example_cmd.first);
+            btn.setTransformationMethod(null);
+            btn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    ControlBinder control = mEngine.getControl();
+                    if (control != null) {
+                        control.getAssistant().handleButton(example_cmd.first, example_cmd.second);
+                        Intent intent = new Intent(DeviceDetailsActivity.this, MainActivity.class);
+                        startActivity(intent);
+                    }
+                }
+            });
             return btn;
         }
     }
