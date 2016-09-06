@@ -45,13 +45,22 @@
         android:layout_centerHorizontal="true"
         android:layout_marginTop="10dp" />
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Example commads"
+        android:id="@+id/example_cmds"
+        android:layout_below="@+id/device_version"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="20dp" />
+
     <ListView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/device_examples"
-        android:layout_below="@+id/device_version"
+        android:layout_below="@+id/example_cmds"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="20dp" />
+        android:layout_marginTop="10dp" />
 
     <Button
         android:layout_width="wrap_content"
