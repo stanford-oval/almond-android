@@ -273,7 +273,7 @@ public class DeviceDetailsActivity extends Activity {
         @Override
         protected List<Pair<String, String>> doInBackground(String... strings) {
             try {
-                return processExamples(mThingpedia.getExamplesByKinds(mDeviceInfo.name.toLowerCase()));
+                return processExamples(mThingpedia.getExamplesByKinds(mDeviceInfo.kind.toLowerCase()));
             } catch (JSONException | IOException e) {
                 Log.e(MainActivity.LOG_TAG, "Unexpected failure retrieving device examples", e);
                 return Collections.emptyList();
