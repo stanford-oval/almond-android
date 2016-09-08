@@ -12,6 +12,7 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.Locale;
 
 /**
  * Created by gcampagn on 6/27/16.
@@ -61,7 +62,14 @@ public class ThingpediaClient {
     }
 
     public JSONArray getExamplesByKinds(String _kinds) throws IOException, JSONException {
-        //TODO: add isBase, locale
-        return (JSONArray)runSimpleRequest("/api/examples/by-kinds/" + _kinds + "?locale=en_US&base=1");
+        String locale = Locale.getDefault().toString();
+        JSONArray examples = (JSONArray)runSimpleRequest("/api/examples/by-kinds/" + _kinds +
+                "?locale=" + locale + "&base=1");
+        // in case that no example is translated, return the english examples
+        if (examples.length() == 0 && !locale.startsWith("en")) {
+            examples = (JSONArray) runSimpleRequest("/api/examples/by-kinds/" + _kinds +
+                    "?locale=en_US&base=1");
+        }
+        return examples;
     }
 }
