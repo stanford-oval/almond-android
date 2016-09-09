@@ -17,8 +17,8 @@ const ImageAPI = JavaAPI.makeJavaAPI('Image',
 const StreamAPI = require('./streams');
 
 class Image {
-    constructor(how) {
-        this._promise = ImageAPI.createImage(how);
+    constructor(how, data) {
+        this._promise = ImageAPI.createImage(how, data);
     }
 
     getSize() {
@@ -57,11 +57,11 @@ class Image {
 
 module.exports = {
     createImageFromPath(path) {
-        return new Image(path);
+        return new Image('path', path);
     },
 
     createImageFromBuffer(buffer) {
-        return new Image(buffer);
+        return new Image('buffer', buffer.toString('base64'));
     },
 };
 

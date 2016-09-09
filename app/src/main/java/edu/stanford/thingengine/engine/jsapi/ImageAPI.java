@@ -2,6 +2,7 @@ package edu.stanford.thingengine.engine.jsapi;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.util.Base64;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -114,10 +115,10 @@ public class ImageAPI extends JavascriptAPI {
         registerAsync("createImage", new GenericCall() {
             @Override
             public Object run(Object... args) throws Exception {
-                if (args[0] instanceof String)
-                    return createImageFromPath((String)args[0]);
+                if (args[0].equals("path"))
+                    return createImageFromPath((String)args[1]);
                 else
-                    return createImageFromBuffer((byte[])args[0]);
+                    return createImageFromBuffer(Base64.decode((String)args[1], Base64.DEFAULT));
             }
         });
 
