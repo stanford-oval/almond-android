@@ -260,7 +260,7 @@ public class DeviceDetailsActivity extends Activity {
             Set<String> added = new HashSet();
             for (int i = 0; i < examples.length(); i++) {
                 JSONObject ex = examples.getJSONObject(i);
-                String utterance = ex.getString("utterance");
+                String utterance = ex.getString("utterance").replaceAll("[$][a-zA-Z0-9_]*", "___");
                 String target_json = ex.getString("target_json");
                 if (!added.contains(target_json)) {
                     added.add(target_json);
