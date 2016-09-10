@@ -10,14 +10,21 @@ import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.google.android.flexbox.FlexboxLayout;
 import com.koushikdutta.ion.Ion;
 
+import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import edu.stanford.thingengine.engine.BuildConfig;
 import edu.stanford.thingengine.engine.Config;
@@ -380,6 +387,83 @@ class AssistantHistoryAdapter extends RecyclerView.Adapter<AssistantHistoryAdapt
             }
         }
 
+        public static class SlotFilling extends AssistantMessageViewHolder {
+            private FlexboxLayout slotFilling;
+            private List<TextView> textviews;
+            private List<EditText> edittexts;
+            private android.widget.Button confirmBtn;
+
+            public SlotFilling(Context ctx) {
+                super(ctx);
+            }
+
+            @Override
+            public void bind(AssistantMessage base) {
+                final AssistantMessage.SlotFilling msg = (AssistantMessage.SlotFilling) base;
+
+                if (slotFilling == null) {
+                    slotFilling = new FlexboxLayout(ctx);
+                    slotFilling.setFlexWrap(FlexboxLayout.FLEX_WRAP_WRAP);
+                    slotFilling.setAlignItems(FlexboxLayout.ALIGN_ITEMS_CENTER);
+                }
+                if (textviews == null) {
+                    textviews = new ArrayList();
+                    edittexts = new ArrayList();
+                    String[] texts = msg.title.split("____");
+                    for (int i = 0; i < texts.length; i++) {
+                        TextView tv = new TextView(ctx);
+                        tv.setText(texts[i]);
+                        slotFilling.addView(tv);
+                        textviews.add(tv);
+                        if (i != texts.length - 1) {
+                            EditText et = new EditText(ctx);
+                            edittexts.add(et);
+                            slotFilling.addView(et);
+                        }
+                    }
+                }
+                if (confirmBtn == null) {
+                    confirmBtn = new android.widget.Button(ctx);
+                    confirmBtn.setText("Go");
+                    //confirmBtn.setBackground(ctx.getDrawable(R.drawable.send_button));
+                    confirmBtn.setLayoutParams(new LinearLayout.LayoutParams(125, 75));
+                    confirmBtn.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            try {
+                                JSONObject cmd = new JSONObject(msg.json);
+                                JSONArray slots = cmd.getJSONArray("slots");
+                                JSONArray args = new JSONArray();
+                                for (int i = 0; i < slots.length(); i++) {
+                                    JSONObject argJson = new JSONObject();
+                                    JSONObject argName  = new JSONObject();
+                                    argName.put("id", "tt:param." + slots.getString(i));
+                                    JSONObject argValue = new JSONObject();
+                                    argValue.put("value", edittexts.get(i).getText().toString());
+                                    argJson.put("name", argName);
+                                    argJson.put("type", "String");
+                                    argJson.put("value", argValue);
+                                    argJson.put("operator", "is");
+                                    args.put(argJson);
+                                }
+                                Log.d("SLOT_FILLING", args.toString());
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+
+
+
+                        }
+                    });
+                    slotFilling.addView(confirmBtn);
+                }
+
+                applyBubbleStyle(slotFilling, AssistantMessage.Direction.FROM_USER);
+                setSideAndAlignment(slotFilling, msg);
+                setIcon(msg);
+            }
+        }
+
         public static class ChooseLocation extends AbstractButton {
             public ChooseLocation(Context ctx, AssistantFragment owner) {
                 super(ctx, owner);
@@ -502,6 +586,8 @@ class AssistantHistoryAdapter extends RecyclerView.Adapter<AssistantHistoryAdapt
                 return new AssistantMessageViewHolder.Link(getContext(), fragment);
             case BUTTON:
                 return new AssistantMessageViewHolder.Button(getContext(), fragment);
+            case SLOT_FILLING:
+                return new AssistantMessageViewHolder.SlotFilling(getContext());
             case ASK_SPECIAL:
                 assert askSpecialType != null;
                 switch (askSpecialType) {

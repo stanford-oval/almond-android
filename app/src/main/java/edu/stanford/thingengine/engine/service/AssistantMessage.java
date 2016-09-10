@@ -17,7 +17,7 @@ public abstract class AssistantMessage implements Serializable {
         FROM_SABRINA, FROM_USER
     }
     public enum Type {
-        TEXT, PICTURE, RDL, CHOICE, LINK, BUTTON, ASK_SPECIAL;
+        TEXT, PICTURE, RDL, CHOICE, LINK, BUTTON, ASK_SPECIAL, SLOT_FILLING;
 
         // true if this is some output from sabrina
         public boolean isOutput() {
@@ -26,7 +26,7 @@ public abstract class AssistantMessage implements Serializable {
         // true if this is sabrina prompting the user to click something
         // as a replacement for typing
         public boolean isInteraction() {
-            return this == CHOICE || this == BUTTON || this == ASK_SPECIAL;
+            return this == CHOICE || this == BUTTON || this == ASK_SPECIAL || this == SLOT_FILLING;
         }
         // true if this is a link that opens in another window
         public boolean isLink() {
@@ -197,6 +197,24 @@ public abstract class AssistantMessage implements Serializable {
         @Override
         public String toText() {
             return "Sabrina asks for a " + what.toString().toLowerCase();
+        }
+    }
+
+    public static class SlotFilling extends AssistantMessage {
+        private static final long serialVersionUID = 1L;
+
+        public final String title;
+        public final String json;
+
+        public SlotFilling(Direction dir, String title, String json) {
+            super(dir, Type.SLOT_FILLING, null);
+            this.title = title;
+            this.json = json;
+        }
+
+        @Override
+        public String toText() {
+            return title;
         }
     }
 }
