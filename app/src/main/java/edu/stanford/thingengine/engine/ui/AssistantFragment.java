@@ -46,6 +46,7 @@ import com.microsoft.projectoxford.speechrecognition.SpeechRecognitionServiceFac
 
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 import org.json.JSONTokener;
 
 import java.io.Serializable;
@@ -619,6 +620,38 @@ public class AssistantFragment extends Fragment implements AssistantOutput, Assi
         display(control.getAssistant().handleChoice(title, idx));
     }
 
+    void onSlotFillingActivated(String title, String json, String[] values) {
+        ControlBinder control = mEngine.getControl();
+        if (control == null)
+            return;
+
+        try {
+            JSONObject jsonObj = new JSONObject(json);
+            String cmdType = jsonObj.keys().next();
+            JSONObject cmd = jsonObj.getJSONObject(cmdType);
+            JSONArray slots = cmd.getJSONArray("slots");
+            JSONArray args = new JSONArray();
+            for (int i = 0; i < slots.length(); i++) {
+                JSONObject argJson = new JSONObject();
+                JSONObject argName  = new JSONObject();
+                argName.put("id", "tt:param." + slots.getString(i));
+                JSONObject argValue = new JSONObject();
+                argValue.put("value", values[i]);
+                argJson.put("name", argName);
+                argJson.put("type", "String");
+                argJson.put("value", argValue);
+                argJson.put("operator", "is");
+                args.put(argJson);
+            }
+            cmd.put("args", args);
+            jsonObj.put("cmdType", cmd);
+            Log.d("SLOT_FILLING", jsonObj.toString());
+            display(control.getAssistant().handleButton(title, jsonObj.toString()));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
     private void onLocationSelected(Place place) {
         ControlBinder control = mEngine.getControl();
         if (control == null)
@@ -634,6 +667,7 @@ public class AssistantFragment extends Fragment implements AssistantOutput, Assi
 
         display(control.getAssistant().handlePicture(uri.toString()));
     }
+
 
     private class ReadContactTask extends AsyncTask<Void, Void, Pair<String, String>> {
         private final int requestCode;

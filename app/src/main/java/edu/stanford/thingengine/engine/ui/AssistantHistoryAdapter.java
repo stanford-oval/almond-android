@@ -19,9 +19,7 @@ import android.widget.TextView;
 import com.google.android.flexbox.FlexboxLayout;
 import com.koushikdutta.ion.Ion;
 
-import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -392,9 +390,11 @@ class AssistantHistoryAdapter extends RecyclerView.Adapter<AssistantHistoryAdapt
             private List<TextView> textviews;
             private List<EditText> edittexts;
             private android.widget.Button confirmBtn;
+            private final AssistantFragment owner;
 
-            public SlotFilling(Context ctx) {
+            public SlotFilling(Context ctx, AssistantFragment owner) {
                 super(ctx);
+                this.owner = owner;
             }
 
             @Override
@@ -430,29 +430,12 @@ class AssistantHistoryAdapter extends RecyclerView.Adapter<AssistantHistoryAdapt
                     confirmBtn.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
-                            try {
-                                JSONObject cmd = new JSONObject(msg.json);
-                                JSONArray slots = cmd.getJSONArray("slots");
-                                JSONArray args = new JSONArray();
-                                for (int i = 0; i < slots.length(); i++) {
-                                    JSONObject argJson = new JSONObject();
-                                    JSONObject argName  = new JSONObject();
-                                    argName.put("id", "tt:param." + slots.getString(i));
-                                    JSONObject argValue = new JSONObject();
-                                    argValue.put("value", edittexts.get(i).getText().toString());
-                                    argJson.put("name", argName);
-                                    argJson.put("type", "String");
-                                    argJson.put("value", argValue);
-                                    argJson.put("operator", "is");
-                                    args.put(argJson);
-                                }
-                                Log.d("SLOT_FILLING", args.toString());
-                            } catch (JSONException e) {
-                                e.printStackTrace();
+                            String[] values = new String[edittexts.size()];
+                            Log.d("SLOT_FILLING", String.valueOf(values.length));
+                            for (int i = 0; i < edittexts.size(); i++) {
+                                values[i] = (edittexts.get(i).getText().toString());
                             }
-
-
-
+                            owner.onSlotFillingActivated(msg.title, msg.json, values);
                         }
                     });
                     slotFilling.addView(confirmBtn);
@@ -587,7 +570,7 @@ class AssistantHistoryAdapter extends RecyclerView.Adapter<AssistantHistoryAdapt
             case BUTTON:
                 return new AssistantMessageViewHolder.Button(getContext(), fragment);
             case SLOT_FILLING:
-                return new AssistantMessageViewHolder.SlotFilling(getContext());
+                return new AssistantMessageViewHolder.SlotFilling(getContext(), fragment);
             case ASK_SPECIAL:
                 assert askSpecialType != null;
                 switch (askSpecialType) {
