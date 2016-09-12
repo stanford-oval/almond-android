@@ -401,6 +401,9 @@ class AssistantHistoryAdapter extends RecyclerView.Adapter<AssistantHistoryAdapt
             public void bind(AssistantMessage base) {
                 final AssistantMessage.SlotFilling msg = (AssistantMessage.SlotFilling) base;
 
+                final LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.WRAP_CONTENT,75);
+
                 if (slotFilling == null) {
                     slotFilling = new FlexboxLayout(ctx);
                     slotFilling.setFlexWrap(FlexboxLayout.FLEX_WRAP_WRAP);
@@ -409,17 +412,32 @@ class AssistantHistoryAdapter extends RecyclerView.Adapter<AssistantHistoryAdapt
                 if (textviews == null) {
                     textviews = new ArrayList();
                     edittexts = new ArrayList();
-                    String[] texts = msg.title.split("____");
-                    for (int i = 0; i < texts.length; i++) {
-                        TextView tv = new TextView(ctx);
-                        tv.setText(texts[i]);
-                        slotFilling.addView(tv);
-                        textviews.add(tv);
-                        if (i != texts.length - 1) {
-                            EditText et = new EditText(ctx);
-                            edittexts.add(et);
-                            slotFilling.addView(et);
+
+                    int lastIndex = 0;
+                    int currentIndex;
+
+                    while(true){
+                        currentIndex = msg.title.indexOf("____", lastIndex);
+                        if (currentIndex == -1) {
+                            TextView tv = new TextView(ctx);
+                            tv.setText(msg.title.substring(lastIndex));
+                            slotFilling.addView(tv);
+                            textviews.add(tv);
+                            break;
                         }
+                        if (currentIndex != lastIndex) {
+                            TextView tv = new TextView(ctx);
+                            tv.setText(msg.title.substring(lastIndex, currentIndex).trim());
+                            slotFilling.addView(tv);
+                            textviews.add(tv);
+                        }
+                        EditText et = new EditText(ctx);
+                        et.setLayoutParams(lp);
+                        et.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
+                        edittexts.add(et);
+                        slotFilling.addView(et);
+
+                        lastIndex = currentIndex + 4;
                     }
                 }
                 if (confirmBtn == null) {

@@ -629,6 +629,8 @@ public class AssistantFragment extends Fragment implements AssistantOutput, Assi
             JSONObject jsonObj = new JSONObject(json);
             String cmdType = jsonObj.keys().next();
             JSONObject cmd = jsonObj.getJSONObject(cmdType);
+            if (!cmd.has("slots"))
+                display(control.getAssistant().handleButton(title, json));
             JSONArray slots = cmd.getJSONArray("slots");
             JSONArray args = new JSONArray();
             for (int i = 0; i < slots.length(); i++) {
