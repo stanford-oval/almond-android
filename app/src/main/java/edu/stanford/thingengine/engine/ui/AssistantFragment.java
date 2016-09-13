@@ -346,7 +346,7 @@ public class AssistantFragment extends Fragment implements AssistantOutput, Assi
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        EditText input = (EditText)getActivity().findViewById(R.id.assistant_input);
+        final EditText input = (EditText)getActivity().findViewById(R.id.assistant_input);
         input.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
@@ -355,14 +355,6 @@ public class AssistantFragment extends Fragment implements AssistantOutput, Assi
                     return true;
                 } else {
                     return false;
-                }
-            }
-        });
-        input.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View v, boolean hasFocus) {
-                if(!hasFocus){
-                    //hideKeyboard(v);
                 }
             }
         });
@@ -390,7 +382,7 @@ public class AssistantFragment extends Fragment implements AssistantOutput, Assi
             @Override
             public void onLayoutChange(View v, int left, int top, int right, int bottom,
                                        int oldLeft, int oldTop, int oldRight, int oldBottom) {
-                if (oldBottom - bottom > 100) {
+                if (oldBottom - bottom > 100 && input.hasFocus()) {
                     chatList.post(new Runnable() {
                         @Override
                         public void run() {
