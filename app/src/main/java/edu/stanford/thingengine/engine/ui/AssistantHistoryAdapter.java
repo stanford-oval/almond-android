@@ -404,60 +404,58 @@ class AssistantHistoryAdapter extends RecyclerView.Adapter<AssistantHistoryAdapt
                 final LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
                         LinearLayout.LayoutParams.WRAP_CONTENT,75);
 
-                if (slotFilling == null) {
+                if (slotFilling != null) {
+                    slotFilling.removeAllViews();
+                } else {
                     slotFilling = new FlexboxLayout(ctx);
                     slotFilling.setFlexWrap(FlexboxLayout.FLEX_WRAP_WRAP);
                     slotFilling.setAlignItems(FlexboxLayout.ALIGN_ITEMS_CENTER);
                 }
-                if (textviews == null) {
-                    textviews = new ArrayList();
-                    edittexts = new ArrayList();
 
-                    int lastIndex = 0;
-                    int currentIndex;
+                textviews = new ArrayList();
+                edittexts = new ArrayList();
 
-                    while(true){
-                        currentIndex = msg.title.indexOf("____", lastIndex);
-                        if (currentIndex == -1) {
-                            TextView tv = new TextView(ctx);
-                            tv.setText(msg.title.substring(lastIndex));
-                            slotFilling.addView(tv);
-                            textviews.add(tv);
-                            break;
-                        }
-                        if (currentIndex != lastIndex) {
-                            TextView tv = new TextView(ctx);
-                            tv.setText(msg.title.substring(lastIndex, currentIndex).trim());
-                            slotFilling.addView(tv);
-                            textviews.add(tv);
-                        }
-                        EditText et = new EditText(ctx);
-                        et.setLayoutParams(lp);
-                        et.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
-                        edittexts.add(et);
-                        slotFilling.addView(et);
-
-                        lastIndex = currentIndex + 4;
+                int lastIndex = 0;
+                int currentIndex;
+                while(true){
+                    currentIndex = msg.title.indexOf("____", lastIndex);
+                    if (currentIndex == -1) {
+                        TextView tv = new TextView(ctx);
+                        tv.setText(msg.title.substring(lastIndex));
+                        slotFilling.addView(tv);
+                        textviews.add(tv);
+                        break;
                     }
+                    if (currentIndex != lastIndex) {
+                        TextView tv = new TextView(ctx);
+                        tv.setText(msg.title.substring(lastIndex, currentIndex).trim());
+                        slotFilling.addView(tv);
+                        textviews.add(tv);
+                    }
+                    EditText et = new EditText(ctx);
+                    et.setLayoutParams(lp);
+                    et.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
+                    et.setMinWidth(75);
+                    edittexts.add(et);
+                    slotFilling.addView(et);
+
+                    lastIndex = currentIndex + 4;
                 }
-                if (confirmBtn == null) {
-                    confirmBtn = new android.widget.Button(ctx);
-                    confirmBtn.setText("Go");
-                    //confirmBtn.setBackground(ctx.getDrawable(R.drawable.send_button));
-                    confirmBtn.setLayoutParams(new LinearLayout.LayoutParams(125, 75));
-                    confirmBtn.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            String[] values = new String[edittexts.size()];
-                            Log.d("SLOT_FILLING", String.valueOf(values.length));
-                            for (int i = 0; i < edittexts.size(); i++) {
-                                values[i] = (edittexts.get(i).getText().toString());
-                            }
-                            owner.onSlotFillingActivated(msg.title, msg.json, values);
+
+                confirmBtn = new android.widget.Button(ctx);
+                confirmBtn.setText("Go");
+                confirmBtn.setLayoutParams(new LinearLayout.LayoutParams(125, 75));
+                confirmBtn.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        String[] values = new String[edittexts.size()];
+                        for (int i = 0; i < edittexts.size(); i++) {
+                            values[i] = (edittexts.get(i).getText().toString());
                         }
-                    });
-                    slotFilling.addView(confirmBtn);
-                }
+                        owner.onSlotFillingActivated(msg.title, msg.json, values);
+                    }
+                });
+                slotFilling.addView(confirmBtn);
 
                 applyBubbleStyle(slotFilling, AssistantMessage.Direction.FROM_USER);
                 setSideAndAlignment(slotFilling, msg);
