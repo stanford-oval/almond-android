@@ -65,7 +65,10 @@ class AssistantHistoryAdapter extends RecyclerView.Adapter<AssistantHistoryAdapt
         public abstract void bind(AssistantMessage msg);
 
         protected void applyBubbleStyle(View view, AssistantMessage.Direction side) {
-            if (side == AssistantMessage.Direction.FROM_SABRINA)
+            if (view instanceof FlexboxLayout) {
+                //TODO: replace it with button background
+                view.setBackgroundResource(R.drawable.bubble_user);
+            } else if (side == AssistantMessage.Direction.FROM_SABRINA)
                 view.setBackgroundResource(R.drawable.bubble_sabrina);
             else if (side == AssistantMessage.Direction.FROM_USER)
                 view.setBackgroundResource(R.drawable.bubble_user);
@@ -413,7 +416,6 @@ class AssistantHistoryAdapter extends RecyclerView.Adapter<AssistantHistoryAdapt
                     slotFilling = new FlexboxLayout(ctx);
                     slotFilling.setFlexWrap(FlexboxLayout.FLEX_WRAP_WRAP);
                     slotFilling.setAlignItems(FlexboxLayout.ALIGN_ITEMS_CENTER);
-                    slotFilling.setBackground(ctx.getDrawable(R.drawable.button));
                 }
 
                 textviews = new ArrayList();
