@@ -3,11 +3,14 @@ package edu.stanford.thingengine.engine.ui;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.ShapeDrawable;
+import android.graphics.drawable.shapes.RectShape;
 import android.support.percent.PercentRelativeLayout;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
@@ -402,7 +405,7 @@ class AssistantHistoryAdapter extends RecyclerView.Adapter<AssistantHistoryAdapt
                 final AssistantMessage.SlotFilling msg = (AssistantMessage.SlotFilling) base;
 
                 final LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
-                        LinearLayout.LayoutParams.WRAP_CONTENT,75);
+                        LinearLayout.LayoutParams.WRAP_CONTENT, 75);
 
                 if (slotFilling != null) {
                     slotFilling.removeAllViews();
@@ -428,7 +431,7 @@ class AssistantHistoryAdapter extends RecyclerView.Adapter<AssistantHistoryAdapt
                     }
                     if (currentIndex != lastIndex) {
                         TextView tv = new TextView(ctx);
-                        tv.setText(msg.title.substring(lastIndex, currentIndex).trim());
+                        tv.setText(msg.title.substring(lastIndex, currentIndex));
                         slotFilling.addView(tv);
                         textviews.add(tv);
                     }
@@ -436,9 +439,19 @@ class AssistantHistoryAdapter extends RecyclerView.Adapter<AssistantHistoryAdapt
                     et.setLayoutParams(lp);
                     et.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
                     et.setMinWidth(75);
+                    ShapeDrawable shape = new ShapeDrawable(new RectShape());
+                    shape.getPaint().setColor(Color.rgb(220, 220, 220));
+                    et.setBackground(shape);
+                    et.setIncludeFontPadding(false);
+                    et.setOnTouchListener(new View.OnTouchListener() {
+                        @Override
+                        public boolean onTouch(View view, MotionEvent motionEvent) {
+                            confirmBtn.setVisibility(View.VISIBLE);
+                            return false;
+                        }
+                    });
                     edittexts.add(et);
                     slotFilling.addView(et);
-
                     lastIndex = currentIndex + 4;
                 }
 
@@ -455,6 +468,8 @@ class AssistantHistoryAdapter extends RecyclerView.Adapter<AssistantHistoryAdapt
                         owner.onSlotFillingActivated(msg.title, msg.json, values);
                     }
                 });
+                if (edittexts.size() != 0)
+                    confirmBtn.setVisibility(View.GONE);
                 slotFilling.addView(confirmBtn);
 
                 applyBubbleStyle(slotFilling, AssistantMessage.Direction.FROM_USER);
