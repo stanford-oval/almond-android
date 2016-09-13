@@ -431,6 +431,15 @@ public class AssistantDispatcher implements Handler.Callback {
 
     // to be called from any thread
     public void dispatch(AssistantMessage msg) {
+        if (msg.type == AssistantMessage.Type.BUTTON) {
+            String json = ((AssistantMessage.Button) msg).json;
+            if (json.indexOf("\"slots\":[\"") != -1) {
+                msg = new AssistantMessage.SlotFilling(
+                        msg.direction,
+                        ((AssistantMessage.Button) msg).title,
+                        ((AssistantMessage.Button) msg).json);
+            }
+        }
         assistantHandler.obtainMessage(MSG_ASSISTANT_MESSAGE, msg).sendToTarget();
     }
 }
