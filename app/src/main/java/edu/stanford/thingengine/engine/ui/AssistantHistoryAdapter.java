@@ -3,8 +3,6 @@ package edu.stanford.thingengine.engine.ui;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
-import android.graphics.drawable.ShapeDrawable;
-import android.graphics.drawable.shapes.RectShape;
 import android.support.percent.PercentRelativeLayout;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -66,8 +64,7 @@ class AssistantHistoryAdapter extends RecyclerView.Adapter<AssistantHistoryAdapt
 
         protected void applyBubbleStyle(View view, AssistantMessage.Direction side) {
             if (view instanceof FlexboxLayout) {
-                //TODO: replace it with button background
-                view.setBackgroundResource(R.drawable.bubble_user);
+                view.setBackgroundResource(android.R.drawable.btn_default);
             } else if (side == AssistantMessage.Direction.FROM_SABRINA)
                 view.setBackgroundResource(R.drawable.bubble_sabrina);
             else if (side == AssistantMessage.Direction.FROM_USER)
@@ -395,7 +392,7 @@ class AssistantHistoryAdapter extends RecyclerView.Adapter<AssistantHistoryAdapt
             private FlexboxLayout slotFilling;
             private List<TextView> textviews;
             private List<EditText> edittexts;
-            private android.widget.Button confirmBtn;
+            private android.widget.ImageView confirmBtn;
             private final AssistantFragment owner;
 
             public SlotFilling(Context ctx, AssistantFragment owner) {
@@ -448,11 +445,8 @@ class AssistantHistoryAdapter extends RecyclerView.Adapter<AssistantHistoryAdapt
                     et.setLayoutParams(lp);
                     et.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
                     et.setMinWidth(75);
-                    ShapeDrawable shape = new ShapeDrawable(new RectShape());
-                    int lightGray = Color.rgb(220, 220, 220);
-                    shape.getPaint().setColor(lightGray);
-                    et.setBackground(shape);
-                    et.setPadding(0, 5, 0, 5);
+                    et.setBackgroundResource(android.R.drawable.editbox_background);
+                    et.setPadding(5, 5, 5, 5);
                     et.setOnTouchListener(new View.OnTouchListener() {
                         @Override
                         public boolean onTouch(View view, MotionEvent motionEvent) {
@@ -465,9 +459,8 @@ class AssistantHistoryAdapter extends RecyclerView.Adapter<AssistantHistoryAdapt
                     lastIndex = currentIndex + 4;
                 }
 
-                confirmBtn = new android.widget.Button(ctx);
-                confirmBtn.setText("Go");
-                confirmBtn.setLayoutParams(new LinearLayout.LayoutParams(125, 75));
+                confirmBtn = new android.widget.ImageView(ctx);
+                confirmBtn.setImageResource(android.R.drawable.ic_media_play);
                 confirmBtn.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
