@@ -50,7 +50,9 @@ import org.json.JSONObject;
 import org.json.JSONTokener;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.Callable;
@@ -617,6 +619,13 @@ public class AssistantFragment extends Fragment implements AssistantOutput, Assi
         if (control == null)
             return;
 
+        List<Integer> slotIndex = new ArrayList<Integer>();
+        int idx = title.indexOf("____");
+        while (idx > 0) {
+            slotIndex.add(idx);
+            idx = title.indexOf("____", idx + 4);
+        }
+
         try {
             JSONObject jsonObj = new JSONObject(json);
             String cmdType = jsonObj.keys().next();
@@ -626,7 +635,7 @@ public class AssistantFragment extends Fragment implements AssistantOutput, Assi
             else {
                 JSONArray slots = cmd.getJSONArray("slots");
                 JSONArray args = new JSONArray();
-                for (int i = 0; i < slots.length(); i++) {
+                for (int i = slots.length() - 1; i >= 0; i--) {
                     if (values[i].length() > 0) {
                         JSONObject argJson = new JSONObject();
                         JSONObject argName = new JSONObject();
@@ -638,6 +647,8 @@ public class AssistantFragment extends Fragment implements AssistantOutput, Assi
                         argJson.put("value", argValue);
                         argJson.put("operator", "is");
                         args.put(argJson);
+                        title = title.substring(0, slotIndex.get(i)) + values[i]
+                                + title.substring(slotIndex.get(i) + 4);
                     }
                 }
                 cmd.put("args", args);
