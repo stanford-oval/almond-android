@@ -424,17 +424,23 @@ class AssistantHistoryAdapter extends RecyclerView.Adapter<AssistantHistoryAdapt
                 while(true){
                     currentIndex = msg.title.indexOf("____", lastIndex);
                     if (currentIndex == -1) {
-                        TextView tv = new TextView(ctx);
-                        tv.setText(msg.title.substring(lastIndex));
-                        slotFilling.addView(tv);
-                        textviews.add(tv);
+                        String[] words = msg.title.substring(lastIndex).split(" ");
+                        for (String word: words) {
+                            TextView tv = new TextView(ctx);
+                            tv.setText(word + " ");
+                            slotFilling.addView(tv);
+                            textviews.add(tv);
+                        }
                         break;
                     }
                     if (currentIndex != lastIndex) {
-                        TextView tv = new TextView(ctx);
-                        tv.setText(msg.title.substring(lastIndex, currentIndex));
-                        slotFilling.addView(tv);
-                        textviews.add(tv);
+                        String[] words = msg.title.substring(lastIndex, currentIndex).split(" ");
+                        for (String word: words) {
+                            TextView tv = new TextView(ctx);
+                            tv.setText(word + " ");
+                            slotFilling.addView(tv);
+                            textviews.add(tv);
+                        }
                     }
                     EditText et = new EditText(ctx);
                     et.setLayoutParams(lp);
