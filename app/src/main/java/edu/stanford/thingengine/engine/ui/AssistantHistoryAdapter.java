@@ -8,7 +8,6 @@ import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
@@ -446,22 +445,12 @@ class AssistantHistoryAdapter extends RecyclerView.Adapter<AssistantHistoryAdapt
                     et.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
                     et.setMinWidth(75);
                     et.setBackgroundResource(android.R.drawable.editbox_background);
-                    et.setPadding(5, 5, 5, 5);
-                    et.setOnTouchListener(new View.OnTouchListener() {
-                        @Override
-                        public boolean onTouch(View view, MotionEvent motionEvent) {
-                            confirmBtn.setVisibility(View.VISIBLE);
-                            return false;
-                        }
-                    });
+                    et.setPadding(10, 5, 10, 5);
                     edittexts.add(et);
                     slotFilling.addView(et);
                     lastIndex = currentIndex + 4;
                 }
-
-                confirmBtn = new android.widget.ImageView(ctx);
-                confirmBtn.setImageResource(android.R.drawable.ic_media_play);
-                confirmBtn.setOnClickListener(new View.OnClickListener() {
+                slotFilling.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         String[] values = new String[edittexts.size()];
@@ -471,9 +460,6 @@ class AssistantHistoryAdapter extends RecyclerView.Adapter<AssistantHistoryAdapt
                         owner.onSlotFillingActivated(msg.title, msg.json, values);
                     }
                 });
-                if (edittexts.size() != 0)
-                    confirmBtn.setVisibility(View.GONE);
-                slotFilling.addView(confirmBtn);
 
                 applyBubbleStyle(slotFilling, AssistantMessage.Direction.FROM_USER);
                 setSideAndAlignment(slotFilling, msg);
