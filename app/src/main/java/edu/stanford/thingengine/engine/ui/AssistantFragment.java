@@ -621,22 +621,24 @@ public class AssistantFragment extends Fragment implements AssistantOutput, Assi
             JSONObject jsonObj = new JSONObject(json);
             String cmdType = jsonObj.keys().next();
             JSONObject cmd = jsonObj.getJSONObject(cmdType);
-            if (!cmd.has("slots"))
+            if (!cmd.has("slots") || cmd.getJSONArray("slots").length() == 0)
                 display(control.getAssistant().handleButton(title, json));
             else {
                 JSONArray slots = cmd.getJSONArray("slots");
                 JSONArray args = new JSONArray();
                 for (int i = 0; i < slots.length(); i++) {
-                    JSONObject argJson = new JSONObject();
-                    JSONObject argName = new JSONObject();
-                    argName.put("id", "tt:param." + slots.getString(i));
-                    JSONObject argValue = new JSONObject();
-                    argValue.put("value", values[i]);
-                    argJson.put("name", argName);
-                    argJson.put("type", "String");
-                    argJson.put("value", argValue);
-                    argJson.put("operator", "is");
-                    args.put(argJson);
+                    if (values[i].length() > 0) {
+                        JSONObject argJson = new JSONObject();
+                        JSONObject argName = new JSONObject();
+                        argName.put("id", "tt:param." + slots.getString(i));
+                        JSONObject argValue = new JSONObject();
+                        argValue.put("value", values[i]);
+                        argJson.put("name", argName);
+                        argJson.put("type", "String");
+                        argJson.put("value", argValue);
+                        argJson.put("operator", "is");
+                        args.put(argJson);
+                    }
                 }
                 cmd.put("args", args);
                 jsonObj.put("cmdType", cmd);
