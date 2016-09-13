@@ -405,7 +405,7 @@ class AssistantHistoryAdapter extends RecyclerView.Adapter<AssistantHistoryAdapt
                 final AssistantMessage.SlotFilling msg = (AssistantMessage.SlotFilling) base;
 
                 final LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
-                        LinearLayout.LayoutParams.WRAP_CONTENT, 75);
+                        LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
 
                 if (slotFilling != null) {
                     slotFilling.removeAllViews();
@@ -413,6 +413,7 @@ class AssistantHistoryAdapter extends RecyclerView.Adapter<AssistantHistoryAdapt
                     slotFilling = new FlexboxLayout(ctx);
                     slotFilling.setFlexWrap(FlexboxLayout.FLEX_WRAP_WRAP);
                     slotFilling.setAlignItems(FlexboxLayout.ALIGN_ITEMS_CENTER);
+                    slotFilling.setBackground(ctx.getDrawable(R.drawable.button));
                 }
 
                 textviews = new ArrayList();
@@ -440,9 +441,10 @@ class AssistantHistoryAdapter extends RecyclerView.Adapter<AssistantHistoryAdapt
                     et.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
                     et.setMinWidth(75);
                     ShapeDrawable shape = new ShapeDrawable(new RectShape());
-                    shape.getPaint().setColor(Color.rgb(220, 220, 220));
+                    int lightGray = Color.rgb(220, 220, 220);
+                    shape.getPaint().setColor(lightGray);
                     et.setBackground(shape);
-                    et.setIncludeFontPadding(false);
+                    et.setPadding(0, 5, 0, 5);
                     et.setOnTouchListener(new View.OnTouchListener() {
                         @Override
                         public boolean onTouch(View view, MotionEvent motionEvent) {

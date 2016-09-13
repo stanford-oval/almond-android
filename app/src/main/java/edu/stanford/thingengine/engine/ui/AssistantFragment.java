@@ -623,24 +623,26 @@ public class AssistantFragment extends Fragment implements AssistantOutput, Assi
             JSONObject cmd = jsonObj.getJSONObject(cmdType);
             if (!cmd.has("slots"))
                 display(control.getAssistant().handleButton(title, json));
-            JSONArray slots = cmd.getJSONArray("slots");
-            JSONArray args = new JSONArray();
-            for (int i = 0; i < slots.length(); i++) {
-                JSONObject argJson = new JSONObject();
-                JSONObject argName  = new JSONObject();
-                argName.put("id", "tt:param." + slots.getString(i));
-                JSONObject argValue = new JSONObject();
-                argValue.put("value", values[i]);
-                argJson.put("name", argName);
-                argJson.put("type", "String");
-                argJson.put("value", argValue);
-                argJson.put("operator", "is");
-                args.put(argJson);
+            else {
+                JSONArray slots = cmd.getJSONArray("slots");
+                JSONArray args = new JSONArray();
+                for (int i = 0; i < slots.length(); i++) {
+                    JSONObject argJson = new JSONObject();
+                    JSONObject argName = new JSONObject();
+                    argName.put("id", "tt:param." + slots.getString(i));
+                    JSONObject argValue = new JSONObject();
+                    argValue.put("value", values[i]);
+                    argJson.put("name", argName);
+                    argJson.put("type", "String");
+                    argJson.put("value", argValue);
+                    argJson.put("operator", "is");
+                    args.put(argJson);
+                }
+                cmd.put("args", args);
+                jsonObj.put("cmdType", cmd);
+                Log.d("SLOT_FILLING", jsonObj.toString());
+                display(control.getAssistant().handleButton(title, jsonObj.toString()));
             }
-            cmd.put("args", args);
-            jsonObj.put("cmdType", cmd);
-            Log.d("SLOT_FILLING", jsonObj.toString());
-            display(control.getAssistant().handleButton(title, jsonObj.toString()));
         } catch (JSONException e) {
             e.printStackTrace();
         }
