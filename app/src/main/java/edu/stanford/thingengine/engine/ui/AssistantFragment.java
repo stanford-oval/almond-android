@@ -614,12 +614,12 @@ public class AssistantFragment extends Fragment implements AssistantOutput, Assi
         display(control.getAssistant().handleChoice(title, idx));
     }
 
-    void onSlotFillingActivated(String title, String json, String[] values) {
+    void onSlotFillingActivated(String title, String json, String[] values, String[] types) {
         ControlBinder control = mEngine.getControl();
         if (control == null)
             return;
 
-        List<Integer> slotIndex = new ArrayList<Integer>();
+        List<Integer> slotIndex = new ArrayList();
         int idx = title.indexOf("____");
         while (idx > 0) {
             slotIndex.add(idx);
@@ -641,9 +641,12 @@ public class AssistantFragment extends Fragment implements AssistantOutput, Assi
                         JSONObject argName = new JSONObject();
                         argName.put("id", "tt:param." + slots.getString(i));
                         JSONObject argValue = new JSONObject();
-                        argValue.put("value", values[i]);
+                        if (types[i].equals("Number"))
+                            argValue.put("value", Integer.valueOf(values[i]));
+                        else
+                            argValue.put("value", values[i]);
                         argJson.put("name", argName);
-                        argJson.put("type", "String");
+                        argJson.put("type", types[i]);
                         argJson.put("value", argValue);
                         argJson.put("operator", "is");
                         args.put(argJson);

@@ -6,6 +6,7 @@ import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.support.percent.PercentRelativeLayout;
 import android.support.v7.widget.RecyclerView;
+import android.text.InputType;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
@@ -180,14 +181,16 @@ class AssistantHistoryAdapter extends RecyclerView.Adapter<AssistantHistoryAdapt
                     String id = obj.getJSONObject(cmdType).getJSONObject("name").getString("id");
                     String kind = id.substring(3, id.indexOf("."));
                     String cmd = id.substring(id.indexOf(".") + 1);
+                    JSONArray slots = obj.getJSONObject(cmdType).getJSONArray("slots");
                     JSONObject meta = mThingpedia.getMeta(kind);
-                    JSONArray schema = meta.getJSONObject(meta.keys().next())
+                    JSONObject cmdmeta = meta.getJSONObject(meta.keys().next())
                             .getJSONObject(getTypeName(cmdType))
-                            .getJSONObject(cmd)
-                            .getJSONArray("schema");
+                            .getJSONObject(cmd);
+                    JSONArray schema = cmdmeta.getJSONArray("schema");
+                    JSONArray argNames = cmdmeta.getJSONArray("args");
                     String[] types = new String[schema.length()];
-                    for (int i = 0; i < schema.length(); i++) {
-                        types[i] = schema.getString(i);
+                    for (int i = 0; i < slots.length(); i++) {
+                        types[i] = getSlotType(slots.getString(i), schema, argNames);
                     }
                     arg.types = types;
                 } catch (JSONException | IOException e) {
@@ -201,9 +204,8 @@ class AssistantHistoryAdapter extends RecyclerView.Adapter<AssistantHistoryAdapt
                 FlexboxLayout slotFilling = args.view;
                 final AssistantMessage.SlotFilling msg = args.msg;
                 final AssistantFragment owner = args.owner;
-
-                final LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
-                        LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+                final String[] types = args.types;
+                int slotIndex = 0;
 
                 if (slotFilling != null) {
                     slotFilling.removeAllViews();
@@ -239,12 +241,8 @@ class AssistantHistoryAdapter extends RecyclerView.Adapter<AssistantHistoryAdapt
                             textviews.add(tv);
                         }
                     }
-                    EditText et = new EditText(ctx);
-                    et.setLayoutParams(lp);
-                    et.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
-                    et.setMinWidth(75);
-                    et.setBackgroundResource(android.R.drawable.editbox_background);
-                    et.setPadding(10, 5, 10, 5);
+                    EditText et = editTextByType(types[slotIndex]);
+                    slotIndex ++;
                     edittexts.add(et);
                     slotFilling.addView(et);
                     lastIndex = currentIndex + 4;
@@ -256,10 +254,9 @@ class AssistantHistoryAdapter extends RecyclerView.Adapter<AssistantHistoryAdapt
                         for (int i = 0; i < edittexts.size(); i++) {
                             values[i] = (edittexts.get(i).getText().toString());
                         }
-                        owner.onSlotFillingActivated(msg.title, msg.json, values);
+                        owner.onSlotFillingActivated(msg.title, msg.json, values, types);
                     }
                 });
-
                 applyBubbleStyle(slotFilling, AssistantMessage.Direction.FROM_USER);
                 setSideAndAlignment(slotFilling, msg);
                 setIcon(msg);
@@ -270,6 +267,44 @@ class AssistantHistoryAdapter extends RecyclerView.Adapter<AssistantHistoryAdapt
                     return "queries";
                 else
                     return type + "s";
+            }
+
+            private String getSlotType(String argName, JSONArray schema, JSONArray argNames) {
+                try {
+                    for (int i = 0; i < argNames.length(); i++) {
+                        if (argNames.getString(i).equals(argName))
+                            return schema.getString(i);
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                return "String";
+            }
+
+            private EditText editTextByType(String type) {
+                final LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+                EditText et = new EditText(ctx);
+                et.setLayoutParams(lp);
+                et.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
+                et.setMinWidth(75);
+                et.setBackgroundResource(android.R.drawable.editbox_background);
+                et.setPadding(10, 5, 10, 5);
+                switch(type) {
+                    case "Number":
+                        et.setInputType(InputType.TYPE_CLASS_NUMBER);
+                        break;
+                    case "PhoneNumber":
+                        et.setInputType(InputType.TYPE_CLASS_PHONE);
+                        break;
+                    case "EmailAddress":
+                        et.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_WEB_EMAIL_ADDRESS);
+                        break;
+                    default:
+                        et.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_AUTO_CORRECT);
+                        break;
+                }
+                return et;
             }
         }
 
