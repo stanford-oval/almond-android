@@ -647,7 +647,7 @@ public class AssistantFragment extends Fragment implements AssistantOutput, Assi
                         argJson.put("value", argValue);
                         argJson.put("operator", "is");
                         args.put(argJson);
-                        title = title.substring(0, slotIndex.get(i)) + values[i]
+                        title = title.substring(0, slotIndex.get(i)) + values[i].trim()
                                 + title.substring(slotIndex.get(i) + 4);
                     }
                 }

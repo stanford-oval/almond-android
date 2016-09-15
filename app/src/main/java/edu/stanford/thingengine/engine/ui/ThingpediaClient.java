@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 import org.json.JSONTokener;
 
 import java.io.IOException;
@@ -61,15 +62,21 @@ public class ThingpediaClient {
         return (JSONArray)runSimpleRequest("/api/devices?class=" + _class);
     }
 
-    public JSONArray getExamplesByKinds(String _kinds) throws IOException, JSONException {
+    public JSONArray getExamplesByKinds(String _kind) throws IOException, JSONException {
         String locale = Locale.getDefault().toString();
-        JSONArray examples = (JSONArray)runSimpleRequest("/api/examples/by-kinds/" + _kinds +
+        JSONArray examples = (JSONArray)runSimpleRequest("/api/examples/by-kinds/" + _kind +
                 "?locale=" + locale + "&base=1");
         // in case that no example is translated, return the english examples
         if (examples.length() == 0 && !locale.startsWith("en")) {
-            examples = (JSONArray) runSimpleRequest("/api/examples/by-kinds/" + _kinds +
+            examples = (JSONArray) runSimpleRequest("/api/examples/by-kinds/" + _kind +
                     "?locale=en_US&base=1");
         }
         return examples;
+    }
+
+    public JSONObject getMeta(String _kind) throws IOException, JSONException {
+        JSONObject meta = (JSONObject)runSimpleRequest("/api/schema-metadata/" + _kind +
+                "?locale=en_US&base=1");
+        return meta;
     }
 }

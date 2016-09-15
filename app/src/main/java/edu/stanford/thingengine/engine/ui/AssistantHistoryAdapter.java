@@ -3,6 +3,7 @@ package edu.stanford.thingengine.engine.ui;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
+import android.os.AsyncTask;
 import android.support.percent.PercentRelativeLayout;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -19,8 +20,11 @@ import android.widget.TextView;
 import com.google.android.flexbox.FlexboxLayout;
 import com.koushikdutta.ion.Ion;
 
+import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,6 +42,7 @@ class AssistantHistoryAdapter extends RecyclerView.Adapter<AssistantHistoryAdapt
 
     public abstract static class AssistantMessageViewHolder extends RecyclerView.ViewHolder {
         protected final Context ctx;
+        private final ThingpediaClient mThingpedia;
         private ImageView sabrinaHead = null;
         private AssistantMessage.Direction cachedSide = null;
 
@@ -53,6 +58,7 @@ class AssistantHistoryAdapter extends RecyclerView.Adapter<AssistantHistoryAdapt
             super(new PercentRelativeLayout(ctx));
             itemView.setPadding(0, 0, 0, 0);
             this.ctx = ctx;
+            mThingpedia = new ThingpediaClient(ctx);
         }
 
         private PercentRelativeLayout getWrapper() {
@@ -156,6 +162,117 @@ class AssistantHistoryAdapter extends RecyclerView.Adapter<AssistantHistoryAdapt
 
             getWrapper().addView(view, params);
         }
+
+        private class SlotArgs {
+            public String[] types;
+            public AssistantMessage.SlotFilling msg;
+            public FlexboxLayout view;
+            public AssistantFragment owner;
+        }
+
+        protected class GetSlotFillingTask extends AsyncTask<SlotArgs, Void, SlotArgs> {
+            @Override
+            protected SlotArgs doInBackground(SlotArgs... args) {
+                SlotArgs arg = args[0];
+                try {
+                    JSONObject obj = new JSONObject(arg.msg.json);
+                    String cmdType = obj.keys().next();
+                    String id = obj.getJSONObject(cmdType).getJSONObject("name").getString("id");
+                    String kind = id.substring(3, id.indexOf("."));
+                    String cmd = id.substring(id.indexOf(".") + 1);
+                    JSONObject meta = mThingpedia.getMeta(kind);
+                    JSONArray schema = meta.getJSONObject(meta.keys().next())
+                            .getJSONObject(getTypeName(cmdType))
+                            .getJSONObject(cmd)
+                            .getJSONArray("schema");
+                    String[] types = new String[schema.length()];
+                    for (int i = 0; i < schema.length(); i++) {
+                        types[i] = schema.getString(i);
+                    }
+                    arg.types = types;
+                } catch (JSONException | IOException e) {
+                    e.printStackTrace();
+                }
+                return arg;
+            }
+
+            @Override
+            public void onPostExecute(SlotArgs args) {
+                FlexboxLayout slotFilling = args.view;
+                final AssistantMessage.SlotFilling msg = args.msg;
+                final AssistantFragment owner = args.owner;
+
+                final LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+
+                if (slotFilling != null) {
+                    slotFilling.removeAllViews();
+                } else {
+                    slotFilling = new FlexboxLayout(ctx);
+                    slotFilling.setFlexWrap(FlexboxLayout.FLEX_WRAP_WRAP);
+                    slotFilling.setAlignItems(FlexboxLayout.ALIGN_ITEMS_CENTER);
+                }
+
+                final List<TextView> textviews = new ArrayList();
+                final List<EditText> edittexts = new ArrayList();
+
+                int lastIndex = 0;
+                int currentIndex;
+                while(true){
+                    currentIndex = msg.title.indexOf("____", lastIndex);
+                    if (currentIndex == -1) {
+                        String[] words = msg.title.substring(lastIndex).split(" ");
+                        for (String word: words) {
+                            TextView tv = new TextView(ctx);
+                            tv.setText(word + " ");
+                            slotFilling.addView(tv);
+                            textviews.add(tv);
+                        }
+                        break;
+                    }
+                    if (currentIndex != lastIndex) {
+                        String[] words = msg.title.substring(lastIndex, currentIndex).split(" ");
+                        for (String word: words) {
+                            TextView tv = new TextView(ctx);
+                            tv.setText(word + " ");
+                            slotFilling.addView(tv);
+                            textviews.add(tv);
+                        }
+                    }
+                    EditText et = new EditText(ctx);
+                    et.setLayoutParams(lp);
+                    et.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
+                    et.setMinWidth(75);
+                    et.setBackgroundResource(android.R.drawable.editbox_background);
+                    et.setPadding(10, 5, 10, 5);
+                    edittexts.add(et);
+                    slotFilling.addView(et);
+                    lastIndex = currentIndex + 4;
+                }
+                slotFilling.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        String[] values = new String[edittexts.size()];
+                        for (int i = 0; i < edittexts.size(); i++) {
+                            values[i] = (edittexts.get(i).getText().toString());
+                        }
+                        owner.onSlotFillingActivated(msg.title, msg.json, values);
+                    }
+                });
+
+                applyBubbleStyle(slotFilling, AssistantMessage.Direction.FROM_USER);
+                setSideAndAlignment(slotFilling, msg);
+                setIcon(msg);
+            }
+
+            private String getTypeName(String type) {
+                if (type.equals("query"))
+                    return "queries";
+                else
+                    return type + "s";
+            }
+        }
+
 
         public static class Text extends AssistantMessageViewHolder {
             private TextView view;
@@ -389,9 +506,6 @@ class AssistantHistoryAdapter extends RecyclerView.Adapter<AssistantHistoryAdapt
 
         public static class SlotFilling extends AssistantMessageViewHolder {
             private FlexboxLayout slotFilling;
-            private List<TextView> textviews;
-            private List<EditText> edittexts;
-            private android.widget.ImageView confirmBtn;
             private final AssistantFragment owner;
 
             public SlotFilling(Context ctx, AssistantFragment owner) {
@@ -401,69 +515,12 @@ class AssistantHistoryAdapter extends RecyclerView.Adapter<AssistantHistoryAdapt
 
             @Override
             public void bind(AssistantMessage base) {
-                final AssistantMessage.SlotFilling msg = (AssistantMessage.SlotFilling) base;
-
-                final LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
-                        LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-
-                if (slotFilling != null) {
-                    slotFilling.removeAllViews();
-                } else {
-                    slotFilling = new FlexboxLayout(ctx);
-                    slotFilling.setFlexWrap(FlexboxLayout.FLEX_WRAP_WRAP);
-                    slotFilling.setAlignItems(FlexboxLayout.ALIGN_ITEMS_CENTER);
-                }
-
-                textviews = new ArrayList();
-                edittexts = new ArrayList();
-
-                int lastIndex = 0;
-                int currentIndex;
-                while(true){
-                    currentIndex = msg.title.indexOf("____", lastIndex);
-                    if (currentIndex == -1) {
-                        String[] words = msg.title.substring(lastIndex).split(" ");
-                        for (String word: words) {
-                            TextView tv = new TextView(ctx);
-                            tv.setText(word + " ");
-                            slotFilling.addView(tv);
-                            textviews.add(tv);
-                        }
-                        break;
-                    }
-                    if (currentIndex != lastIndex) {
-                        String[] words = msg.title.substring(lastIndex, currentIndex).split(" ");
-                        for (String word: words) {
-                            TextView tv = new TextView(ctx);
-                            tv.setText(word + " ");
-                            slotFilling.addView(tv);
-                            textviews.add(tv);
-                        }
-                    }
-                    EditText et = new EditText(ctx);
-                    et.setLayoutParams(lp);
-                    et.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
-                    et.setMinWidth(75);
-                    et.setBackgroundResource(android.R.drawable.editbox_background);
-                    et.setPadding(10, 5, 10, 5);
-                    edittexts.add(et);
-                    slotFilling.addView(et);
-                    lastIndex = currentIndex + 4;
-                }
-                slotFilling.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        String[] values = new String[edittexts.size()];
-                        for (int i = 0; i < edittexts.size(); i++) {
-                            values[i] = (edittexts.get(i).getText().toString());
-                        }
-                        owner.onSlotFillingActivated(msg.title, msg.json, values);
-                    }
-                });
-
-                applyBubbleStyle(slotFilling, AssistantMessage.Direction.FROM_USER);
-                setSideAndAlignment(slotFilling, msg);
-                setIcon(msg);
+                AssistantMessage.SlotFilling msg = (AssistantMessage.SlotFilling) base;
+                SlotArgs args = new SlotArgs();
+                args.msg = msg;
+                args.owner = this.owner;
+                args.view = slotFilling;
+                new GetSlotFillingTask().execute(args);
             }
         }
 
