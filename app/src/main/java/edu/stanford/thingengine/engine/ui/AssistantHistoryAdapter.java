@@ -12,10 +12,12 @@ import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.google.android.flexbox.FlexboxLayout;
@@ -27,6 +29,7 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import edu.stanford.thingengine.engine.BuildConfig;
@@ -215,8 +218,7 @@ class AssistantHistoryAdapter extends RecyclerView.Adapter<AssistantHistoryAdapt
                     slotFilling.setAlignItems(FlexboxLayout.ALIGN_ITEMS_CENTER);
                 }
 
-                final List<TextView> textviews = new ArrayList();
-                final List<EditText> edittexts = new ArrayList();
+                final List<View> slots = new ArrayList();
 
                 int lastIndex = 0;
                 int currentIndex;
@@ -228,7 +230,6 @@ class AssistantHistoryAdapter extends RecyclerView.Adapter<AssistantHistoryAdapt
                             TextView tv = new TextView(ctx);
                             tv.setText(word + " ");
                             slotFilling.addView(tv);
-                            textviews.add(tv);
                         }
                         break;
                     }
@@ -238,21 +239,25 @@ class AssistantHistoryAdapter extends RecyclerView.Adapter<AssistantHistoryAdapt
                             TextView tv = new TextView(ctx);
                             tv.setText(word + " ");
                             slotFilling.addView(tv);
-                            textviews.add(tv);
                         }
                     }
-                    EditText et = editTextByType(types[slotIndex]);
+                    View slot = editTextByType(types[slotIndex]);
                     slotIndex ++;
-                    edittexts.add(et);
-                    slotFilling.addView(et);
+                    slots.add(slot);
+                    slotFilling.addView(slot);
                     lastIndex = currentIndex + 4;
                 }
                 slotFilling.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        String[] values = new String[edittexts.size()];
-                        for (int i = 0; i < edittexts.size(); i++) {
-                            values[i] = (edittexts.get(i).getText().toString());
+                        String[] values = new String[slots.size()];
+                        for (int i = 0; i < slots.size(); i++) {
+                            View slot = slots.get(i);
+                            if (slot instanceof EditText)
+                                values[i] = (((EditText)slot).getText().toString());
+                            else if (slot instanceof Spinner)
+                                values[i] = ((Spinner)slot).getSelectedItem().toString();
+                            Log.d("SLOT_FILLING", values[i]);
                         }
                         owner.onSlotFillingActivated(msg.title, msg.json, values, types);
                     }
@@ -281,7 +286,9 @@ class AssistantHistoryAdapter extends RecyclerView.Adapter<AssistantHistoryAdapt
                 return "String";
             }
 
-            private EditText editTextByType(String type) {
+            private View editTextByType(String type) {
+                if (type.startsWith("Enum"))
+                    return enumSpinner(type);
                 final LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
                         LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
                 EditText et = new EditText(ctx);
@@ -300,11 +307,39 @@ class AssistantHistoryAdapter extends RecyclerView.Adapter<AssistantHistoryAdapt
                     case "EmailAddress":
                         et.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_WEB_EMAIL_ADDRESS);
                         break;
+                    case "Picture":
+                    case "Location":
+                    case "Measure":
+                    case "Date":
+                    case "Time":
+                    case "Contact":
+                    case "Choice":
+                    case "Bool":
+                        et.setEnabled(false);
                     default:
                         et.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_AUTO_CORRECT);
                         break;
                 }
                 return et;
+            }
+
+            private Spinner enumSpinner(String type) {
+                List<String> options = new ArrayList(Arrays.asList(type.substring(5, type.length() - 1).split(",")));
+                ArrayAdapter<String> adapter = new ArrayAdapter<String>(
+                        ctx, android.R.layout.simple_spinner_item, options) {
+                    @Override
+                    public View getView(int position, View convertView, ViewGroup parent) {
+                        View v = super.getView(position, convertView, parent);
+                        TextView tv = ((TextView) v);
+                        tv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
+                        return tv;
+                    }
+                };
+                adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                Spinner spinner = new Spinner(ctx);
+                spinner.setAdapter(adapter);
+                spinner.setBackgroundResource(android.R.drawable.editbox_background);
+                return spinner;
             }
         }
 

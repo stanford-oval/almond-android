@@ -646,7 +646,10 @@ public class AssistantFragment extends Fragment implements AssistantOutput, Assi
                         else
                             argValue.put("value", values[i]);
                         argJson.put("name", argName);
-                        argJson.put("type", types[i]);
+                        if (types[i].startsWith("Enum"))
+                            argJson.put("type", "Enum");
+                        else
+                            argJson.put("type", types[i]);
                         argJson.put("value", argValue);
                         argJson.put("operator", "is");
                         args.put(argJson);
