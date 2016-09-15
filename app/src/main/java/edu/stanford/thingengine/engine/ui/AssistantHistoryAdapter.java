@@ -3,7 +3,6 @@ package edu.stanford.thingengine.engine.ui;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
-import android.os.AsyncTask;
 import android.support.percent.PercentRelativeLayout;
 import android.support.v7.widget.RecyclerView;
 import android.text.InputType;
@@ -23,11 +22,8 @@ import android.widget.TextView;
 import com.google.android.flexbox.FlexboxLayout;
 import com.koushikdutta.ion.Ion;
 
-import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -168,189 +164,6 @@ class AssistantHistoryAdapter extends RecyclerView.Adapter<AssistantHistoryAdapt
 
             getWrapper().addView(view, params);
         }
-
-        private class SlotArgs {
-            public String[] types;
-            public AssistantMessage.SlotFilling msg;
-            public FlexboxLayout view;
-            public AssistantFragment owner;
-        }
-
-        protected class GetSlotFillingTask extends AsyncTask<SlotArgs, Void, SlotArgs> {
-            @Override
-            protected SlotArgs doInBackground(SlotArgs... args) {
-                SlotArgs arg = args[0];
-                try {
-                    JSONObject obj = new JSONObject(arg.msg.json);
-                    String cmdType = obj.keys().next();
-                    String id = obj.getJSONObject(cmdType).getJSONObject("name").getString("id");
-                    String kind = id.substring(3, id.indexOf("."));
-                    String cmd = id.substring(id.indexOf(".") + 1);
-                    JSONArray slots = obj.getJSONObject(cmdType).getJSONArray("slots");
-                    JSONObject meta = mThingpedia.getMeta(kind);
-                    JSONObject cmdmeta = meta.getJSONObject(meta.keys().next())
-                            .getJSONObject(getTypeName(cmdType))
-                            .getJSONObject(cmd);
-                    JSONArray schema = cmdmeta.getJSONArray("schema");
-                    JSONArray argNames = cmdmeta.getJSONArray("args");
-                    String[] types = new String[schema.length()];
-                    for (int i = 0; i < slots.length(); i++) {
-                        types[i] = getSlotType(slots.getString(i), schema, argNames);
-                    }
-                    arg.types = types;
-                } catch (JSONException | IOException e) {
-                    e.printStackTrace();
-                }
-                return arg;
-            }
-
-            @Override
-            public void onPostExecute(SlotArgs args) {
-                FlexboxLayout slotFilling = args.view;
-                final AssistantMessage.SlotFilling msg = args.msg;
-                final AssistantFragment owner = args.owner;
-                final String[] types = args.types;
-                int slotIndex = 0;
-
-                if (slotFilling != null) {
-                    slotFilling.removeAllViews();
-                } else {
-                    slotFilling = new FlexboxLayout(ctx);
-                    slotFilling.setFlexWrap(FlexboxLayout.FLEX_WRAP_WRAP);
-                    slotFilling.setAlignItems(FlexboxLayout.ALIGN_ITEMS_CENTER);
-                    slotFilling.setJustifyContent(FlexboxLayout.JUSTIFY_CONTENT_CENTER);
-                }
-
-                final List<View> slots = new ArrayList();
-
-                int lastIndex = 0;
-                int currentIndex;
-                while(true){
-                    currentIndex = msg.title.indexOf("____", lastIndex);
-                    if (currentIndex == -1) {
-                        String[] words = msg.title.substring(lastIndex).split(" ");
-                        for (String word: words)
-                            slotFilling.addView(btnStyleText(word));
-                        break;
-                    }
-                    if (currentIndex != lastIndex) {
-                        String[] words = msg.title.substring(lastIndex, currentIndex).split(" ");
-                        for (String word: words)
-                            slotFilling.addView(btnStyleText(word));
-                    }
-                    View slot = slotByType(types[slotIndex]);
-                    slotIndex ++;
-                    slots.add(slot);
-                    slotFilling.addView(slot);
-                    lastIndex = currentIndex + 4;
-                }
-                slotFilling.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        String[] values = new String[slots.size()];
-                        for (int i = 0; i < slots.size(); i++) {
-                            View slot = slots.get(i);
-                            if (slot instanceof EditText)
-                                values[i] = (((EditText)slot).getText().toString());
-                            else if (slot instanceof Spinner)
-                                values[i] = ((Spinner)slot).getSelectedItem().toString();
-                        }
-                        owner.onSlotFillingActivated(msg.title, msg.json, values, types);
-                    }
-                });
-                applyBubbleStyle(slotFilling, AssistantMessage.Direction.FROM_USER);
-                setSideAndAlignment(slotFilling, msg);
-                setIcon(msg);
-            }
-
-            private String getTypeName(String type) {
-                if (type.equals("query"))
-                    return "queries";
-                else
-                    return type + "s";
-            }
-
-            private String getSlotType(String argName, JSONArray schema, JSONArray argNames) {
-                try {
-                    for (int i = 0; i < argNames.length(); i++) {
-                        if (argNames.getString(i).equals(argName))
-                            return schema.getString(i);
-                    }
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-                return "String";
-            }
-
-            private TextView btnStyleText(String word) {
-                android.widget.Button btn = new android.widget.Button(ctx);
-                TextView tv = new TextView(ctx);
-                tv.setTypeface(btn.getTypeface());
-                tv.setTextColor(btn.getTextColors());
-                tv.setText(word + " ");
-                return tv;
-            }
-
-            private View slotByType(String type) {
-                if (type.startsWith("Enum"))
-                    return enumSpinner(type);
-                final LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
-                        LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-                EditText et = new EditText(ctx);
-                et.setLayoutParams(lp);
-                et.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
-                et.setMinWidth(75);
-                et.setBackgroundResource(android.R.drawable.editbox_background);
-                et.setPadding(10, 5, 10, 5);
-                switch(type) {
-                    case "Number":
-                        et.setInputType(InputType.TYPE_CLASS_NUMBER);
-                        break;
-                    case "PhoneNumber":
-                        et.setInputType(InputType.TYPE_CLASS_PHONE);
-                        break;
-                    case "EmailAddress":
-                        et.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_WEB_EMAIL_ADDRESS);
-                        break;
-                    case "Picture":
-                    case "Location":
-                    case "Measure":
-                    case "Date":
-                    case "Time":
-                    case "Bool":
-                    // the following types are not supposed to appear here
-                    case "Contact":
-                    case "Choice":
-                    case "List":
-                        et.setEnabled(false);
-                    default:
-                        et.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_AUTO_CORRECT);
-                        break;
-                }
-                return et;
-            }
-
-            private Spinner enumSpinner(String type) {
-                List<String> options = new ArrayList(Arrays.asList(type.substring(5, type.length() - 1).split(",")));
-                ArrayAdapter<String> adapter = new ArrayAdapter<String>(
-                        ctx, android.R.layout.simple_spinner_item, options) {
-                    @Override
-                    public View getView(int position, View convertView, ViewGroup parent) {
-                        View v = super.getView(position, convertView, parent);
-                        TextView tv = ((TextView) v);
-                        tv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
-                        return tv;
-                    }
-                };
-                adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-                Spinner spinner = new Spinner(ctx);
-                spinner.setAdapter(adapter);
-                spinner.setBackgroundResource(android.R.drawable.editbox_background);
-                spinner.setPadding(10, 5, 10, 5);
-                return spinner;
-            }
-        }
-
 
         public static class Text extends AssistantMessageViewHolder {
             private TextView view;
@@ -593,12 +406,125 @@ class AssistantHistoryAdapter extends RecyclerView.Adapter<AssistantHistoryAdapt
 
             @Override
             public void bind(AssistantMessage base) {
-                AssistantMessage.SlotFilling msg = (AssistantMessage.SlotFilling) base;
-                SlotArgs args = new SlotArgs();
-                args.msg = msg;
-                args.owner = this.owner;
-                args.view = slotFilling;
-                new GetSlotFillingTask().execute(args);
+                final AssistantMessage.SlotFilling msg = (AssistantMessage.SlotFilling) base;
+                final List<View> slots = new ArrayList();
+                int slotIndex = 0;
+
+                if (slotFilling != null) {
+                    slotFilling.removeAllViews();
+                } else {
+                    slotFilling = new FlexboxLayout(ctx);
+                    slotFilling.setFlexWrap(FlexboxLayout.FLEX_WRAP_WRAP);
+                    slotFilling.setAlignItems(FlexboxLayout.ALIGN_ITEMS_CENTER);
+                    slotFilling.setJustifyContent(FlexboxLayout.JUSTIFY_CONTENT_CENTER);
+                }
+
+                int lastIndex = 0;
+                int currentIndex;
+                while(true){
+                    currentIndex = msg.title.indexOf("____", lastIndex);
+                    if (currentIndex == -1) {
+                        String[] words = msg.title.substring(lastIndex).split(" ");
+                        for (String word: words)
+                            slotFilling.addView(btnStyleText(word));
+                        break;
+                    }
+                    if (currentIndex != lastIndex) {
+                        String[] words = msg.title.substring(lastIndex, currentIndex).split(" ");
+                        for (String word: words)
+                            slotFilling.addView(btnStyleText(word));
+                    }
+                    View slot = slotByType(msg.types[slotIndex]);
+                    slotIndex ++;
+                    slots.add(slot);
+                    slotFilling.addView(slot);
+                    lastIndex = currentIndex + 4;
+                }
+                slotFilling.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        String[] values = new String[slots.size()];
+                        for (int i = 0; i < slots.size(); i++) {
+                            View slot = slots.get(i);
+                            if (slot instanceof EditText)
+                                values[i] = (((EditText)slot).getText().toString());
+                            else if (slot instanceof Spinner)
+                                values[i] = ((Spinner)slot).getSelectedItem().toString();
+                        }
+                        owner.onSlotFillingActivated(msg.title, msg.json, msg.types, values);
+                    }
+                });
+                applyBubbleStyle(slotFilling, AssistantMessage.Direction.FROM_USER);
+                setSideAndAlignment(slotFilling, msg);
+                setIcon(msg);
+            }
+
+            private TextView btnStyleText(String word) {
+                android.widget.Button btn = new android.widget.Button(ctx);
+                TextView tv = new TextView(ctx);
+                tv.setTypeface(btn.getTypeface());
+                tv.setTextColor(btn.getTextColors());
+                tv.setText(word + " ");
+                return tv;
+            }
+
+            private View slotByType(String type) {
+                if (type.startsWith("Enum"))
+                    return enumSpinner(type);
+                final LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+                EditText et = new EditText(ctx);
+                et.setLayoutParams(lp);
+                et.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
+                et.setMinWidth(75);
+                et.setBackgroundResource(android.R.drawable.editbox_background);
+                et.setPadding(10, 5, 10, 5);
+                switch(type) {
+                    case "Number":
+                        et.setInputType(InputType.TYPE_CLASS_NUMBER);
+                        break;
+                    case "PhoneNumber":
+                        et.setInputType(InputType.TYPE_CLASS_PHONE);
+                        break;
+                    case "EmailAddress":
+                        et.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_WEB_EMAIL_ADDRESS);
+                        break;
+                    case "Picture":
+                    case "Location":
+                    case "Measure":
+                    case "Date":
+                    case "Time":
+                    case "Bool":
+                        // the following types are not supposed to appear here
+                    case "Contact":
+                    case "Choice":
+                    case "List":
+                        et.setEnabled(false);
+                    default:
+                        et.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_AUTO_CORRECT);
+                        break;
+                }
+                return et;
+            }
+
+            private Spinner enumSpinner(String type) {
+                List<String> options = new ArrayList(Arrays.asList(type.substring(5, type.length() - 1).split(",")));
+                ArrayAdapter<String> adapter = new ArrayAdapter<String>(
+                        ctx, android.R.layout.simple_spinner_item, options) {
+                    @Override
+                    public View getView(int position, View convertView, ViewGroup parent) {
+                        View v = super.getView(position, convertView, parent);
+                        TextView tv = ((TextView) v);
+                        tv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
+                        return tv;
+                    }
+                };
+                adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                Spinner spinner = new Spinner(ctx);
+                spinner.setAdapter(adapter);
+                spinner.setBackgroundResource(android.R.drawable.editbox_background);
+                spinner.setPadding(10, 5, 10, 5);
+                return spinner;
             }
         }
 

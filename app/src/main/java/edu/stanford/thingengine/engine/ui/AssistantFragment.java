@@ -614,7 +614,7 @@ public class AssistantFragment extends Fragment implements AssistantOutput, Assi
         display(control.getAssistant().handleChoice(title, idx));
     }
 
-    void onSlotFillingActivated(String title, String json, String[] values, String[] types) {
+    void onSlotFillingActivated(String title, String json, String[] types, String[] values) {
         ControlBinder control = mEngine.getControl();
         if (control == null)
             return;

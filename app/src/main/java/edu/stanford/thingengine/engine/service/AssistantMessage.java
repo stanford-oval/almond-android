@@ -205,11 +205,13 @@ public abstract class AssistantMessage implements Serializable {
 
         public final String title;
         public final String json;
+        public final String[] types;
 
-        public SlotFilling(Direction dir, String title, String json) {
+        public SlotFilling(Direction dir, String title, String json, String[] types) {
             super(dir, Type.SLOT_FILLING, null);
             this.title = title;
             this.json = json;
+            this.types = types;
         }
 
         @Override
