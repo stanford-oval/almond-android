@@ -73,7 +73,9 @@ class AssistantHistoryAdapter extends RecyclerView.Adapter<AssistantHistoryAdapt
 
         protected void applyBubbleStyle(View view, AssistantMessage.Direction side) {
             if (view instanceof FlexboxLayout) {
-                view.setBackgroundResource(android.R.drawable.btn_default);
+                android.widget.Button btn = new android.widget.Button(ctx);
+                view.setBackground(btn.getBackground());
+                view.setStateListAnimator(btn.getStateListAnimator());
             } else if (side == AssistantMessage.Direction.FROM_SABRINA)
                 view.setBackgroundResource(R.drawable.bubble_sabrina);
             else if (side == AssistantMessage.Direction.FROM_USER)
@@ -216,6 +218,7 @@ class AssistantHistoryAdapter extends RecyclerView.Adapter<AssistantHistoryAdapt
                     slotFilling = new FlexboxLayout(ctx);
                     slotFilling.setFlexWrap(FlexboxLayout.FLEX_WRAP_WRAP);
                     slotFilling.setAlignItems(FlexboxLayout.ALIGN_ITEMS_CENTER);
+                    slotFilling.setJustifyContent(FlexboxLayout.JUSTIFY_CONTENT_CENTER);
                 }
 
                 final List<View> slots = new ArrayList();
@@ -226,22 +229,16 @@ class AssistantHistoryAdapter extends RecyclerView.Adapter<AssistantHistoryAdapt
                     currentIndex = msg.title.indexOf("____", lastIndex);
                     if (currentIndex == -1) {
                         String[] words = msg.title.substring(lastIndex).split(" ");
-                        for (String word: words) {
-                            TextView tv = new TextView(ctx);
-                            tv.setText(word + " ");
-                            slotFilling.addView(tv);
-                        }
+                        for (String word: words)
+                            slotFilling.addView(btnStyleText(word));
                         break;
                     }
                     if (currentIndex != lastIndex) {
                         String[] words = msg.title.substring(lastIndex, currentIndex).split(" ");
-                        for (String word: words) {
-                            TextView tv = new TextView(ctx);
-                            tv.setText(word + " ");
-                            slotFilling.addView(tv);
-                        }
+                        for (String word: words)
+                            slotFilling.addView(btnStyleText(word));
                     }
-                    View slot = editTextByType(types[slotIndex]);
+                    View slot = slotByType(types[slotIndex]);
                     slotIndex ++;
                     slots.add(slot);
                     slotFilling.addView(slot);
@@ -257,7 +254,6 @@ class AssistantHistoryAdapter extends RecyclerView.Adapter<AssistantHistoryAdapt
                                 values[i] = (((EditText)slot).getText().toString());
                             else if (slot instanceof Spinner)
                                 values[i] = ((Spinner)slot).getSelectedItem().toString();
-                            Log.d("SLOT_FILLING", values[i]);
                         }
                         owner.onSlotFillingActivated(msg.title, msg.json, values, types);
                     }
@@ -286,7 +282,16 @@ class AssistantHistoryAdapter extends RecyclerView.Adapter<AssistantHistoryAdapt
                 return "String";
             }
 
-            private View editTextByType(String type) {
+            private TextView btnStyleText(String word) {
+                android.widget.Button btn = new android.widget.Button(ctx);
+                TextView tv = new TextView(ctx);
+                tv.setTypeface(btn.getTypeface());
+                tv.setTextColor(btn.getTextColors());
+                tv.setText(word + " ");
+                return tv;
+            }
+
+            private View slotByType(String type) {
                 if (type.startsWith("Enum"))
                     return enumSpinner(type);
                 final LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
@@ -312,9 +317,11 @@ class AssistantHistoryAdapter extends RecyclerView.Adapter<AssistantHistoryAdapt
                     case "Measure":
                     case "Date":
                     case "Time":
+                    case "Bool":
+                    // the following types are not supposed to appear here
                     case "Contact":
                     case "Choice":
-                    case "Bool":
+                    case "List":
                         et.setEnabled(false);
                     default:
                         et.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_AUTO_CORRECT);
@@ -339,6 +346,7 @@ class AssistantHistoryAdapter extends RecyclerView.Adapter<AssistantHistoryAdapt
                 Spinner spinner = new Spinner(ctx);
                 spinner.setAdapter(adapter);
                 spinner.setBackgroundResource(android.R.drawable.editbox_background);
+                spinner.setPadding(10, 5, 10, 5);
                 return spinner;
             }
         }
