@@ -42,7 +42,6 @@ class AssistantHistoryAdapter extends RecyclerView.Adapter<AssistantHistoryAdapt
 
     public abstract static class AssistantMessageViewHolder extends RecyclerView.ViewHolder {
         protected final Context ctx;
-        private final ThingpediaClient mThingpedia;
         private ImageView sabrinaHead = null;
         private AssistantMessage.Direction cachedSide = null;
 
@@ -58,7 +57,6 @@ class AssistantHistoryAdapter extends RecyclerView.Adapter<AssistantHistoryAdapt
             super(new PercentRelativeLayout(ctx));
             itemView.setPadding(0, 0, 0, 0);
             this.ctx = ctx;
-            mThingpedia = new ThingpediaClient(ctx);
         }
 
         private PercentRelativeLayout getWrapper() {
@@ -434,7 +432,13 @@ class AssistantHistoryAdapter extends RecyclerView.Adapter<AssistantHistoryAdapt
                         for (String word: words)
                             slotFilling.addView(btnStyleText(word));
                     }
-                    View slot = slotByType(msg.types[slotIndex]);
+                    View slot;
+                    if (slotIndex < msg.types.length)
+                        slot = slotByType(msg.types[slotIndex]);
+                    else
+                        // number of slots and types doesn't match
+                        // which means the metadata of this example is incorrect
+                        slot = slotByType("UNKNOWN");
                     slotIndex ++;
                     slots.add(slot);
                     slotFilling.addView(slot);
@@ -484,6 +488,7 @@ class AssistantHistoryAdapter extends RecyclerView.Adapter<AssistantHistoryAdapt
                     case "Contact":
                     case "Choice":
                     case "List":
+                    case "UNKNOWN":
                         return edittextStyleBtn();
                     default:
                         if (type.startsWith("Enum"))
