@@ -5,19 +5,28 @@ import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.support.percent.PercentRelativeLayout;
 import android.support.v7.widget.RecyclerView;
+import android.text.InputType;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
+import android.widget.Spinner;
 import android.widget.TextView;
 
+import com.google.android.flexbox.FlexboxLayout;
 import com.koushikdutta.ion.Ion;
 
 import org.json.JSONException;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import edu.stanford.thingengine.engine.BuildConfig;
 import edu.stanford.thingengine.engine.Config;
@@ -33,6 +42,7 @@ class AssistantHistoryAdapter extends RecyclerView.Adapter<AssistantHistoryAdapt
 
     public abstract static class AssistantMessageViewHolder extends RecyclerView.ViewHolder {
         protected final Context ctx;
+        private final ThingpediaClient mThingpedia;
         private ImageView sabrinaHead = null;
         private AssistantMessage.Direction cachedSide = null;
 
@@ -48,6 +58,7 @@ class AssistantHistoryAdapter extends RecyclerView.Adapter<AssistantHistoryAdapt
             super(new PercentRelativeLayout(ctx));
             itemView.setPadding(0, 0, 0, 0);
             this.ctx = ctx;
+            mThingpedia = new ThingpediaClient(ctx);
         }
 
         private PercentRelativeLayout getWrapper() {
@@ -57,7 +68,11 @@ class AssistantHistoryAdapter extends RecyclerView.Adapter<AssistantHistoryAdapt
         public abstract void bind(AssistantMessage msg);
 
         protected void applyBubbleStyle(View view, AssistantMessage.Direction side) {
-            if (side == AssistantMessage.Direction.FROM_SABRINA)
+            if (view instanceof FlexboxLayout) {
+                android.widget.Button btn = new android.widget.Button(ctx);
+                view.setBackground(btn.getBackground());
+                view.setStateListAnimator(btn.getStateListAnimator());
+            } else if (side == AssistantMessage.Direction.FROM_SABRINA)
                 view.setBackgroundResource(R.drawable.bubble_sabrina);
             else if (side == AssistantMessage.Direction.FROM_USER)
                 view.setBackgroundResource(R.drawable.bubble_user);
@@ -380,6 +395,157 @@ class AssistantHistoryAdapter extends RecyclerView.Adapter<AssistantHistoryAdapt
             }
         }
 
+        public static class SlotFilling extends AssistantMessageViewHolder {
+            private FlexboxLayout slotFilling;
+            private final AssistantFragment owner;
+
+            public SlotFilling(Context ctx, AssistantFragment owner) {
+                super(ctx);
+                this.owner = owner;
+            }
+
+            @Override
+            public void bind(AssistantMessage base) {
+                final AssistantMessage.SlotFilling msg = (AssistantMessage.SlotFilling) base;
+                final List<View> slots = new ArrayList();
+                int slotIndex = 0;
+
+                if (slotFilling != null) {
+                    slotFilling.removeAllViews();
+                } else {
+                    slotFilling = new FlexboxLayout(ctx);
+                    slotFilling.setFlexWrap(FlexboxLayout.FLEX_WRAP_WRAP);
+                    slotFilling.setAlignItems(FlexboxLayout.ALIGN_ITEMS_CENTER);
+                    slotFilling.setJustifyContent(FlexboxLayout.JUSTIFY_CONTENT_CENTER);
+                }
+
+                int lastIndex = 0;
+                int currentIndex;
+                while(true){
+                    currentIndex = msg.title.indexOf("____", lastIndex);
+                    if (currentIndex == -1) {
+                        String[] words = msg.title.substring(lastIndex).split(" ");
+                        for (String word: words)
+                            slotFilling.addView(btnStyleText(word));
+                        break;
+                    }
+                    if (currentIndex != lastIndex) {
+                        String[] words = msg.title.substring(lastIndex, currentIndex).split(" ");
+                        for (String word: words)
+                            slotFilling.addView(btnStyleText(word));
+                    }
+                    View slot = slotByType(msg.types[slotIndex]);
+                    slotIndex ++;
+                    slots.add(slot);
+                    slotFilling.addView(slot);
+                    lastIndex = currentIndex + 4;
+                }
+                slotFilling.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        String[] values = new String[slots.size()];
+                        for (int i = 0; i < slots.size(); i++) {
+                            View slot = slots.get(i);
+                            if (slot instanceof EditText)
+                                values[i] = (((EditText)slot).getText().toString());
+                            else if (slot instanceof Spinner)
+                                values[i] = ((Spinner)slot).getSelectedItem().toString();
+                            else
+                                values[i] = "";
+                        }
+                        owner.onSlotFillingActivated(msg.title, msg.json, msg.types, values);
+                    }
+                });
+                applyBubbleStyle(slotFilling, AssistantMessage.Direction.FROM_USER);
+                setSideAndAlignment(slotFilling, msg);
+                setIcon(msg);
+            }
+
+            private View slotByType(String type) {
+                EditText et = new EditText(ctx);
+                switch(type) {
+                    case "Number":
+                        et.setInputType(InputType.TYPE_CLASS_NUMBER);
+                        break;
+                    case "PhoneNumber":
+                        et.setInputType(InputType.TYPE_CLASS_PHONE);
+                        break;
+                    case "EmailAddress":
+                        et.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_WEB_EMAIL_ADDRESS);
+                        break;
+                    case "Boolean":
+                        return enumSpinner("Enum(on,off)");
+                    case "Location":
+                    case "Measure":
+                    case "Date":
+                    case "Time":
+                    // the following types are not supposed to appear here
+                    case "Picture":
+                    case "Contact":
+                    case "Choice":
+                    case "List":
+                        return edittextStyleBtn();
+                    default:
+                        if (type.startsWith("Enum"))
+                            return enumSpinner(type);
+                        et.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_AUTO_CORRECT);
+                        break;
+                }
+                int wrapContent = LinearLayout.LayoutParams.WRAP_CONTENT;
+                LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(wrapContent, wrapContent);
+                et.setLayoutParams(lp);
+                et.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
+                et.setMinWidth(75);
+                et.setBackgroundResource(android.R.drawable.editbox_background);
+                et.setPadding(10, 5, 10, 5);
+                et.setGravity(Gravity.CENTER);
+                return et;
+            }
+
+            private TextView btnStyleText(String word) {
+                android.widget.Button btn = new android.widget.Button(ctx);
+                TextView tv = new TextView(ctx);
+                tv.setTypeface(btn.getTypeface());
+                tv.setTextColor(btn.getTextColors());
+                tv.setText(word + " ");
+                return tv;
+            }
+
+            private android.widget.Button edittextStyleBtn() {
+                android.widget.Button btn = new android.widget.Button(ctx);
+                btn.setBackgroundResource(android.R.drawable.editbox_background);
+                btn.setLayoutParams(new LinearLayout.LayoutParams(100, 60));
+                btn.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        slotFilling.performClick();
+                    }
+                });
+                return btn;
+            }
+
+            private Spinner enumSpinner(String type) {
+                List<String> options = new ArrayList(Arrays.asList(type.substring(5, type.length() - 1).split(",")));
+                ArrayAdapter<String> adapter = new ArrayAdapter<String>(
+                        ctx, android.R.layout.simple_spinner_item, options) {
+                    @Override
+                    public View getView(int position, View convertView, ViewGroup parent) {
+                        View v = super.getView(position, convertView, parent);
+                        TextView tv = ((TextView) v);
+                        tv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
+                        tv.setGravity(Gravity.CENTER);
+                        return tv;
+                    }
+                };
+                adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                Spinner spinner = new Spinner(ctx);
+                spinner.setAdapter(adapter);
+                spinner.setBackgroundResource(android.R.drawable.editbox_background);
+                spinner.setPadding(10, 10, 0, 10);
+                return spinner;
+            }
+        }
+
         public static class ChooseLocation extends AbstractButton {
             public ChooseLocation(Context ctx, AssistantFragment owner) {
                 super(ctx, owner);
@@ -502,6 +668,8 @@ class AssistantHistoryAdapter extends RecyclerView.Adapter<AssistantHistoryAdapt
                 return new AssistantMessageViewHolder.Link(getContext(), fragment);
             case BUTTON:
                 return new AssistantMessageViewHolder.Button(getContext(), fragment);
+            case SLOT_FILLING:
+                return new AssistantMessageViewHolder.SlotFilling(getContext(), fragment);
             case ASK_SPECIAL:
                 assert askSpecialType != null;
                 switch (askSpecialType) {
