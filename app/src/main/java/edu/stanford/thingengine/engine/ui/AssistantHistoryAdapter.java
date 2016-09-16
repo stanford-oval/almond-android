@@ -450,6 +450,8 @@ class AssistantHistoryAdapter extends RecyclerView.Adapter<AssistantHistoryAdapt
                                 values[i] = (((EditText)slot).getText().toString());
                             else if (slot instanceof Spinner)
                                 values[i] = ((Spinner)slot).getSelectedItem().toString();
+                            else
+                                values[i] = "";
                         }
                         owner.onSlotFillingActivated(msg.title, msg.json, msg.types, values);
                     }
@@ -457,6 +459,47 @@ class AssistantHistoryAdapter extends RecyclerView.Adapter<AssistantHistoryAdapt
                 applyBubbleStyle(slotFilling, AssistantMessage.Direction.FROM_USER);
                 setSideAndAlignment(slotFilling, msg);
                 setIcon(msg);
+            }
+
+            private View slotByType(String type) {
+                EditText et = new EditText(ctx);
+                switch(type) {
+                    case "Number":
+                        et.setInputType(InputType.TYPE_CLASS_NUMBER);
+                        break;
+                    case "PhoneNumber":
+                        et.setInputType(InputType.TYPE_CLASS_PHONE);
+                        break;
+                    case "EmailAddress":
+                        et.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_WEB_EMAIL_ADDRESS);
+                        break;
+                    case "Boolean":
+                        return enumSpinner("Enum(on,off)");
+                    case "Location":
+                    case "Measure":
+                    case "Date":
+                    case "Time":
+                    // the following types are not supposed to appear here
+                    case "Picture":
+                    case "Contact":
+                    case "Choice":
+                    case "List":
+                        return edittextStyleBtn();
+                    default:
+                        if (type.startsWith("Enum"))
+                            return enumSpinner(type);
+                        et.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_AUTO_CORRECT);
+                        break;
+                }
+                int wrapContent = LinearLayout.LayoutParams.WRAP_CONTENT;
+                LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(wrapContent, wrapContent);
+                et.setLayoutParams(lp);
+                et.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
+                et.setMinWidth(75);
+                et.setBackgroundResource(android.R.drawable.editbox_background);
+                et.setPadding(10, 5, 10, 5);
+                et.setGravity(Gravity.CENTER);
+                return et;
             }
 
             private TextView btnStyleText(String word) {
@@ -468,43 +511,17 @@ class AssistantHistoryAdapter extends RecyclerView.Adapter<AssistantHistoryAdapt
                 return tv;
             }
 
-            private View slotByType(String type) {
-                if (type.startsWith("Enum"))
-                    return enumSpinner(type);
-                final LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
-                        LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-                EditText et = new EditText(ctx);
-                et.setLayoutParams(lp);
-                et.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
-                et.setMinWidth(75);
-                et.setBackgroundResource(android.R.drawable.editbox_background);
-                et.setPadding(10, 5, 10, 5);
-                switch(type) {
-                    case "Number":
-                        et.setInputType(InputType.TYPE_CLASS_NUMBER);
-                        break;
-                    case "PhoneNumber":
-                        et.setInputType(InputType.TYPE_CLASS_PHONE);
-                        break;
-                    case "EmailAddress":
-                        et.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_WEB_EMAIL_ADDRESS);
-                        break;
-                    case "Picture":
-                    case "Location":
-                    case "Measure":
-                    case "Date":
-                    case "Time":
-                    case "Bool":
-                        // the following types are not supposed to appear here
-                    case "Contact":
-                    case "Choice":
-                    case "List":
-                        et.setEnabled(false);
-                    default:
-                        et.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_AUTO_CORRECT);
-                        break;
-                }
-                return et;
+            private android.widget.Button edittextStyleBtn() {
+                android.widget.Button btn = new android.widget.Button(ctx);
+                btn.setBackgroundResource(android.R.drawable.editbox_background);
+                btn.setLayoutParams(new LinearLayout.LayoutParams(100, 60));
+                btn.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        slotFilling.performClick();
+                    }
+                });
+                return btn;
             }
 
             private Spinner enumSpinner(String type) {
@@ -516,6 +533,7 @@ class AssistantHistoryAdapter extends RecyclerView.Adapter<AssistantHistoryAdapt
                         View v = super.getView(position, convertView, parent);
                         TextView tv = ((TextView) v);
                         tv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
+                        tv.setGravity(Gravity.CENTER);
                         return tv;
                     }
                 };
@@ -523,7 +541,7 @@ class AssistantHistoryAdapter extends RecyclerView.Adapter<AssistantHistoryAdapt
                 Spinner spinner = new Spinner(ctx);
                 spinner.setAdapter(adapter);
                 spinner.setBackgroundResource(android.R.drawable.editbox_background);
-                spinner.setPadding(10, 5, 10, 5);
+                spinner.setPadding(10, 10, 0, 10);
                 return spinner;
             }
         }

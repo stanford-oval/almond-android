@@ -638,21 +638,21 @@ public class AssistantFragment extends Fragment implements AssistantOutput, Assi
                 for (int i = slots.length() - 1; i >= 0; i--) {
                     if (values[i].length() > 0) {
                         JSONObject argJson = new JSONObject();
+                        // set argument name
                         JSONObject argName = new JSONObject();
                         argName.put("id", "tt:param." + slots.getString(i));
-                        JSONObject argValue = new JSONObject();
-                        if (types[i].equals("Number"))
-                            argValue.put("value", Integer.valueOf(values[i]));
-                        else
-                            argValue.put("value", values[i]);
                         argJson.put("name", argName);
-                        if (types[i].startsWith("Enum"))
-                            argJson.put("type", "Enum");
-                        else
-                            argJson.put("type", types[i]);
+                        // set argument type
+                        argJson.put("type", getArgType(types[i]));
+                        // set argument value
+                        JSONObject argValue = new JSONObject();
+                        argValue.put("value", getArgValue(values[i], types[i]));
                         argJson.put("value", argValue);
+                        // set operator
                         argJson.put("operator", "is");
+                        // add argument
                         args.put(argJson);
+                        // replace slot (underscore) by the argument value
                         title = title.substring(0, slotIndex.get(i)) + values[i].trim()
                                 + title.substring(slotIndex.get(i) + 4);
                     }
@@ -665,6 +665,29 @@ public class AssistantFragment extends Fragment implements AssistantOutput, Assi
         } catch (JSONException e) {
             e.printStackTrace();
         }
+    }
+
+    private Object getArgValue(String value, String type) {
+        switch(type) {
+            case "Number":
+                return Integer.valueOf(value);
+            case "Boolean":
+                if (value.equals("on"))
+                    return true;
+                else
+                    return false;
+            default:
+                return value;
+        }
+    }
+
+    private String getArgType(String type) {
+        if (type.startsWith("Enum"))
+            return "Enum";
+        else if (type.equals("Boolean"))
+            return "Bool";
+        else
+            return type;
     }
 
     private void onLocationSelected(Place place) {
