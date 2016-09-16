@@ -282,7 +282,15 @@ public class DeviceDetailsActivity extends Activity {
 
         @Override
         public void onPostExecute(List<Pair<String, String>> example_cmds) {
-            addAdapter(example_cmds);
+            TextView text = (TextView) findViewById(R.id.example_cmds);
+            if (example_cmds.size() > 0) {
+                text.setVisibility(View.VISIBLE);
+                addAdapter(example_cmds);
+            } else {
+                text.setText("This device has no example commands.");
+                text.setVisibility(View.VISIBLE);
+            }
+
         }
     }
 
