@@ -103,6 +103,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".ui.IntroductionActivity"
+            android:theme="@style/SplashTheme">
+        </activity>
     </application>
 
 </manifest>
