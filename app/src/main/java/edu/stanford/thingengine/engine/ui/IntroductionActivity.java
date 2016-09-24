@@ -11,9 +11,12 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import edu.stanford.thingengine.engine.R;
+
 
 /**
  * Created by silei on 9/22/16.
@@ -46,6 +49,37 @@ public class IntroductionActivity extends Activity{
         inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         vp = (ViewPager)findViewById(R.id.sabrina_highlights);
         vp.setAdapter(new HighlightAdapter());
+        vp.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {}
+            @Override
+            public void onPageScrollStateChanged(int state) {}
+            @Override
+            public void onPageSelected(int position) {
+                LinearLayout indicator = (LinearLayout) findViewById(R.id.page_indicators);
+                for (int i = 0; i < commands.length; i++) {
+                    ImageView dot = (ImageView) indicator.getChildAt(i);
+                    if (i == position)
+                        dot.setImageResource(R.drawable.page_indicator_current);
+                    else
+                        dot.setImageResource(R.drawable.page_indicator);
+                }
+                if (position == commands.length - 1) {
+                    Button btn = (Button) findViewById(R.id.start_sabrina);
+                    btn.setVisibility(View.VISIBLE);
+                }
+            }
+        });
+
+        LinearLayout indicator = (LinearLayout) findViewById(R.id.page_indicators);
+        ImageView currentDot = new ImageView(this);
+        currentDot.setImageResource(R.drawable.page_indicator_current);
+        indicator.addView(currentDot);
+        for (int i = 1; i < commands.length; i++) {
+            ImageView dot = new ImageView(this);
+            dot.setImageResource(R.drawable.page_indicator);
+            indicator.addView(dot);
+        }
     }
 
     class HighlightAdapter extends PagerAdapter {
@@ -60,10 +94,6 @@ public class IntroductionActivity extends Activity{
             ((TextView)page.findViewById(R.id.highlight_cmd)).setText(commands[position]);
             ((TextView)page.findViewById(R.id.highlight_description)).setText(descriptions[position]);
             container.addView(page, 0);
-            if (position == getCount() - 1) {
-                Button btn = (Button) findViewById(R.id.start_sabrina);
-                btn.setVisibility(View.VISIBLE);
-            }
             return page;
         }
 
