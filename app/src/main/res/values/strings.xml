@@ -59,20 +59,18 @@
     <string name="intro_text">What you can do with Sabrina</string>
 
     <string-array name="sabrina_highlights">
+        <item>Try: search \"stephen curry\" on youtube and play on my tv</item>
+        <item>Try: notify me when I got a gmail with subject \"deadline\"</item>
+        <item>Try \"sportradar\", there are plenty of options </item>
         <item>Try: get cat every day</item>
-        <item>Jelly Bean</item>
-        <item>KitKat</item>
-        <item>Lollipop</item>
-        <item>Marshmallow</item>
-        <item>Nougat</item>
+        <item>Click the \"help\" button on the top and let us help you</item>
     </string-array>
 
     <string-array name="sabrina_highlights_description">
+        <item>Tired of typing on TV?</item>
+        <item>Too much notification?</item>
+        <item>Don\'t want to miss any game</item>
         <item>Want some cats?</item>
-        <item>Want some desserts?</item>
-        <item>Want some desserts?</item>
-        <item>Want some desserts?</item>
-        <item>Want some desserts?</item>
-        <item>Want some desserts?</item>
+        <item>Still don\'t know what to do?</item>
     </string-array>
 </resources>
