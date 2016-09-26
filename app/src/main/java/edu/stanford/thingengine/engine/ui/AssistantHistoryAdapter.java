@@ -467,6 +467,7 @@ class AssistantHistoryAdapter extends RecyclerView.Adapter<AssistantHistoryAdapt
 
             private View slotByType(String type) {
                 EditText et = new EditText(ctx);
+                if (type == null) type = "UNKNOWN";
                 switch(type) {
                     case "Number":
                         et.setInputType(InputType.TYPE_CLASS_NUMBER);
