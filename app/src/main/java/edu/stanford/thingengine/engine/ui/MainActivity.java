@@ -183,6 +183,7 @@ public class MainActivity extends Activity implements ActionBar.TabListener, Fra
                 return true;
 
             control.getAssistant().handleHelp();
+            mViewPager.setCurrentItem(SectionsPagerAdapter.SECTION_CHAT, true);
             return true;
         }
 
@@ -192,6 +193,7 @@ public class MainActivity extends Activity implements ActionBar.TabListener, Fra
                 return true;
 
             control.getAssistant().handleTrain();
+            mViewPager.setCurrentItem(SectionsPagerAdapter.SECTION_CHAT, true);
             return true;
         }
 
