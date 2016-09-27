@@ -90,7 +90,7 @@ public class IntroductionActivity extends Activity{
 
         @Override
         public Object instantiateItem(ViewGroup container, int position) {
-            View page = inflater.inflate(R.layout.highlight, null);
+            View page = inflater.inflate(R.layout.layout_highlight, null);
             ((TextView)page.findViewById(R.id.highlight_cmd)).setText(commands[position]);
             ((TextView)page.findViewById(R.id.highlight_description)).setText(descriptions[position]);
             container.addView(page, 0);
