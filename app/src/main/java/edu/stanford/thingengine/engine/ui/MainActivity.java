@@ -174,6 +174,7 @@ public class MainActivity extends Activity implements ActionBar.TabListener, Fra
             control.getAssistant().handleClear();
             Toast.makeText(getApplicationContext(), "The conversation has been reset.",
                     Toast.LENGTH_LONG).show();
+            mViewPager.setCurrentItem(SectionsPagerAdapter.SECTION_CHAT, true);
             return true;
         }
 
