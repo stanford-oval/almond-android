@@ -29,7 +29,7 @@
         <item name="android:textStyle">bold</item>
     </style>
 
-    <style name="SplashTheme" parent="android:Theme.NoTitleBar.Fullscreen">
+    <style name="SplashTheme" parent="@android:style/Theme.Material.Light.NoActionBar.Fullscreen">
         <item name="android:windowBackground">@drawable/splash</item>
     </style>
 
