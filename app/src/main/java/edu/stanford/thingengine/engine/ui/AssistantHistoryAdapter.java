@@ -26,7 +26,9 @@ import org.json.JSONException;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import edu.stanford.thingengine.engine.BuildConfig;
 import edu.stanford.thingengine.engine.Config;
@@ -405,8 +407,7 @@ class AssistantHistoryAdapter extends RecyclerView.Adapter<AssistantHistoryAdapt
             @Override
             public void bind(AssistantMessage base) {
                 final AssistantMessage.SlotFilling msg = (AssistantMessage.SlotFilling) base;
-                final List<View> slots = new ArrayList();
-                int slotIndex = 0;
+                final Map<String, View> slots = new HashMap<>();
 
                 if (slotFilling != null) {
                     slotFilling.removeAllViews();
@@ -417,47 +418,33 @@ class AssistantHistoryAdapter extends RecyclerView.Adapter<AssistantHistoryAdapt
                     slotFilling.setJustifyContent(FlexboxLayout.JUSTIFY_CONTENT_CENTER);
                 }
 
-                int lastIndex = 0;
-                int currentIndex;
-                while(true){
-                    currentIndex = msg.title.indexOf("____", lastIndex);
-                    if (currentIndex == -1) {
-                        String[] words = msg.title.substring(lastIndex).split(" ");
-                        for (String word: words)
-                            slotFilling.addView(btnStyleText(word));
-                        break;
+                String[] words = msg.title.split(" ");
+                for (String word : words) {
+                    if (word.startsWith("$")) {
+                        String slotName = word.substring(1);
+
+                        String slotType = msg.slotTypes.optString(slotName, "UNKNOWN");
+                        View slot = slotByType(slotType);
+                        slots.put(slotName, slot);
+                        slotFilling.addView(slot);
+                    } else {
+                        slotFilling.addView(btnStyleText(word));
                     }
-                    if (currentIndex != lastIndex) {
-                        String[] words = msg.title.substring(lastIndex, currentIndex).split(" ");
-                        for (String word: words)
-                            slotFilling.addView(btnStyleText(word));
-                    }
-                    View slot;
-                    if (slotIndex < msg.types.length)
-                        slot = slotByType(msg.types[slotIndex]);
-                    else
-                        // number of slots and types doesn't match
-                        // which means the metadata of this example is incorrect
-                        slot = slotByType("UNKNOWN");
-                    slotIndex ++;
-                    slots.add(slot);
-                    slotFilling.addView(slot);
-                    lastIndex = currentIndex + 4;
                 }
                 slotFilling.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        String[] values = new String[slots.size()];
-                        for (int i = 0; i < slots.size(); i++) {
-                            View slot = slots.get(i);
+                        Map<String, String> values = new HashMap<>();
+                        for (Map.Entry<String, View> e : slots.entrySet()) {
+                            View slot = e.getValue();
                             if (slot instanceof EditText)
-                                values[i] = (((EditText)slot).getText().toString());
+                                values.put(e.getKey(), ((EditText)slot).getText().toString());
                             else if (slot instanceof Spinner)
-                                values[i] = ((Spinner)slot).getSelectedItem().toString();
+                                values.put(e.getKey(), ((Spinner)slot).getSelectedItem().toString());
                             else
-                                values[i] = "";
+                                values.put(e.getKey(), "");
                         }
-                        owner.onSlotFillingActivated(msg.title, msg.json, msg.types, values);
+                        owner.onSlotFillingActivated(msg.title, msg.json, msg.slotTypes, values);
                     }
                 });
                 applyBubbleStyle(slotFilling, AssistantMessage.Direction.FROM_USER);

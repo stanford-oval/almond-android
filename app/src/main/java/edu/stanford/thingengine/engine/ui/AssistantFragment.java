@@ -50,9 +50,7 @@ import org.json.JSONObject;
 import org.json.JSONTokener;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.Callable;
@@ -614,17 +612,10 @@ public class AssistantFragment extends Fragment implements AssistantOutput, Assi
         display(control.getAssistant().handleChoice(title, idx));
     }
 
-    void onSlotFillingActivated(String title, String json, String[] types, String[] values) {
+    void onSlotFillingActivated(String title, String json, JSONObject slotTypes, Map<String, String> values) {
         ControlBinder control = mEngine.getControl();
         if (control == null)
             return;
-
-        List<Integer> slotIndex = new ArrayList();
-        int idx = title.indexOf("____");
-        while (idx > 0) {
-            slotIndex.add(idx);
-            idx = title.indexOf("____", idx + 4);
-        }
 
         try {
             JSONObject jsonObj = new JSONObject(json);
@@ -636,29 +627,32 @@ public class AssistantFragment extends Fragment implements AssistantOutput, Assi
                 JSONArray slots = cmd.getJSONArray("slots");
                 JSONArray args = new JSONArray();
                 for (int i = slots.length() - 1; i >= 0; i--) {
-                    if (values[i].length() > 0) {
-                        JSONObject argJson = new JSONObject();
-                        // set argument name
-                        JSONObject argName = new JSONObject();
-                        argName.put("id", "tt:param." + slots.getString(i));
-                        argJson.put("name", argName);
-                        // set argument type
-                        argJson.put("type", getArgType(types[i]));
-                        // set argument value
-                        JSONObject argValue = new JSONObject();
-                        argValue.put("value", getArgValue(values[i], types[i]));
-                        argJson.put("value", argValue);
-                        // set operator
-                        argJson.put("operator", "is");
-                        // add argument
-                        args.put(argJson);
-                        // replace slot (underscore) by the argument value
-                        title = title.substring(0, slotIndex.get(i)) + values[i].trim()
-                                + title.substring(slotIndex.get(i) + 4);
-                    }
+                    String slotName = slots.getString(i);
+                    String slotValue = values.get(slotName);
+                    if (slotValue.length() == 0)
+                        continue;
+
+                    String slotType = slotTypes.getString(slotName);
+
+                    JSONObject argJson = new JSONObject();
+                    // set argument name
+                    JSONObject argName = new JSONObject();
+                    argName.put("id", "tt:param." + slotName);
+                    argJson.put("name", argName);
+                    // set argument type
+                    argJson.put("type", getArgType(slotType));
+                    // set argument value
+                    JSONObject argValue = new JSONObject();
+                    argValue.put("value", getArgValue(slotValue, slotType));
+                    argJson.put("value", argValue);
+                    // set operator
+                    argJson.put("operator", "is");
+                    // add argument
+                    args.put(argJson);
+                    // replace slot (underscore) by the argument value
+                    title = title.replace("$" + slotName, slotValue.trim());
                 }
                 cmd.put("args", args);
-                jsonObj.put("cmdType", cmd);
                 Log.d("SLOT_FILLING", jsonObj.toString());
                 display(control.getAssistant().handleButton(title, jsonObj.toString()));
             }
@@ -682,7 +676,7 @@ public class AssistantFragment extends Fragment implements AssistantOutput, Assi
     }
 
     private String getArgType(String type) {
-        if (type.startsWith("Enum"))
+        if (type.startsWith("Enum("))
             return "Enum";
         else if (type.equals("Boolean"))
             return "Bool";
