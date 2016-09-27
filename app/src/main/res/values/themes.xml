@@ -33,6 +33,10 @@
         <item name="android:windowBackground">@drawable/splash</item>
     </style>
 
+    <style name="LandingPageTheme" parent="@android:style/Theme.Material.Light.NoActionBar.Fullscreen">
+        <item name="android:windowBackground">@drawable/splash</item>
+    </style>
+
     <color name="stanford_cardinal">#8c1515</color>
     <color name="stanford_almost_cardinal">#6d1010</color>
     <color name="dark_stanford_cardinal">#670000</color>
