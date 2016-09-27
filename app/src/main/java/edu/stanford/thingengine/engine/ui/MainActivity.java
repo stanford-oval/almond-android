@@ -131,7 +131,6 @@ public class MainActivity extends Activity implements ActionBar.TabListener, Fra
             }
         }
 
-        AutoStarter.startService(this);
         UpdateManager.register(this);
         if (!BuildConfig.DEBUG) {
             MetricsManager.register(this, getApplication());
