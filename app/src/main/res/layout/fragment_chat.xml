@@ -18,12 +18,10 @@
         android:stackFromBottom="true"
         android:scrollingCache="true"
         android:smoothScrollbar="false"
-        android:layout_alignParentStart="false"
         android:layout_alignParentTop="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentRight="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"
         android:layout_above="@+id/assistant_input" />
-
 
     <EditText
         android:layout_width="0dp"
@@ -33,48 +31,52 @@
         android:maxLines="1"
         android:enabled="true"
         android:imeOptions="actionSend"
-        android:singleLine="true"
         android:focusable="true"
         android:focusableInTouchMode="true"
         android:layout_alignParentBottom="true"
-        android:layout_alignParentLeft="true"
-        android:layout_toStartOf="@+id/assistant_progress"
-        android:layout_alignTop="@+id/btn_assistant_voice"
-        android:layout_alignParentStart="true" />
+        android:layout_alignParentStart="true"
+        android:layout_toStartOf="@+id/assistant_progress"/>
 
     <ProgressBar
-        style="@android:style/Widget.ProgressBar.Small"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        style="?android:attr/progressBarStyleSmall"
         android:id="@+id/assistant_progress"
+        android:padding="5dp"
         android:indeterminate="false"
+        android:indeterminateTintMode="src_atop"
+        android:indeterminateTint="@color/stanford_cardinal"
+        android:layout_gravity="center"
         android:layout_toStartOf="@+id/btn_never_mind"
-        android:layout_alignTop="@+id/btn_assistant_voice"
+        android:layout_alignTop="@+id/assistant_input"
         android:layout_alignParentBottom="true" />
 
     <ImageView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/btn_never_mind"
-        android:layout_alignParentEnd="false"
-        android:contentDescription="@string/btn_never_mind"
-        android:layout_alignTop="@+id/btn_assistant_voice"
+        android:src="@drawable/ic_replay_black"
+        android:tint="@color/stanford_cardinal"
+        android:clickable="true"
+        android:padding="5dp"
+        android:layout_alignTop="@+id/assistant_input"
         android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="false"
         android:layout_toStartOf="@+id/btn_assistant_voice"
-        android:src="@android:drawable/ic_menu_revert" />
+        android:contentDescription="@string/btn_never_mind"/>
 
     <ImageView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/btn_assistant_voice"
-        android:src="@android:drawable/ic_btn_speak_now"
+        android:src="@drawable/ic_mic_black"
+        android:tint="@color/stanford_cardinal"
         android:clickable="true"
         android:padding="5dp"
+        android:layout_alignTop="@+id/assistant_input"
         android:layout_gravity="center"
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
         android:contentDescription="@string/btn_assistant_voice" />
-
-
 
 </RelativeLayout>
