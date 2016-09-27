@@ -12,10 +12,9 @@
             android:id="@+id/my_devices_view"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_above="@+id/btn_create_device"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentRight="true"
-            android:layout_alignParentStart="false"
+            android:layout_above="@+id/btns_create"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentEnd="true"
             android:layout_alignParentTop="true"
             android:layout_gravity="center_horizontal"
             android:columnWidth="100dp"
@@ -23,25 +22,29 @@
             android:numColumns="auto_fit"
             android:verticalSpacing="@dimen/text_margin" />
 
-        <Button
-            android:id="@+id/btn_create_device"
-            style="?android:attr/buttonStyleSmall"
+        <LinearLayout
+            android:id="@+id/btns_create"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentEnd="false"
-            android:layout_gravity="left"
-            android:nestedScrollingEnabled="false"
-            android:text="@string/btn_create_device_title" />
+            android:orientation="horizontal"
+            android:layout_centerInParent="true"
+            android:layout_alignParentBottom="true">
+                <Button
+                    android:id="@+id/btn_create_device"
+                    style="?android:attr/buttonStyleSmall"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/btn_create_device_title" />
 
-        <Button
-            android:id="@+id/btn_create_account"
-            style="?android:attr/buttonStyleSmall"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignTop="@+id/btn_create_device"
-            android:layout_toEndOf="@+id/btn_create_device"
-            android:text="@string/btn_create_account_title" />
+                <Button
+                    android:id="@+id/btn_create_account"
+                    style="?android:attr/buttonStyleSmall"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/btn_create_account_title" />
+        </LinearLayout>
+
+
 
 </RelativeLayout>
 
