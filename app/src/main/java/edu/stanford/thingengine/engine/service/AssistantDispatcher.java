@@ -18,11 +18,9 @@ import android.util.Log;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.maps.model.LatLng;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executor;
@@ -437,77 +435,28 @@ public class AssistantDispatcher implements Handler.Callback {
     // to be called from any thread
     public void dispatch(AssistantMessage msg) {
         if (isSlotFilling(msg))
-            new GetSlotTypeTask().execute(msg);
+            dispatchSlotFilling((AssistantMessage.Button)msg);
         else
             assistantHandler.obtainMessage(MSG_ASSISTANT_MESSAGE, msg).sendToTarget();
     }
 
     private boolean isSlotFilling(AssistantMessage msg) {
         if (msg.type == AssistantMessage.Type.BUTTON)
-            if (((AssistantMessage.Button) msg).json.indexOf("\"slots\":[\"") != -1)
+            if (((AssistantMessage.Button) msg).json.contains("\"slots\":[\""))
                 return true;
         return false;
     }
 
-    private class MessageWithSlotType {
-        public AssistantMessage.Button msg;
-        public String[] types;
-    }
+    private void dispatchSlotFilling(AssistantMessage.Button msg) {
+        try {
+            JSONObject obj = new JSONObject(msg.json);
 
-    protected class GetSlotTypeTask extends AsyncTask<AssistantMessage, Void, MessageWithSlotType> {
-        @Override
-        protected MessageWithSlotType doInBackground(AssistantMessage... msgs) {
-            AssistantMessage.Button msg = (AssistantMessage.Button)msgs[0];
-            MessageWithSlotType arg = new MessageWithSlotType();
-            arg.msg = msg;
-            try {
-                JSONObject obj = new JSONObject(msg.json);
-                String cmdType = obj.keys().next();
-                String id = obj.getJSONObject(cmdType).getJSONObject("name").getString("id");
-                String kind = id.substring(3, id.indexOf("."));
-                String cmd = id.substring(id.indexOf(".") + 1);
-                JSONArray slots = obj.getJSONObject(cmdType).getJSONArray("slots");
-                JSONObject meta = mThingpedia.getMeta(kind);
-                JSONObject cmdmeta = meta.getJSONObject(meta.keys().next())
-                        .getJSONObject(getTypeName(cmdType))
-                        .getJSONObject(cmd);
-                JSONArray schema = cmdmeta.getJSONArray("schema");
-                JSONArray argNames = cmdmeta.getJSONArray("args");
-                String[] types = new String[schema.length()];
-                for (int i = 0; i < slots.length(); i++) {
-                    types[i] = getSlotType(slots.getString(i), schema, argNames);
-                }
-                arg.types = types;
-            } catch (JSONException | IOException e) {
-                e.printStackTrace();
-            }
-            return arg;
-        }
-
-        @Override
-        public void onPostExecute(MessageWithSlotType arg) {
-            AssistantMessage msg = new AssistantMessage.SlotFilling(
-                    arg.msg.direction, arg.msg.title, arg.msg.json, arg.types);
+            AssistantMessage slotFilling = new AssistantMessage.SlotFilling(
+                    msg.direction, msg.title, msg.json, obj.getJSONObject("slotTypes"));
+            assistantHandler.obtainMessage(MSG_ASSISTANT_MESSAGE, slotFilling).sendToTarget();
+        } catch (JSONException e) {
+            Log.e(EngineService.LOG_TAG, "Failed to parse button JSON", e);
             assistantHandler.obtainMessage(MSG_ASSISTANT_MESSAGE, msg).sendToTarget();
-        }
-
-        private String getTypeName(String type) {
-            if (type.equals("query"))
-                return "queries";
-            else
-                return type + "s";
-        }
-
-        private String getSlotType(String argName, JSONArray schema, JSONArray argNames) {
-            try {
-                for (int i = 0; i < argNames.length(); i++) {
-                    if (argNames.getString(i).equals(argName))
-                        return schema.getString(i);
-                }
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-            return "String";
         }
     }
 }
