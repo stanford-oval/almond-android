@@ -23,7 +23,6 @@ public class SplashActivity extends Activity {
         Intent intent;
         prefs = getSharedPreferences("edu.stanford.thingengine.engine", MODE_PRIVATE);
         if (prefs.getBoolean("firstrun", true)) {
-            prefs.edit().putBoolean("firstrun", false).commit();
             intent = new Intent(this, IntroductionActivity.class);
         } else {
             intent = new Intent(this, MainActivity.class);

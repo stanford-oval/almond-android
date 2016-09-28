@@ -3,6 +3,7 @@ package edu.stanford.thingengine.engine.ui;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
@@ -37,7 +38,9 @@ public class IntroductionActivity extends Activity{
         btn.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                SharedPreferences prefs = getSharedPreferences("edu.stanford.thingengine.engine", MODE_PRIVATE);
+                if (prefs.getBoolean("firstrun", true))
+                    prefs.edit().putBoolean("firstrun", false).commit();
                 Intent intent = new Intent(IntroductionActivity.this, MainActivity.class);
                 startActivity(intent);
                 finish();
