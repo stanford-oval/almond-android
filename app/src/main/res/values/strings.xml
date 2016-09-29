@@ -58,6 +58,7 @@
     <string name="sabrina_says_dotdotdot">Sabrina says…</string>
     <string name="intro_text">What you can do with Sabrina</string>
     <string name="get_started">Get started</string>
+    <string name="example_commands">Example commands</string>
 
     <string-array name="sabrina_highlights">
         <item>Try: search \"someone like you\" on youtube and play on my tv</item>

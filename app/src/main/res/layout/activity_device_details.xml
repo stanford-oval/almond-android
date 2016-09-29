@@ -10,8 +10,8 @@
     tools:context="edu.stanford.thingengine.engine.ui.DeviceDetailsActivity">
 
     <ImageView
-        android:layout_width="250dp"
-        android:layout_height="250dp"
+        android:layout_width="120dp"
+        android:layout_height="120dp"
         android:id="@+id/device_icon"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true" />
@@ -48,7 +48,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Example commads"
+        android:text="@string/example_commands"
         android:id="@+id/example_cmds"
         android:layout_below="@+id/device_version"
         android:layout_centerHorizontal="true"
