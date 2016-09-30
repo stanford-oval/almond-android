@@ -15,10 +15,10 @@
    id="svg2"
    version="1.1"
    inkscape:version="0.91 r13725"
-   sodipodi:docname="right bubble.svg"
-   inkscape:export-filename="/home/gcampagn/mobisocial/thingengine-platform-android/artwork/right bubble.svg.png"
-   inkscape:export-xdpi="639.64288"
-   inkscape:export-ydpi="639.64288">
+   sodipodi:docname="left bubble.svg"
+   inkscape:export-filename="new_left_bubble.png"
+   inkscape:export-xdpi="643.14606"
+   inkscape:export-ydpi="643.14606">
   <defs
      id="defs4">
     <inkscape:perspective
@@ -37,16 +37,16 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="19.598213"
-     inkscape:cx="19.431414"
-     inkscape:cy="16.248384"
+     inkscape:cx="18.63972"
+     inkscape:cy="16.171846"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
-     inkscape:window-width="1920"
-     inkscape:window-height="1136"
+     inkscape:window-width="772"
+     inkscape:window-height="473"
      inkscape:window-x="0"
-     inkscape:window-y="27"
-     inkscape:window-maximized="1"
+     inkscape:window-y="1080"
+     inkscape:window-maximized="0"
      inkscape:snap-bbox="true"
      units="px" />
   <metadata
@@ -57,7 +57,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -67,28 +67,29 @@
      id="layer1"
      transform="translate(0,-1024.3622)">
     <rect
-       style="fill:#4d4f53;fill-opacity:1;stroke:none;stroke-width:1;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       style="fill:#6d1010;fill-opacity:1;stroke:none;stroke-width:1;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        id="rect4136"
        width="25"
        height="20"
-       x="-31.499998"
-       y="-1048.3622"
+       x="13"
+       y="1028.3622"
        rx="8"
-       ry="8"
-       transform="scale(-1,-1)" />
+       ry="8" />
     <rect
        style="fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:1;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        id="rect4136-3"
        width="25"
        height="20.200001"
-       x="-28.999998"
-       y="-1048.4622"
+       x="15.5"
+       y="1028.2622"
        rx="8"
        ry="8.0799999"
-       transform="scale(-1,-1)" />
+       inkscape:export-filename="new_left_bubble"
+       inkscape:export-xdpi="886.63"
+       inkscape:export-ydpi="886.63" />
     <path
-       style="fill:#4d4f53;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       d="m 22.699998,1048.3622 2.800001,-1 2.999999,-3 2,-4 12,8 z"
+       style="fill:#6d1010;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 21.8,1028.3622 -1.833101,0.4387 -1.964037,1.3161 -3.809585,2.2143 -5.3559185,-3.9691 z"
        id="path4157"
        inkscape:connector-curvature="0"
        sodipodi:nodetypes="cccccc" />
