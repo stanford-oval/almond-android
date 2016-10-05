@@ -60,8 +60,8 @@ public class SettingsActivity extends Activity {
 
         mFragment.findPreference("pref_cloud_sync").setIntent(new Intent(this, ThingpediaWebsiteActivity.class));
 
-        final Preference pref = mFragment.findPreference("pref_username");
-        pref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+        final Preference pref_username = mFragment.findPreference("pref_username");
+        pref_username.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
             @Override
             public boolean onPreferenceChange(Preference preference, Object newValue) {
 
@@ -70,7 +70,17 @@ public class SettingsActivity extends Activity {
                     return true;
                 control.getAssistant().handleSetting(newValue.toString());
 
-                pref.setSummary(newValue.toString());
+                pref_username.setSummary(newValue.toString());
+                return true;
+            }
+        });
+
+        final Preference pref_landing_page = mFragment.findPreference("pref_landing_page");
+        pref_landing_page.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+            @Override
+            public boolean onPreferenceChange(Preference preference, Object o) {
+                SharedPreferences sharedPrefs = getSharedPreferences("edu.stanford.thingengine.engine", MODE_PRIVATE);
+                sharedPrefs.edit().putBoolean("landing-page", (Boolean) o).apply();
                 return true;
             }
         });

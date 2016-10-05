@@ -6,6 +6,11 @@
         android:inputType="text"
         android:singleLine="true" />
 
+    <SwitchPreference
+        android:key="pref_landing_page"
+        android:title="@string/show_landing_page"
+        android:defaultValue="false"/>
+
     <Preference android:key="pref_cloud_sync"
         android:title="@string/pref_cloud_sync_title">
     </Preference>

@@ -22,7 +22,7 @@ public class SplashActivity extends Activity {
 
         Intent intent;
         prefs = getSharedPreferences("edu.stanford.thingengine.engine", MODE_PRIVATE);
-        if (prefs.getBoolean("firstrun", true)) {
+        if (prefs.getBoolean("first-run", true) || prefs.getBoolean("landing-page", false)) {
             intent = new Intent(this, IntroductionActivity.class);
         } else {
             intent = new Intent(this, MainActivity.class);

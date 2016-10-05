@@ -39,8 +39,8 @@ public class IntroductionActivity extends Activity{
             @Override
             public void onClick(View view) {
                 SharedPreferences prefs = getSharedPreferences("edu.stanford.thingengine.engine", MODE_PRIVATE);
-                if (prefs.getBoolean("firstrun", true))
-                    prefs.edit().putBoolean("firstrun", false).commit();
+                if (prefs.getBoolean("first-run", true))
+                    prefs.edit().putBoolean("first-run", false).apply();
                 Intent intent = new Intent(IntroductionActivity.this, MainActivity.class);
                 startActivity(intent);
                 finish();
