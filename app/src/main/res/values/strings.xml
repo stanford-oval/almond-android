@@ -60,6 +60,7 @@
     <string name="get_started">Get started</string>
     <string name="example_commands">Example commands</string>
     <string name="show_landing_page">Always show landing pages </string>
+    <string name="make_rule">Make your own rule</string>
 
     <string-array name="sabrina_highlights">
         <item>Try: search \"someone like you\" on youtube and play on my tv</item>

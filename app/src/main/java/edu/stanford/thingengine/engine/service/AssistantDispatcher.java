@@ -165,6 +165,11 @@ public class AssistantDispatcher implements Handler.Callback {
         history.removeButtons();
     }
 
+    public void handleMakeRule() {
+        handleParsedCommand("{\"command\":{\"type\":\"make\",\"value\":{\"value\":\"rule\"}}}");
+        history.removeButtons();
+    }
+
     public void handleSetting(String name) {
         try {
             JSONObject obj = new JSONObject();

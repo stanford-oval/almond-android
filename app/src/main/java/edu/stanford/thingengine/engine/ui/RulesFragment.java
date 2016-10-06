@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
 
@@ -153,6 +154,20 @@ public class RulesFragment extends Fragment {
                 AppInfo app = (AppInfo) parent.getAdapter().getItem(position);
                 maybeStopApp(app.uniqueId);
                 return true;
+            }
+        });
+
+        Button btn = (Button) getActivity().findViewById(R.id.btn_create_rule);
+        btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                ControlBinder control = ((MainActivity) getActivity()).getEngine().getControl();
+                if (control == null)
+                    return;
+
+                ((MainActivity) getActivity()).switchToChat();
+                control.getAssistant().handleMakeRule();
+                return;
             }
         });
     }

@@ -95,6 +95,10 @@ public class MainActivity extends Activity implements ActionBar.TabListener, Fra
         mViewPager.setCurrentItem(SectionsPagerAdapter.SECTION_MYSTUFF, true);
     }
 
+    public void switchToChat() {
+        mViewPager.setCurrentItem(SectionsPagerAdapter.SECTION_CHAT, true);
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
