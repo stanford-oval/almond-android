@@ -477,7 +477,14 @@ class AssistantHistoryAdapter extends RecyclerView.Adapter<AssistantHistoryAdapt
                     case "Choice":
                     case "List":
                     case "UNKNOWN":
-                        return edittextStyleBtn();
+                        et.setFocusable(false);
+                        et.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                slotFilling.performClick();
+                            }
+                        });
+                        break;
                     default:
                         if (type.startsWith("Enum"))
                             return enumSpinner(type);
@@ -502,22 +509,6 @@ class AssistantHistoryAdapter extends RecyclerView.Adapter<AssistantHistoryAdapt
                 tv.setTextColor(btn.getTextColors());
                 tv.setText(word + " ");
                 return tv;
-            }
-
-            private android.widget.Button edittextStyleBtn() {
-                android.widget.Button btn = new android.widget.Button(ctx);
-                btn.setBackgroundResource(android.R.drawable.editbox_background);
-                btn.setStateListAnimator(null);
-                int width = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 54, ctx.getResources().getDisplayMetrics());
-                int height = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 27, ctx.getResources().getDisplayMetrics());
-                btn.setLayoutParams(new LinearLayout.LayoutParams(width, height));
-                btn.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        slotFilling.performClick();
-                    }
-                });
-                return btn;
             }
 
             private Spinner enumSpinner(String type) {
