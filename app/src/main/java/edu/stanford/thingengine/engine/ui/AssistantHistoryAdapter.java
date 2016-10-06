@@ -497,7 +497,7 @@ class AssistantHistoryAdapter extends RecyclerView.Adapter<AssistantHistoryAdapt
                 et.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
                 et.setMinWidth(75);
                 et.setBackgroundResource(android.R.drawable.editbox_background);
-                et.setPadding(10, 5, 10, 5);
+                et.setPadding(20, 5, 20, 5);
                 et.setGravity(Gravity.CENTER);
                 return et;
             }
@@ -521,6 +521,7 @@ class AssistantHistoryAdapter extends RecyclerView.Adapter<AssistantHistoryAdapt
                         TextView tv = ((TextView) v);
                         tv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
                         tv.setGravity(Gravity.CENTER);
+                        tv.setPadding(0, 0, 0, 0);
                         return tv;
                     }
                 };
@@ -528,7 +529,8 @@ class AssistantHistoryAdapter extends RecyclerView.Adapter<AssistantHistoryAdapt
                 Spinner spinner = new Spinner(ctx);
                 spinner.setAdapter(adapter);
                 spinner.setBackgroundResource(android.R.drawable.editbox_background);
-                spinner.setPadding(10, 10, 0, 10);
+                spinner.setPadding(0, 10, 0, 10);
+                spinner.setGravity(Gravity.CENTER);
                 return spinner;
             }
         }
