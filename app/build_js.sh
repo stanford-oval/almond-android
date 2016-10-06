@@ -32,6 +32,8 @@ install_babel() {
 
 
 transpile_js() {
+	rm -fr "$jxcoredir"
+	mkdir "$jxcoredir"
 	$BABEL --preset es2015 --ignore 'jsapp/node_modules/*/test/*' -D -d "${jxcoredir}" "$projectdir/jsapp/"
 }
 
