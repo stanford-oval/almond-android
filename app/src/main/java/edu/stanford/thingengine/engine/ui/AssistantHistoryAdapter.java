@@ -507,7 +507,10 @@ class AssistantHistoryAdapter extends RecyclerView.Adapter<AssistantHistoryAdapt
             private android.widget.Button edittextStyleBtn() {
                 android.widget.Button btn = new android.widget.Button(ctx);
                 btn.setBackgroundResource(android.R.drawable.editbox_background);
-                btn.setLayoutParams(new LinearLayout.LayoutParams(100, 60));
+                btn.setStateListAnimator(null);
+                int width = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 54, ctx.getResources().getDisplayMetrics());
+                int height = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 27, ctx.getResources().getDisplayMetrics());
+                btn.setLayoutParams(new LinearLayout.LayoutParams(width, height));
                 btn.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
