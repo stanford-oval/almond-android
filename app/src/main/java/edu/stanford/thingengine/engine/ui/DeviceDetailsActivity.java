@@ -18,6 +18,7 @@ import android.widget.ImageView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -219,8 +220,13 @@ public class DeviceDetailsActivity extends Activity {
             if (info == null)
                 return;
 
-            mDeviceInfo = info;
-            fillView();
+            if (mDeviceInfo.isSame(info)) {
+                Toast.makeText(DeviceDetailsActivity.this, "Already up to date", Toast.LENGTH_SHORT).show();
+            } else {
+                mDeviceInfo = info;
+                fillView();
+                Toast.makeText(DeviceDetailsActivity.this, "Update succeed", Toast.LENGTH_SHORT).show();
+            }
         }
     }
 

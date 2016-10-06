@@ -36,4 +36,17 @@ public class DeviceInfo implements Serializable {
         isDataSource = json.getBoolean("isDataSource");
         isThingEngine = json.getBoolean("isThingEngine");
     }
+
+    public boolean isSame(DeviceInfo info) {
+        return (this.uniqueId.equals(info.uniqueId) &&
+                this.kind.equals(info.kind) &&
+                this.name.equals(info.name) &&
+                this.description.equals(info.description) &&
+                this.ownerTier == info.ownerTier &&
+                this.version == info.version &&
+                this.isTransient == info.isTransient &&
+                this.isOnlineAccount == info.isOnlineAccount &&
+                this.isDataSource == info.isDataSource &&
+                this.isThingEngine == info.isThingEngine);
+    }
 }
