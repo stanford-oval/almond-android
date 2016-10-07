@@ -626,11 +626,14 @@ public class AssistantFragment extends Fragment implements AssistantOutput, Assi
             else {
                 JSONArray slots = cmd.getJSONArray("slots");
                 JSONArray args = new JSONArray();
+
                 for (int i = slots.length() - 1; i >= 0; i--) {
                     String slotName = slots.getString(i);
                     String slotValue = values.get(slotName);
-                    if (slotValue.length() == 0)
+                    if (slotValue.length() == 0) {
+                        title = title.replace("$" + slotName, "____");
                         continue;
+                    }
 
                     String slotType = slotTypes.getString(slotName);
 
@@ -653,7 +656,6 @@ public class AssistantFragment extends Fragment implements AssistantOutput, Assi
                     title = title.replace("$" + slotName, slotValue.trim());
                 }
                 cmd.put("args", args);
-                Log.d("SLOT_FILLING", jsonObj.toString());
                 display(control.getAssistant().handleButton(title, jsonObj.toString()));
             }
         } catch (JSONException e) {
