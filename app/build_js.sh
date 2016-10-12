@@ -1,5 +1,7 @@
 #!/bin/bash
 
+export PATH=/usr/local/bin:$PATH
+
 BABEL_PLUGINS="
 babel-preset-es2015
 babel-plugin-transform-es2015-template-literals
