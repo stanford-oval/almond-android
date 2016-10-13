@@ -66,7 +66,7 @@ class AppControlChannel extends ControlChannel {
     }
 
     upgradeDevice(kind) {
-        return _engine.devices.factory.updateFactory(kind).then(() => {
+        return _engine.devices.updateDevicesOfKind(kind).then(() => {
             return true;
         });
     }
