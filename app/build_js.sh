@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# OSX specific hack
 export PATH=/usr/local/bin:$PATH
 
 BABEL_PLUGINS="
