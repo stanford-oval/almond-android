@@ -355,11 +355,11 @@ public class AssistantDispatcher implements Handler.Callback {
         notificationMessages.add(msg);
 
         Notification.Builder builder = new Notification.Builder(ctx);
-        builder.setSmallIcon(R.drawable.sabrina);
+        builder.setSmallIcon(R.drawable.sabrina_head);
         builder.setAutoCancel(true);
         builder.setVisibility(Notification.VISIBILITY_PRIVATE);
         builder.setPublicVersion(new Notification.Builder(ctx)
-                .setSmallIcon(R.drawable.sabrina)
+                .setSmallIcon(R.drawable.sabrina_head)
                 .setAutoCancel(true)
                 .setContentTitle(ctx.getString(R.string.sabrina_says_something))
                 .setContentText(ctx.getString(R.string.content_hidden))
