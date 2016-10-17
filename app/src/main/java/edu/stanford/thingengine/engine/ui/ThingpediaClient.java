@@ -5,7 +5,6 @@ import android.content.SharedPreferences;
 
 import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
 import org.json.JSONTokener;
 
 import java.io.IOException;
@@ -13,6 +12,7 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.URL;
 import java.net.URLConnection;
+import java.net.URLEncoder;
 import java.util.Locale;
 
 /**
@@ -69,14 +69,20 @@ public class ThingpediaClient {
         // in case that no example is translated, return the english examples
         if (examples.length() == 0 && !locale.startsWith("en")) {
             examples = (JSONArray) runSimpleRequest("/api/examples/by-kinds/" + _kind +
-                    "?locale=en_US&base=1");
+                    "?locale=en-US&base=1");
         }
         return examples;
     }
 
-    public JSONObject getMeta(String _kind) throws IOException, JSONException {
-        JSONObject meta = (JSONObject)runSimpleRequest("/api/schema-metadata/" + _kind +
-                "?locale=en_US&base=1");
-        return meta;
+    public JSONArray getExamplesByKey(String key) throws IOException, JSONException {
+        String locale = Locale.getDefault().toString();
+        JSONArray examples = (JSONArray)runSimpleRequest("/api/examples/?key=" + URLEncoder.encode(key, "UTF-8") +
+                "&locale=" + locale + "&base=1");
+        // in case that no example is translated, return the english examples
+        if (examples.length() == 0 && !locale.startsWith("en")) {
+            examples = (JSONArray) runSimpleRequest("/api/examples/by-kinds/" + URLEncoder.encode(key, "UTF-8") +
+                    "?locale=en-US&base=1");
+        }
+        return examples;
     }
 }

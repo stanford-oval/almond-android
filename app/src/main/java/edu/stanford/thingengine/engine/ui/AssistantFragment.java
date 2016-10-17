@@ -29,6 +29,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView;
+import android.widget.AutoCompleteTextView;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -347,7 +349,7 @@ public class AssistantFragment extends Fragment implements AssistantOutput, Assi
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        final EditText input = (EditText)getActivity().findViewById(R.id.assistant_input);
+        final AutoCompleteTextView input = (AutoCompleteTextView)getActivity().findViewById(R.id.assistant_input);
         input.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
@@ -360,6 +362,31 @@ public class AssistantFragment extends Fragment implements AssistantOutput, Assi
             }
         });
         input.setInputType(InputType.TYPE_CLASS_TEXT|InputType.TYPE_TEXT_FLAG_AUTO_CORRECT);
+        input.setAdapter(new AutoCompletionAdapter(new ThingpediaClient(getActivity()), getActivity()));
+        input.setThreshold(4);
+        input.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                AutoCompletionAdapter adapter = (AutoCompletionAdapter) parent.getAdapter();
+                AutoCompletionAdapter.Item item = adapter.getItem(position);
+                onButtonActivated(item.utterance, item.targetJson);
+                input.setText("");
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+        input.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                AutoCompletionAdapter adapter = (AutoCompletionAdapter) parent.getAdapter();
+                AutoCompletionAdapter.Item item = adapter.getItem(position);
+                onButtonActivated(item.utterance, item.targetJson);
+                input.setText("");
+            }
+        });
 
         View voicebtn = getActivity().findViewById(R.id.btn_assistant_voice);
         voicebtn.setOnClickListener(new View.OnClickListener() {
