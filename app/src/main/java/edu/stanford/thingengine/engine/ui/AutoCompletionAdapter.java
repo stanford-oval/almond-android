@@ -18,7 +18,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Set;
 
 /**
@@ -89,6 +91,18 @@ public class AutoCompletionAdapter extends BaseAdapter implements Filterable {
         }
 
         private List<Example> sortAndFilterExamples(String raw, List<Example> examples) {
+            ListIterator<Example> li = examples.listIterator();
+
+            Set<String> jsons = new HashSet<>();
+            while (li.hasNext()) {
+                Example ex = li.next();
+                if (jsons.contains(ex.targetJson)) {
+                    li.remove();
+                } else {
+                    jsons.add(ex.targetJson);
+                }
+            }
+
             Set<String> keyTokens = new HashSet<>(tokenize(raw));
             for (Example ex : examples) {
                 scoreExample(ex, keyTokens);
@@ -113,7 +127,7 @@ public class AutoCompletionAdapter extends BaseAdapter implements Filterable {
         }
 
         private List<Example> jsonToExamples(JSONArray json) throws JSONException {
-            List<Example> list = new ArrayList<>();
+            List<Example> list = new LinkedList<>();
 
             for (int i = 0; i < json.length(); i++) {
                 JSONObject obj = json.getJSONObject(i);
