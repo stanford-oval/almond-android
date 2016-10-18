@@ -445,6 +445,8 @@ class AssistantHistoryAdapter extends RecyclerView.Adapter<AssistantHistoryAdapt
                                 values.put(e.getKey(), "");
                         }
                         owner.onSlotFillingActivated(msg.title, msg.json, msg.slotTypes, values);
+                        ((MainActivity) ctx).findViewById(R.id.suggestion_bar).setVisibility(View.VISIBLE);
+                        ((MainActivity) ctx).findViewById(R.id.input_bar).setVisibility(View.VISIBLE);
                     }
                 });
                 applyBubbleStyle(slotFilling, AssistantMessage.Direction.FROM_USER);
@@ -499,6 +501,15 @@ class AssistantHistoryAdapter extends RecyclerView.Adapter<AssistantHistoryAdapt
                 et.setBackgroundResource(android.R.drawable.editbox_background);
                 et.setPadding(20, 5, 20, 5);
                 et.setGravity(Gravity.CENTER);
+                et.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+                    @Override
+                    public void onFocusChange(View view, boolean hasFocus) {
+                        if (hasFocus) {
+                            ((MainActivity) ctx).findViewById(R.id.suggestion_bar).setVisibility(View.GONE);
+                            ((MainActivity) ctx).findViewById(R.id.input_bar).setVisibility(View.GONE);
+                        }
+                    }
+                });
                 return et;
             }
 

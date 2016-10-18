@@ -1,4 +1,4 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -10,6 +10,7 @@
     <android.support.v7.widget.RecyclerView
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        android:layout_weight="1"
         android:id="@+id/chat_list"
         android:paddingBottom="@dimen/activity_vertical_margin"
         android:paddingTop="@dimen/activity_vertical_margin"
@@ -17,19 +18,13 @@
         android:transcriptMode="alwaysScroll"
         android:stackFromBottom="true"
         android:scrollingCache="true"
-        android:smoothScrollbar="false"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentEnd="true"
-        android:layout_above="@+id/suggestion_bar" />
+        android:smoothScrollbar="false"/>
 
     <HorizontalScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/suggestion_bar"
-        android:background="@color/white"
-        android:layout_alignParentStart="true"
-        android:layout_above="@+id/assistant_input">
+        android:background="@color/white">
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -85,49 +80,45 @@
                 android:text="@string/suggestion_others">
             </Button>
         </LinearLayout>
-
     </HorizontalScrollView>
 
-    <AutoCompleteTextView
-        android:layout_width="0dp"
+    <LinearLayout
         android:layout_height="wrap_content"
-        android:id="@+id/assistant_input"
-        android:minLines="1"
-        android:maxLines="1"
-        android:enabled="true"
-        android:imeOptions="actionSend"
-        android:focusable="true"
-        android:focusableInTouchMode="true"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentStart="true"
-        android:layout_toStartOf="@+id/assistant_progress"/>
+        android:layout_width="match_parent"
+        android:id="@+id/input_bar"
+        android:orientation="horizontal">
+        <AutoCompleteTextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:id="@+id/assistant_input"
+            android:minLines="1"
+            android:maxLines="1"
+            android:enabled="true"
+            android:imeOptions="actionSend"
+            android:focusable="true"
+            android:focusableInTouchMode="true"/>
 
-    <ProgressBar
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        style="?android:attr/progressBarStyleSmall"
-        android:id="@+id/assistant_progress"
-        android:padding="5dp"
-        android:indeterminate="false"
-        android:indeterminateTintMode="src_atop"
-        android:indeterminateTint="@color/stanford_cardinal"
-        android:layout_gravity="center"
-        android:layout_alignTop="@+id/assistant_input"
-        android:layout_alignParentBottom="true"
-        android:layout_toStartOf="@+id/btn_assistant_voice" />
+        <ProgressBar
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            style="?android:attr/progressBarStyleSmall"
+            android:id="@+id/assistant_progress"
+            android:padding="5dp"
+            android:indeterminate="false"
+            android:indeterminateTintMode="src_atop"
+            android:indeterminateTint="@color/stanford_cardinal"
+            android:layout_gravity="center"/>
 
-    <ImageView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/btn_assistant_voice"
-        android:src="@drawable/ic_mic_black"
-        android:tint="@color/stanford_cardinal"
-        android:clickable="true"
-        android:padding="5dp"
-        android:layout_alignTop="@+id/assistant_input"
-        android:layout_gravity="center"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentBottom="true"
-        android:contentDescription="@string/btn_assistant_voice" />
-
-</RelativeLayout>
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/btn_assistant_voice"
+            android:src="@drawable/ic_mic_black"
+            android:tint="@color/stanford_cardinal"
+            android:clickable="true"
+            android:padding="5dp"
+            android:layout_gravity="center"
+            android:contentDescription="@string/btn_assistant_voice" />
+    </LinearLayout>
+</LinearLayout>
