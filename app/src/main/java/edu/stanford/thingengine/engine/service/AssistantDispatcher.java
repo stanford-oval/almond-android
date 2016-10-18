@@ -140,6 +140,10 @@ public class AssistantDispatcher implements Handler.Callback {
         }).executeOnExecutor(async, json);
     }
 
+    public void collapseButtons() {
+        history.removeButtons();
+    }
+
     public void handleClear() {
         (new CommandTask() {
             @Override

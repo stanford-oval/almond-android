@@ -8,7 +8,6 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
 import android.util.Log;
-import android.util.Pair;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -260,24 +259,35 @@ public class DeviceDetailsActivity extends Activity {
         upgradeBtn.setVisibility(isBuiltin ? View.GONE : View.VISIBLE);
     }
 
-    private class GetExamplesTask extends AsyncTask<String, Void, List<Pair<String, String>>> {
-        private List<Pair<String, String>> processExamples(JSONArray examples) throws JSONException {
-            List<Pair<String, String>> example_cmds = new ArrayList<>();
+    private class Example {
+        public String display;
+        public String utterance;
+        public String targetJson;
+    }
+
+    private class GetExamplesTask extends AsyncTask<String, Void, List<Example>> {
+        private List<Example> processExamples(JSONArray examples) throws JSONException {
+            List<Example> example_cmds = new ArrayList<>();
             Set<String> added = new HashSet<>();
             for (int i = 0; i < examples.length(); i++) {
-                JSONObject ex = examples.getJSONObject(i);
-                String utterance = ex.getString("utterance").replaceAll("[$][a-zA-Z0-9_]*", "___");
-                String target_json = ex.getString("target_json");
+                JSONObject json = examples.getJSONObject(i);
+                String utterance = json.getString("utterance");
+                String display = utterance.replaceAll("[$][a-zA-Z0-9_]*", "___");
+                String target_json = json.getString("target_json");
                 if (!added.contains(target_json)) {
                     added.add(target_json);
-                    example_cmds.add(new Pair<>(utterance, target_json));
+                    Example ex = new Example();
+                    ex.utterance = utterance;
+                    ex.display = display;
+                    ex.targetJson = target_json;
+                    example_cmds.add(ex);
                 }
             }
             return example_cmds;
         }
 
         @Override
-        protected List<Pair<String, String>> doInBackground(String... strings) {
+        protected List<Example> doInBackground(String... strings) {
             try {
                 return processExamples(mThingpedia.getExamplesByKinds(mDeviceInfo.kind.toLowerCase()));
             } catch (JSONException | IOException e) {
@@ -287,7 +297,7 @@ public class DeviceDetailsActivity extends Activity {
         }
 
         @Override
-        public void onPostExecute(List<Pair<String, String>> example_cmds) {
+        public void onPostExecute(List<Example> example_cmds) {
             TextView text = (TextView) findViewById(R.id.example_cmds);
             if (example_cmds.size() > 0) {
                 text.setVisibility(View.VISIBLE);
@@ -300,36 +310,67 @@ public class DeviceDetailsActivity extends Activity {
         }
     }
 
-    private void addAdapter(List<Pair<String, String>> example_cmds) {
+    private void addAdapter(List<Example> example_cmds) {
         ListAdapter adapter = new ExampleCreateButtonAdapter(example_cmds);
         ListView listView = (ListView) findViewById(R.id.device_examples);
         listView.setAdapter(adapter);
     }
 
-    private class ExampleCreateButtonAdapter extends ArrayAdapter<Pair<String, String>> {
-        ExampleCreateButtonAdapter(List<Pair<String, String>> example_cmds) {
+    private class ExampleCreateButtonAdapter extends ArrayAdapter<Example> {
+        ExampleCreateButtonAdapter(List<Example> example_cmds) {
             super(DeviceDetailsActivity.this, 0, 0, example_cmds);
         }
 
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
-            final Pair<String, String> example_cmd = getItem(position);
+            final Example example_cmd = getItem(position);
             Button btn = new Button(DeviceDetailsActivity.this);
-            btn.setText(example_cmd.first);
+            btn.setText(example_cmd.display);
             btn.setTransformationMethod(null);
             btn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    ControlBinder control = mEngine.getControl();
-                    if (control != null) {
-                        control.getAssistant().handleButton(example_cmd.first, example_cmd.second);
-                        Intent intent = new Intent(DeviceDetailsActivity.this, MainActivity.class);
-                        startActivity(intent);
-                    }
+                    onButtonClicked(example_cmd.utterance, example_cmd.targetJson);
                 }
             });
             return btn;
         }
+    }
+
+    private void onButtonClicked(final String utterance, final String targetJson) {
+        final ControlBinder control = mEngine.getControl();
+        if (control == null)
+            return;
+        control.getAssistant().collapseButtons();
+        // if we have slots, make an assistant button that will be converted to slot
+        // filling
+        // the user will still have to click the button to activate the action
+        // if we don't have slots, don't make a button just to be clicked, let the
+        // action through and wait for sabrina to ask questions
+        if (targetJson.contains("\"slots\":[\"") && !targetJson.contains("\"slots\":[]")) {
+            AsyncTask.THREAD_POOL_EXECUTOR.execute(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        control.presentSlotFilling(utterance, targetJson);
+                    } catch(Exception e) {
+                        Log.e(MainActivity.LOG_TAG, "Failed to prepare slot filling button", e);
+                        // fall back to slot filling questions
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                control.getAssistant().handleButton(utterance, targetJson);
+                            }
+                        });
+                    }
+                }
+            });
+
+        } else {
+            control.getAssistant().handleButton(utterance, targetJson);
+        }
+        Intent intent = new Intent(DeviceDetailsActivity.this, MainActivity.class);
+        startActivity(intent);
     }
 
     public void refresh() {

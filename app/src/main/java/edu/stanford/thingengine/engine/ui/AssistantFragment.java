@@ -364,6 +364,7 @@ public class AssistantFragment extends Fragment implements AssistantOutput, Assi
                     ControlBinder control = mEngine.getControl();
                     if (control == null)
                         return;
+                    control.getAssistant().collapseButtons();
                     try {
                         control.presentSlotFilling(item.utterance, item.targetJson);
                     } catch(Exception e) {
