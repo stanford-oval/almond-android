@@ -188,6 +188,13 @@ class AppControlChannel extends ControlChannel {
                                         own: true }, true).done();
         return true;
     }
+
+    presentSlotFilling(utterance, targetJson) {
+        if (!_ad)
+            throw new Error('Assistant not ready');
+
+        return _ad.getConversation().presentSingleExample(utterance, targetJson);
+    }
 }
 
 function runEngine() {

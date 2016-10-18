@@ -37,10 +37,12 @@ public class AutoCompletionAdapter extends BaseAdapter implements Filterable {
     }
 
     public static class Item {
+        public final String display;
         public final String utterance;
         public final String targetJson;
 
-        public Item(String utterance, String targetJson) {
+        public Item(String display, String utterance, String targetJson) {
+            this.display = display;
             this.utterance = utterance;
             this.targetJson = targetJson;
         }
@@ -188,7 +190,7 @@ public class AutoCompletionAdapter extends BaseAdapter implements Filterable {
             List<?> list = (List<?>) results.values;
             for (Object o : list) {
                 Example ex = (Example)o;
-                Item item = new Item(presentExample(ex.tokens), ex.targetJson);
+                Item item = new Item(presentExample(ex.tokens), ex.utterance, ex.targetJson);
                 store.add(item);
             }
 
@@ -231,12 +233,12 @@ public class AutoCompletionAdapter extends BaseAdapter implements Filterable {
         Item item = getItem(position);
 
         if (convertView != null && convertView instanceof TextView) {
-            ((TextView)convertView).setText(item.utterance);
+            ((TextView)convertView).setText(item.display);
             return convertView;
         } else {
             LayoutInflater inflater = (LayoutInflater) ctx.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             TextView textView = (TextView) inflater.inflate(android.R.layout.simple_list_item_1, null);
-            textView.setText(item.utterance);
+            textView.setText(item.display);
             return textView;
         }
     }

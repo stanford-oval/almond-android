@@ -345,6 +345,39 @@ public class AssistantFragment extends Fragment implements AssistantOutput, Assi
         mListAdapter.setHistory(null);
     }
 
+    private void onAutoCompletionClicked(final AutoCompletionAdapter.Item item) {
+        // if we have slots, make an assistant button that will be converted to slot
+        // filling
+        // the user will still have to click the button to activate the action
+        // if we don't have slots, don't make a button just to be clicked, let the
+        // action through and wait for sabrina to ask questions
+        if (item.targetJson.contains("\"slots\":[\"") && !item.targetJson.contains("\"slots\":[]")) {
+            AsyncTask.THREAD_POOL_EXECUTOR.execute(new Runnable() {
+                @Override
+                public void run() {
+                    ControlBinder control = mEngine.getControl();
+                    if (control == null)
+                        return;
+                    try {
+                        control.presentSlotFilling(item.utterance, item.targetJson);
+                    } catch(Exception e) {
+                        Log.e(MainActivity.LOG_TAG, "Failed to prepare slot filling button", e);
+                        // fall back to slot filling questions
+                        getActivity().runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                onButtonActivated(item.utterance, item.targetJson);
+                            }
+                        });
+                    }
+                }
+            });
+
+        } else {
+            onButtonActivated(item.utterance, item.targetJson);
+        }
+    }
+
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
@@ -368,8 +401,7 @@ public class AssistantFragment extends Fragment implements AssistantOutput, Assi
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 AutoCompletionAdapter adapter = (AutoCompletionAdapter) parent.getAdapter();
-                AutoCompletionAdapter.Item item = adapter.getItem(position);
-                onButtonActivated(item.utterance, item.targetJson);
+                onAutoCompletionClicked(adapter.getItem(position));
                 input.setText("");
             }
 
@@ -382,8 +414,7 @@ public class AssistantFragment extends Fragment implements AssistantOutput, Assi
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 AutoCompletionAdapter adapter = (AutoCompletionAdapter) parent.getAdapter();
-                AutoCompletionAdapter.Item item = adapter.getItem(position);
-                onButtonActivated(item.utterance, item.targetJson);
+                onAutoCompletionClicked(adapter.getItem(position));
                 input.setText("");
             }
         });

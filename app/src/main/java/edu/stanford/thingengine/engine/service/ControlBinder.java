@@ -89,4 +89,8 @@ public class ControlBinder extends IThingEngine.Stub {
     public void deleteApp(String uniqueId) throws Exception {
         channel.sendDeleteApp(uniqueId);
     }
+
+    public void presentSlotFilling(String utterance, String targetJson) throws Exception {
+        channel.sendPresentSlotFilling(utterance, targetJson);
+    }
 }
