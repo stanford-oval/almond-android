@@ -438,6 +438,13 @@ public class AssistantFragment extends Fragment implements AssistantOutput, Assi
                 mSpeechHandler.startRecording();
             }
         });
+        View menubtn = getActivity().findViewById(R.id.btn_menu);
+        menubtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                getActivity().openOptionsMenu();
+            }
+        });
 
         final RecyclerView chatList = ((RecyclerView)getActivity().findViewById(R.id.chat_list));
 

@@ -66,6 +66,7 @@
     <string name="suggestion_wp">The Washington Post</string>
     <string name="suggestion_gmail">Gmail</string>
     <string name="suggestion_others">Others</string>
+    <string name="btn_menu">Menu</string>
 
 
     <string-array name="sabrina_highlights">

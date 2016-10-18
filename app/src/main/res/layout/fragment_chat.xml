@@ -140,8 +140,23 @@
         android:padding="5dp"
         android:layout_alignTop="@+id/assistant_input"
         android:layout_gravity="center"
+        android:layout_alignParentEnd="false"
+        android:layout_alignParentBottom="true"
+        android:layout_toStartOf="@+id/btn_menu"
+        android:contentDescription="@string/btn_assistant_voice" />
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/btn_menu"
+        android:src="@drawable/ic_menu_black"
+        android:tint="@color/stanford_cardinal"
+        android:clickable="true"
+        android:padding="5dp"
+        android:layout_alignTop="@+id/assistant_input"
+        android:layout_gravity="center"
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
-        android:contentDescription="@string/btn_assistant_voice" />
+        android:contentDescription="@string/btn_menu" />
 
 </RelativeLayout>

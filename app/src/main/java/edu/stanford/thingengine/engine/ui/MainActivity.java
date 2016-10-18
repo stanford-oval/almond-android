@@ -104,6 +104,9 @@ public class MainActivity extends Activity implements ActionBar.TabListener, Fra
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_ACTION_BAR);
 
+        // hide "Sabrina"
+        getActionBar().setDisplayShowTitleEnabled(false);
+
         setContentView(R.layout.activity_main);
 
         mSectionsPagerAdapter = new SectionsPagerAdapter(getFragmentManager());
@@ -159,6 +162,11 @@ public class MainActivity extends Activity implements ActionBar.TabListener, Fra
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        return false;
     }
 
     @Override
