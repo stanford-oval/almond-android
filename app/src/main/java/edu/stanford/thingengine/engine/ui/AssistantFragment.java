@@ -356,14 +356,16 @@ public class AssistantFragment extends Fragment implements AssistantOutput, Assi
         // the user will still have to click the button to activate the action
         // if we don't have slots, don't make a button just to be clicked, let the
         // action through and wait for sabrina to ask questions
+
+        final ControlBinder control = mEngine.getControl();
+        if (control == null)
+            return;
+        control.getAssistant().collapseButtons();
+        
         if (item.targetJson.contains("\"slots\":[\"") && !item.targetJson.contains("\"slots\":[]")) {
             AsyncTask.THREAD_POOL_EXECUTOR.execute(new Runnable() {
                 @Override
                 public void run() {
-                    ControlBinder control = mEngine.getControl();
-                    if (control == null)
-                        return;
-                    control.getAssistant().collapseButtons();
                     try {
                         control.presentSlotFilling(item.utterance, item.targetJson);
                     } catch(Exception e) {
@@ -401,6 +403,7 @@ public class AssistantFragment extends Fragment implements AssistantOutput, Assi
             }
         });
         input.setInputType(InputType.TYPE_CLASS_TEXT|InputType.TYPE_TEXT_FLAG_AUTO_CORRECT);
+        input.setThreshold(1);
         input.setAdapter(new AutoCompletionAdapter(new ThingpediaClient(getActivity()), getActivity()));
         input.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
