@@ -250,12 +250,11 @@ public class AssistantFragment extends Fragment implements AssistantOutput, Assi
 
     private void syncNeverMindButton(AssistantMessage.AskSpecial msg) {
         final boolean visible = msg.what != AssistantMessage.AskSpecialType.NULL;
-        getActivity().findViewById(R.id.btn_never_mind).setVisibility(visible ? View.VISIBLE : View.GONE);
         getActivity().findViewById(R.id.suggestion_nevermind).setVisibility(visible ? View.VISIBLE : View.GONE);
         getActivity().findViewById(R.id.suggestion_twitter).setVisibility(visible ? View.GONE : View.VISIBLE);
         getActivity().findViewById(R.id.suggestion_gmail).setVisibility(visible ? View.GONE : View.VISIBLE);
         getActivity().findViewById(R.id.suggestion_nest).setVisibility(visible ? View.GONE : View.VISIBLE);
-        getActivity().findViewById(R.id.suggestion_wp).setVisibility(visible ? View.GONE : View.VISIBLE);
+        getActivity().findViewById(R.id.suggestion_news).setVisibility(visible ? View.GONE : View.VISIBLE);
         getActivity().findViewById(R.id.suggestion_others).setVisibility(visible ? View.GONE : View.VISIBLE);
     }
 
@@ -469,19 +468,6 @@ public class AssistantFragment extends Fragment implements AssistantOutput, Assi
 
         getActivity().findViewById(R.id.assistant_progress).setVisibility(View.GONE);
 
-        View nevermind = getActivity().findViewById(R.id.btn_never_mind);
-        nevermind.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                ControlBinder control = mEngine.getControl();
-                if (control == null)
-                    return;
-
-                display(control.getAssistant().handleNeverMind());
-            }
-        });
-        nevermind.setVisibility(View.GONE);
-
         View suggestion_help = getActivity().findViewById(R.id.suggestion_help);
         suggestion_help.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -509,7 +495,7 @@ public class AssistantFragment extends Fragment implements AssistantOutput, Assi
                 ControlBinder control = mEngine.getControl();
                 if (control == null)
                     return;
-                control.getAssistant().handleHelp("twitter");
+                control.getAssistant().handleHelp("tt:device.twitter");
             }
         });
         View suggestion_gmail = getActivity().findViewById(R.id.suggestion_gmail);
@@ -519,7 +505,7 @@ public class AssistantFragment extends Fragment implements AssistantOutput, Assi
                 ControlBinder control = mEngine.getControl();
                 if (control == null)
                     return;
-                control.getAssistant().handleHelp("gmail");
+                control.getAssistant().handleHelp("tt:device.gmail");
             }
         });
         View suggestion_nest = getActivity().findViewById(R.id.suggestion_nest);
@@ -529,17 +515,17 @@ public class AssistantFragment extends Fragment implements AssistantOutput, Assi
                 ControlBinder control = mEngine.getControl();
                 if (control == null)
                     return;
-                control.getAssistant().handleHelp("nest");
+                control.getAssistant().handleHelp("tt:device.nest");
             }
         });
-        View suggestion_wp = getActivity().findViewById(R.id.suggestion_wp);
-        suggestion_wp.setOnClickListener(new View.OnClickListener() {
+        View suggestion_news = getActivity().findViewById(R.id.suggestion_news);
+        suggestion_news.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 ControlBinder control = mEngine.getControl();
                 if (control == null)
                     return;
-                control.getAssistant().handleHelp("washington_post");
+                control.getAssistant().handleHelp("tt:device.washington_post");
             }
         });
         View suggestion_others = getActivity().findViewById(R.id.suggestion_others);

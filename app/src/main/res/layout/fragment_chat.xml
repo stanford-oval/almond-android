@@ -74,8 +74,8 @@
                 style="?android:attr/buttonBarButtonStyle"
                 android:layout_height="wrap_content"
                 android:layout_width="wrap_content"
-                android:id="@+id/suggestion_wp"
-                android:text="@string/suggestion_wp">
+                android:id="@+id/suggestion_news"
+                android:text="@string/suggestion_news">
             </Button>
             <Button
                 style="?android:attr/buttonBarButtonStyle"
@@ -112,23 +112,9 @@
         android:indeterminateTintMode="src_atop"
         android:indeterminateTint="@color/stanford_cardinal"
         android:layout_gravity="center"
-        android:layout_toStartOf="@+id/btn_never_mind"
-        android:layout_alignTop="@+id/assistant_input"
-        android:layout_alignParentBottom="true" />
-
-    <ImageView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/btn_never_mind"
-        android:src="@drawable/ic_replay_black"
-        android:tint="@color/stanford_cardinal"
-        android:clickable="true"
-        android:padding="5dp"
         android:layout_alignTop="@+id/assistant_input"
         android:layout_alignParentBottom="true"
-        android:layout_alignParentEnd="false"
-        android:layout_toStartOf="@+id/btn_assistant_voice"
-        android:contentDescription="@string/btn_never_mind"/>
+        android:layout_toStartOf="@+id/btn_assistant_voice" />
 
     <ImageView
         android:layout_width="wrap_content"
