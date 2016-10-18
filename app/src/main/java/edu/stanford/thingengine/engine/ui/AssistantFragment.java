@@ -402,7 +402,6 @@ public class AssistantFragment extends Fragment implements AssistantOutput, Assi
         });
         input.setInputType(InputType.TYPE_CLASS_TEXT|InputType.TYPE_TEXT_FLAG_AUTO_CORRECT);
         input.setAdapter(new AutoCompletionAdapter(new ThingpediaClient(getActivity()), getActivity()));
-        input.setThreshold(4);
         input.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
