@@ -515,7 +515,7 @@ public class AssistantFragment extends Fragment implements AssistantOutput, Assi
                 ControlBinder control = mEngine.getControl();
                 if (control == null)
                     return;
-                display(control.getAssistant().handleCommand("help twitter"));
+                control.getAssistant().handleHelp("twitter");
             }
         });
         View suggestion_gmail = getActivity().findViewById(R.id.suggestion_gmail);
@@ -525,7 +525,7 @@ public class AssistantFragment extends Fragment implements AssistantOutput, Assi
                 ControlBinder control = mEngine.getControl();
                 if (control == null)
                     return;
-                display(control.getAssistant().handleCommand("help gmail"));
+                control.getAssistant().handleHelp("gmail");
             }
         });
         View suggestion_nest = getActivity().findViewById(R.id.suggestion_nest);
@@ -535,7 +535,7 @@ public class AssistantFragment extends Fragment implements AssistantOutput, Assi
                 ControlBinder control = mEngine.getControl();
                 if (control == null)
                     return;
-                display(control.getAssistant().handleCommand("help nest"));
+                control.getAssistant().handleHelp("nest");
             }
         });
         View suggestion_wp = getActivity().findViewById(R.id.suggestion_wp);
@@ -545,7 +545,7 @@ public class AssistantFragment extends Fragment implements AssistantOutput, Assi
                 ControlBinder control = mEngine.getControl();
                 if (control == null)
                     return;
-                display(control.getAssistant().handleCommand("help washington post"));
+                control.getAssistant().handleHelp("washington_post");
             }
         });
         View suggestion_others = getActivity().findViewById(R.id.suggestion_others);

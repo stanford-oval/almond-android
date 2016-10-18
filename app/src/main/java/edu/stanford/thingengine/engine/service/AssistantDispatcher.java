@@ -160,6 +160,11 @@ public class AssistantDispatcher implements Handler.Callback {
         history.removeButtons();
     }
 
+    public void handleHelp(String device) {
+        handleParsedCommand(String.format("{\"command\":{\"type\":\"help\",\"value\":{\"id\":\"tt:device.%s\"}}}", device));
+        history.removeButtons();
+    }
+
     public void handleTrain() {
         handleParsedCommand("{\"special\":\"tt:root.special.train\"}");
         history.removeButtons();
