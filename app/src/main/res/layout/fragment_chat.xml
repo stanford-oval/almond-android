@@ -18,10 +18,10 @@
         android:stackFromBottom="true"
         android:scrollingCache="true"
         android:smoothScrollbar="false"
-        android:layout_alignParentBottom="true"
-        android:layout_below="@+id/assistant_input"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentStart="true"
         android:layout_alignParentEnd="true"
-        android:layout_alignParentStart="true" />
+        android:layout_above="@+id/assistant_input" />
 
     <AutoCompleteTextView
         android:layout_width="0dp"
@@ -33,9 +33,9 @@
         android:imeOptions="actionSend"
         android:focusable="true"
         android:focusableInTouchMode="true"
-        android:layout_alignParentTop="true"
+        android:layout_alignParentBottom="true"
         android:layout_alignParentStart="true"
-        android:layout_toStartOf="@+id/assistant_progress" />
+        android:layout_toStartOf="@+id/assistant_progress"/>
 
     <ProgressBar
         android:layout_width="wrap_content"
@@ -48,8 +48,8 @@
         android:indeterminateTint="@color/stanford_cardinal"
         android:layout_gravity="center"
         android:layout_toStartOf="@+id/btn_never_mind"
-        android:layout_above="@+id/chat_list"
-        android:layout_alignParentTop="true" />
+        android:layout_alignTop="@+id/assistant_input"
+        android:layout_alignParentBottom="true" />
 
     <ImageView
         android:layout_width="wrap_content"
@@ -59,10 +59,11 @@
         android:tint="@color/stanford_cardinal"
         android:clickable="true"
         android:padding="5dp"
-        android:contentDescription="@string/btn_never_mind"
-        android:layout_alignParentTop="true"
+        android:layout_alignTop="@+id/assistant_input"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="false"
         android:layout_toStartOf="@+id/btn_assistant_voice"
-        android:layout_alignBottom="@+id/assistant_input" />
+        android:contentDescription="@string/btn_never_mind"/>
 
     <ImageView
         android:layout_width="wrap_content"
@@ -72,10 +73,10 @@
         android:tint="@color/stanford_cardinal"
         android:clickable="true"
         android:padding="5dp"
+        android:layout_alignTop="@+id/assistant_input"
         android:layout_gravity="center"
-        android:contentDescription="@string/btn_assistant_voice"
-        android:layout_alignParentTop="true"
         android:layout_alignParentEnd="true"
-        android:layout_alignBottom="@+id/btn_never_mind" />
+        android:layout_alignParentBottom="true"
+        android:contentDescription="@string/btn_assistant_voice" />
 
 </RelativeLayout>
