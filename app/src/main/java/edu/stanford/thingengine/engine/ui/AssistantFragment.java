@@ -251,6 +251,7 @@ public class AssistantFragment extends Fragment implements AssistantOutput, Assi
     private void syncNeverMindButton(AssistantMessage.AskSpecial msg) {
         boolean visible = msg.what != AssistantMessage.AskSpecialType.NULL;
         getActivity().findViewById(R.id.btn_never_mind).setVisibility(visible ? View.VISIBLE : View.GONE);
+        getActivity().findViewById(R.id.suggestion_nevermind).setVisibility(visible ? View.VISIBLE : View.GONE);
     }
 
     private void syncKeyboardType(AssistantMessage.AskSpecial msg) {
@@ -475,6 +476,82 @@ public class AssistantFragment extends Fragment implements AssistantOutput, Assi
             }
         });
         nevermind.setVisibility(View.GONE);
+
+        View suggestion_help = getActivity().findViewById(R.id.suggestion_help);
+        suggestion_help.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ControlBinder control = mEngine.getControl();
+                if (control == null)
+                    return;
+                control.getAssistant().handleHelp();
+            }
+        });
+        View suggestion_nevermind = getActivity().findViewById(R.id.suggestion_nevermind);
+        suggestion_nevermind.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ControlBinder control = mEngine.getControl();
+                if (control == null)
+                    return;
+                control.getAssistant().handleNeverMind();
+            }
+        });
+        View suggestion_twitter = getActivity().findViewById(R.id.suggestion_twitter);
+        suggestion_twitter.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ControlBinder control = mEngine.getControl();
+                if (control == null)
+                    return;
+                control.getAssistant().handleNeverMind();
+                display(control.getAssistant().handleCommand("help twitter"));
+            }
+        });
+        View suggestion_gmail = getActivity().findViewById(R.id.suggestion_gmail);
+        suggestion_gmail.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ControlBinder control = mEngine.getControl();
+                if (control == null)
+                    return;
+                control.getAssistant().handleNeverMind();
+                display(control.getAssistant().handleCommand("help gmail"));
+            }
+        });
+        View suggestion_nest = getActivity().findViewById(R.id.suggestion_nest);
+        suggestion_nest.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ControlBinder control = mEngine.getControl();
+                if (control == null)
+                    return;
+                control.getAssistant().handleNeverMind();
+                display(control.getAssistant().handleCommand("help nest"));
+            }
+        });
+        View suggestion_wp = getActivity().findViewById(R.id.suggestion_wp);
+        suggestion_wp.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ControlBinder control = mEngine.getControl();
+                if (control == null)
+                    return;
+                control.getAssistant().handleNeverMind();
+                display(control.getAssistant().handleCommand("help washington post"));
+            }
+        });
+        View suggestion_others = getActivity().findViewById(R.id.suggestion_others);
+        suggestion_others.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ControlBinder control = mEngine.getControl();
+                if (control == null)
+                    return;
+                control.getAssistant().handleNeverMind();
+                control.getAssistant().handleHelp();
+            }
+        });
 
         mSpeechHandler.onCreate();
     }

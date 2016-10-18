@@ -21,7 +21,72 @@
         android:layout_alignParentTop="true"
         android:layout_alignParentStart="true"
         android:layout_alignParentEnd="true"
-        android:layout_above="@+id/assistant_input" />
+        android:layout_above="@+id/suggestion_bar" />
+
+    <HorizontalScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/suggestion_bar"
+        android:background="@color/white"
+        android:layout_alignParentStart="true"
+        android:layout_above="@+id/assistant_input">
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/suggestions">
+            <Button
+                style="?android:attr/buttonBarButtonStyle"
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:id="@+id/suggestion_help"
+                android:text="@string/action_help">
+            </Button>
+            <Button
+                style="?android:attr/buttonBarButtonStyle"
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:id="@+id/suggestion_nevermind"
+                android:text="@string/never_mind"
+                android:visibility="gone">
+            </Button>
+            <Button
+                style="?android:attr/buttonBarButtonStyle"
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:id="@+id/suggestion_twitter"
+                android:text="@string/suggestion_twitter">
+            </Button>
+            <Button
+                style="?android:attr/buttonBarButtonStyle"
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:id="@+id/suggestion_gmail"
+                android:text="@string/suggestion_gmail">
+            </Button>
+            <Button
+                style="?android:attr/buttonBarButtonStyle"
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:id="@+id/suggestion_nest"
+                android:text="@string/suggestion_nest">
+            </Button>
+            <Button
+                style="?android:attr/buttonBarButtonStyle"
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:id="@+id/suggestion_wp"
+                android:text="@string/suggestion_wp">
+            </Button>
+            <Button
+                style="?android:attr/buttonBarButtonStyle"
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:id="@+id/suggestion_others"
+                android:text="@string/suggestion_others">
+            </Button>
+        </LinearLayout>
+
+    </HorizontalScrollView>
 
     <AutoCompleteTextView
         android:layout_width="0dp"

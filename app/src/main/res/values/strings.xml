@@ -61,6 +61,12 @@
     <string name="example_commands">Example commands</string>
     <string name="show_landing_page">Always show landing pages </string>
     <string name="make_rule">Make your own rule</string>
+    <string name="suggestion_nest">Nest</string>
+    <string name="suggestion_twitter">Twitter</string>
+    <string name="suggestion_wp">The Washington Post</string>
+    <string name="suggestion_gmail">Gmail</string>
+    <string name="suggestion_others">Others</string>
+
 
     <string-array name="sabrina_highlights">
         <item>Try: search \"someone like you\" on youtube and play on my tv</item>

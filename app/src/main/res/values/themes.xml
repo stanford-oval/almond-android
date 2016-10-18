@@ -42,4 +42,5 @@
     <color name="dark_stanford_cardinal">#670000</color>
     <color name="stanford_background">#DEDEDE</color>
     <color name="black_overlay">#66000000</color>
+    <color name="white">#ffffff</color>
 </resources>
