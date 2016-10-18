@@ -252,17 +252,11 @@ public class AssistantFragment extends Fragment implements AssistantOutput, Assi
         final boolean visible = msg.what != AssistantMessage.AskSpecialType.NULL;
         getActivity().findViewById(R.id.btn_never_mind).setVisibility(visible ? View.VISIBLE : View.GONE);
         getActivity().findViewById(R.id.suggestion_nevermind).setVisibility(visible ? View.VISIBLE : View.GONE);
-        getActivity().findViewById(R.id.suggestion_others).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                ControlBinder control = mEngine.getControl();
-                if (control == null)
-                    return;
-                if (visible)
-                    control.getAssistant().handleNeverMind();
-                control.getAssistant().handleHelp();
-            }
-        });
+        getActivity().findViewById(R.id.suggestion_twitter).setVisibility(visible ? View.GONE : View.VISIBLE);
+        getActivity().findViewById(R.id.suggestion_gmail).setVisibility(visible ? View.GONE : View.VISIBLE);
+        getActivity().findViewById(R.id.suggestion_nest).setVisibility(visible ? View.GONE : View.VISIBLE);
+        getActivity().findViewById(R.id.suggestion_wp).setVisibility(visible ? View.GONE : View.VISIBLE);
+        getActivity().findViewById(R.id.suggestion_others).setVisibility(visible ? View.GONE : View.VISIBLE);
     }
 
     private void syncKeyboardType(AssistantMessage.AskSpecial msg) {
