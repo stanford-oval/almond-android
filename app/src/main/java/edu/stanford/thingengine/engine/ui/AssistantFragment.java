@@ -249,9 +249,20 @@ public class AssistantFragment extends Fragment implements AssistantOutput, Assi
     }
 
     private void syncNeverMindButton(AssistantMessage.AskSpecial msg) {
-        boolean visible = msg.what != AssistantMessage.AskSpecialType.NULL;
+        final boolean visible = msg.what != AssistantMessage.AskSpecialType.NULL;
         getActivity().findViewById(R.id.btn_never_mind).setVisibility(visible ? View.VISIBLE : View.GONE);
         getActivity().findViewById(R.id.suggestion_nevermind).setVisibility(visible ? View.VISIBLE : View.GONE);
+        getActivity().findViewById(R.id.suggestion_others).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ControlBinder control = mEngine.getControl();
+                if (control == null)
+                    return;
+                if (visible)
+                    control.getAssistant().handleNeverMind();
+                control.getAssistant().handleHelp();
+            }
+        });
     }
 
     private void syncKeyboardType(AssistantMessage.AskSpecial msg) {
@@ -504,7 +515,6 @@ public class AssistantFragment extends Fragment implements AssistantOutput, Assi
                 ControlBinder control = mEngine.getControl();
                 if (control == null)
                     return;
-                control.getAssistant().handleNeverMind();
                 display(control.getAssistant().handleCommand("help twitter"));
             }
         });
@@ -515,7 +525,6 @@ public class AssistantFragment extends Fragment implements AssistantOutput, Assi
                 ControlBinder control = mEngine.getControl();
                 if (control == null)
                     return;
-                control.getAssistant().handleNeverMind();
                 display(control.getAssistant().handleCommand("help gmail"));
             }
         });
@@ -526,7 +535,6 @@ public class AssistantFragment extends Fragment implements AssistantOutput, Assi
                 ControlBinder control = mEngine.getControl();
                 if (control == null)
                     return;
-                control.getAssistant().handleNeverMind();
                 display(control.getAssistant().handleCommand("help nest"));
             }
         });
@@ -537,7 +545,6 @@ public class AssistantFragment extends Fragment implements AssistantOutput, Assi
                 ControlBinder control = mEngine.getControl();
                 if (control == null)
                     return;
-                control.getAssistant().handleNeverMind();
                 display(control.getAssistant().handleCommand("help washington post"));
             }
         });
@@ -548,7 +555,6 @@ public class AssistantFragment extends Fragment implements AssistantOutput, Assi
                 ControlBinder control = mEngine.getControl();
                 if (control == null)
                     return;
-                control.getAssistant().handleNeverMind();
                 control.getAssistant().handleHelp();
             }
         });
