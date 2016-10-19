@@ -72,13 +72,6 @@
                 android:id="@+id/suggestion_news"
                 android:text="@string/suggestion_news">
             </Button>
-            <Button
-                style="?android:attr/buttonBarButtonStyle"
-                android:layout_height="wrap_content"
-                android:layout_width="wrap_content"
-                android:id="@+id/suggestion_others"
-                android:text="@string/suggestion_others">
-            </Button>
         </LinearLayout>
     </HorizontalScrollView>
 
