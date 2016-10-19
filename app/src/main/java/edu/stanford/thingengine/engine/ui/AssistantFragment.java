@@ -255,6 +255,7 @@ public class AssistantFragment extends Fragment implements AssistantOutput, Assi
         getActivity().findViewById(R.id.suggestion_gmail).setVisibility(visible ? View.GONE : View.VISIBLE);
         getActivity().findViewById(R.id.suggestion_nest).setVisibility(visible ? View.GONE : View.VISIBLE);
         getActivity().findViewById(R.id.suggestion_news).setVisibility(visible ? View.GONE : View.VISIBLE);
+        ((AutoCompleteTextView) getActivity().findViewById(R.id.assistant_input)).setThreshold(visible? 1000 : 1);
     }
 
     private void syncKeyboardType(AssistantMessage.AskSpecial msg) {
