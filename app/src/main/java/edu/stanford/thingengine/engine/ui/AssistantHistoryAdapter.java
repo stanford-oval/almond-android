@@ -460,8 +460,6 @@ class AssistantHistoryAdapter extends RecyclerView.Adapter<AssistantHistoryAdapt
                                 values.put(e.getKey(), "");
                         }
                         owner.onSlotFillingActivated(msg.title, msg.json, msg.slotTypes, values);
-                        ((MainActivity) ctx).findViewById(R.id.suggestion_bar).setVisibility(View.VISIBLE);
-                        ((MainActivity) ctx).findViewById(R.id.input_bar).setVisibility(View.VISIBLE);
                     }
                 });
                 applyBubbleStyle(slotFilling, AssistantMessage.Direction.FROM_USER);

@@ -287,6 +287,7 @@ public class AssistantFragment extends Fragment implements AssistantOutput, Assi
             syncNeverMindButton((AssistantMessage.AskSpecial) msg);
             syncKeyboardType((AssistantMessage.AskSpecial) msg);
         }
+        showInput();
 
         scheduleScroll();
     }
@@ -442,6 +443,7 @@ public class AssistantFragment extends Fragment implements AssistantOutput, Assi
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 hideKeyboard(v);
+                showInput();
                 return false;
             }
         });
@@ -471,7 +473,12 @@ public class AssistantFragment extends Fragment implements AssistantOutput, Assi
         chatList.setLayoutManager(layoutManager);
 
         getActivity().findViewById(R.id.assistant_progress).setVisibility(View.GONE);
+        setupSuggestionBar();
 
+        mSpeechHandler.onCreate();
+    }
+
+    private void setupSuggestionBar() {
         View suggestion_help = getActivity().findViewById(R.id.suggestion_help);
         suggestion_help.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -542,14 +549,18 @@ public class AssistantFragment extends Fragment implements AssistantOutput, Assi
                 control.getAssistant().handleDiscover();
             }
         });
-
-        mSpeechHandler.onCreate();
     }
 
     private void hideKeyboard(View v) {
         InputMethodManager keyboard = (InputMethodManager) this.getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
         keyboard.hideSoftInputFromWindow(v.getWindowToken(), 0);
     }
+
+    private void showInput() {
+        getActivity().findViewById(R.id.suggestion_bar).setVisibility(View.VISIBLE);
+        getActivity().findViewById(R.id.input_bar).setVisibility(View.VISIBLE);
+    }
+
 
     @Override
     public void onResume() {
