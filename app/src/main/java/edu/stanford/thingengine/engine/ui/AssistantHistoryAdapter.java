@@ -9,6 +9,7 @@ import android.text.InputType;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -419,17 +420,31 @@ class AssistantHistoryAdapter extends RecyclerView.Adapter<AssistantHistoryAdapt
                 }
 
                 String[] words = msg.title.split(" ");
+                int idx = 0;
+                int lastEditable = -1;
                 for (String word : words) {
                     if (word.startsWith("$")) {
                         String slotName = word.substring(1);
-
                         String slotType = msg.slotTypes.optString(slotName, "UNKNOWN");
                         View slot = slotByType(slotType);
+                        if (slot.hasFocusable())
+                            lastEditable = idx;
                         slots.put(slotName, slot);
                         slotFilling.addView(slot);
                     } else {
                         slotFilling.addView(btnStyleText(word));
                     }
+                    idx += 1;
+                }
+                if (lastEditable != -1) {
+                    EditText view = (EditText) slotFilling.getChildAt(lastEditable);
+                    view.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+                        @Override
+                        public boolean onEditorAction(TextView textView, int i, KeyEvent keyEvent) {
+                            slotFilling.performClick();
+                            return false;
+                        }
+                    });
                 }
                 slotFilling.setOnClickListener(new View.OnClickListener() {
                     @Override
