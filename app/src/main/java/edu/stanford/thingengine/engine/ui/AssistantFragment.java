@@ -255,6 +255,7 @@ public class AssistantFragment extends Fragment implements AssistantOutput, Assi
         getActivity().findViewById(R.id.suggestion_gmail).setVisibility(visible ? View.GONE : View.VISIBLE);
         getActivity().findViewById(R.id.suggestion_nest).setVisibility(visible ? View.GONE : View.VISIBLE);
         getActivity().findViewById(R.id.suggestion_news).setVisibility(visible ? View.GONE : View.VISIBLE);
+        getActivity().findViewById(R.id.suggestion_discover).setVisibility(visible ? View.GONE : View.VISIBLE);
         ((AutoCompleteTextView) getActivity().findViewById(R.id.assistant_input)).setThreshold(visible? 1000 : 1);
     }
 
@@ -529,6 +530,16 @@ public class AssistantFragment extends Fragment implements AssistantOutput, Assi
                 if (control == null)
                     return;
                 control.getAssistant().handleHelp("tt:device.washington_post");
+            }
+        });
+        View suggestion_discover = getActivity().findViewById(R.id.suggestion_discover);
+        suggestion_discover.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ControlBinder control = mEngine.getControl();
+                if (control == null)
+                    return;
+                control.getAssistant().handleDiscover();
             }
         });
 

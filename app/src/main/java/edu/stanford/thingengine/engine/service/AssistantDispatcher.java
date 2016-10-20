@@ -179,6 +179,11 @@ public class AssistantDispatcher implements Handler.Callback {
         history.removeButtons();
     }
 
+    public void handleDiscover() {
+        handleParsedCommand("{\"command\":{\"type\":\"discover\",\"value\":{\"value\":\"generic\"}}}");
+        history.removeButtons();
+    }
+
     public void handleSetting(String name) {
         try {
             JSONObject obj = new JSONObject();
