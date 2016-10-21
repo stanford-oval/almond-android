@@ -36,11 +36,9 @@
     <string name="cloud_sync_enabled">Cloud sync is enabled</string>
     <string name="cloud_sync_disabled">Cloud sync is disabled. Click to enable…</string>
     <string name="no_developer_key">You don\'t have a developer key. Sign in to Thingpedia to obtain one.</string>
-    <string name="action_help">Help</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
     <string name="pref_username_title">User name</string>
-    <string name="action_train">Train</string>
     <string name="btn_share">Share…</string>
     <string name="btn_download">Download</string>
     <string name="toast_downloaded">Saved to gallery</string>
@@ -66,6 +64,7 @@
     <string name="suggestion_news">WA Post</string>
     <string name="suggestion_gmail">Gmail</string>
     <string name="suggestion_discover">Search devices</string>
+    <string name="suggestion_help">Help</string>
 
 
     <string-array name="sabrina_highlights">

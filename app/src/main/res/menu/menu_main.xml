@@ -2,18 +2,18 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="edu.stanford.thingengine.engine.ui.MainActivity">
     <item
-        android:id="@+id/action_help"
+        android:id="@+id/my_stuff"
         android:orderInCategory="0"
         android:menuCategory="alternative"
         android:showAsAction="always"
-        android:title="@string/action_help"
+        android:title="@string/mystuff_tab"
         />
     <item
-        android:id="@+id/action_train"
+        android:id="@+id/my_rules"
         android:orderInCategory="1"
         android:menuCategory="alternative"
         android:showAsAction="always"
-        android:title="@string/action_train"
+        android:title="@string/myrules_tab"
         />
     <item
         android:id="@+id/action_clear_chat"
