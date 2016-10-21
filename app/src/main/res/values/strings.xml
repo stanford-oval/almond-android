@@ -4,6 +4,7 @@
 
     <string name="action_settings">Settings</string>
     <string name="action_clear_chat">Clear history</string>
+    <string name="action_train">Train</string>
     <string name="title_activity_main">Sabrina</string>
 
     <string name="chat_tab">Chat</string>

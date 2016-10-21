@@ -196,8 +196,8 @@ public class MyStuffActivity extends Activity {
     @Override
     public void onPause() {
         super.onPause();
-        mEngine.stop(this);
         mEngine.removeEngineReadyCallback(mReadyCallback);
+        mEngine.stop(this);
     }
 
     public void refresh() {

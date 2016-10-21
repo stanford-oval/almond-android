@@ -110,7 +110,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".ui.MyStuffActivity$IntroductionActivity"
+            android:name=".ui.IntroductionActivity"
             android:theme="@style/LandingPageTheme">
         </activity>
     </application>

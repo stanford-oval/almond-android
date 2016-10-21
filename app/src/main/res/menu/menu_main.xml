@@ -16,8 +16,15 @@
         android:title="@string/myrules_tab"
         />
     <item
-        android:id="@+id/action_clear_chat"
+        android:id="@+id/action_train"
         android:orderInCategory="2"
+        android:menuCategory="alternative"
+        android:showAsAction="ifRoom"
+        android:title="@string/action_train"
+        />
+    <item
+        android:id="@+id/action_clear_chat"
+        android:orderInCategory="3"
         android:menuCategory="alternative"
         android:showAsAction="never"
         android:title="@string/action_clear_chat" />

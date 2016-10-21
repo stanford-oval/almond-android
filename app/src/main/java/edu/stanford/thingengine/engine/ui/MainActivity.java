@@ -225,7 +225,6 @@ public class MainActivity extends Activity implements AssistantOutput, Assistant
     @Override
     public void onPause() {
         super.onPause();
-        engine.stop(this);
         ControlBinder control = engine.getControl();
         if (control != null) {
             AssistantDispatcher assistant = control.getAssistant();
@@ -234,6 +233,7 @@ public class MainActivity extends Activity implements AssistantOutput, Assistant
         }
         engine.removeEngineReadyCallback(mReadyCallback);
         mSpeechHandler.onPause();
+        engine.stop(this);
         UpdateManager.unregister();
     }
 
@@ -952,6 +952,15 @@ public class MainActivity extends Activity implements AssistantOutput, Assistant
             control.getAssistant().handleClear();
             Toast.makeText(getApplicationContext(), "The conversation has been reset.",
                     Toast.LENGTH_LONG).show();
+            return true;
+        }
+
+        if (id == R.id.action_train) {
+            ControlBinder control = engine.getControl();
+            if (control == null)
+                return true;
+
+            control.getAssistant().handleTrain();
             return true;
         }
 
