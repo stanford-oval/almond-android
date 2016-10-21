@@ -118,7 +118,7 @@ public class MainActivity extends Activity implements AssistantOutput, Assistant
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_ACTION_BAR);
 
-        setContentView(R.layout.fragment_chat);
+        setContentView(R.layout.activity_main);
 
         mListAdapter.setContext(this);
         final AutoCompleteTextView input = (AutoCompleteTextView)findViewById(R.id.assistant_input);

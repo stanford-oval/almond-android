@@ -111,7 +111,7 @@ public class MyRulesActivity extends Activity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.fragment_rules);
+        setContentView(R.layout.activity_rules);
 
         mApps = new ArrayAdapter<AppInfo>(this, R.layout.layout_single_app, R.id.app_description) {
             @Override
