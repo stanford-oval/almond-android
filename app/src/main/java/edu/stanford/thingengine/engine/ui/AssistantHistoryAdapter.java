@@ -427,7 +427,7 @@ class AssistantHistoryAdapter extends RecyclerView.Adapter<AssistantHistoryAdapt
                         String slotName = word.substring(1);
                         String slotType = msg.slotTypes.optString(slotName, "UNKNOWN");
                         View slot = slotByType(slotType);
-                        if (slot.hasFocusable())
+                        if (slot instanceof EditText && slot.hasFocusable())
                             lastEditable = idx;
                         slots.put(slotName, slot);
                         slotFilling.addView(slot);
