@@ -1,13 +1,11 @@
 package edu.stanford.thingengine.engine.ui;
 
 import android.app.Activity;
-import android.app.Fragment;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -25,19 +23,18 @@ import edu.stanford.thingengine.engine.service.AppInfo;
 import edu.stanford.thingengine.engine.service.ControlBinder;
 
 public class MyRulesActivity extends Activity {
-    private MainServiceConnection mEngine;
+    private final MainServiceConnection mEngine;
     private final Runnable mReadyCallback = new Runnable() {
         @Override
         public void run() {
             refresh();
         }
     };
-    private FragmentEmbedder mListener;
 
     private ArrayAdapter<AppInfo> mApps;
 
     public MyRulesActivity() {
-        // Required empty public constructor
+        mEngine = new MainServiceConnection();
     }
 
     private class RefreshAppsTask extends AsyncTask<Void, Void, List<AppInfo>> {
@@ -116,7 +113,6 @@ public class MyRulesActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.fragment_rules);
 
-        mEngine = MainActivity.engine;
         mApps = new ArrayAdapter<AppInfo>(this, R.layout.layout_single_app, R.id.app_description) {
             @Override
             public View getView(int position, View recycleView, ViewGroup parent) {
@@ -166,7 +162,7 @@ public class MyRulesActivity extends Activity {
     @Override
     public void onResume() {
         super.onResume();
-
+        mEngine.start(this);
         mEngine.addEngineReadyCallback(mReadyCallback);
         refresh();
     }
@@ -174,34 +170,11 @@ public class MyRulesActivity extends Activity {
     @Override
     public void onPause() {
         super.onPause();
-
+        mEngine.stop(this);
         mEngine.removeEngineReadyCallback(mReadyCallback);
     }
 
     public void refresh() {
         new RefreshAppsTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
     }
-
-    /*
-    // this version of onAttach is deprecated but it's required
-    // on APIs older than 23 because otherwise onAttach is never called
-    @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-        if (activity instanceof FragmentEmbedder) {
-            mListener = (FragmentEmbedder) activity;
-            mEngine = mListener.getEngine();
-        } else {
-            throw new RuntimeException(activity.toString()
-                    + " must implement FragmentEmbedder");
-        }
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        mListener = null;
-        mEngine = null;
-    }
-    */
 }

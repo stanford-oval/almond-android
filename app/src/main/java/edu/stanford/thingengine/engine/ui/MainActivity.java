@@ -2,11 +2,7 @@ package edu.stanford.thingengine.engine.ui;
 
 
 import android.Manifest;
-import android.app.ActionBar;
 import android.app.Activity;
-import android.app.Fragment;
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -15,27 +11,22 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.provider.ContactsContract;
 import android.speech.tts.TextToSpeech;
 import android.support.annotation.NonNull;
-import android.support.v13.app.FragmentPagerAdapter;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.util.ArrayMap;
-import android.support.v4.view.ViewPager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.InputType;
 import android.util.Log;
 import android.util.Pair;
 import android.view.KeyEvent;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
@@ -44,7 +35,6 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.view.Window;
-import android.widget.Toolbar;
 
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
@@ -74,7 +64,6 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
 
-import edu.stanford.thingengine.engine.AutoStarter;
 import edu.stanford.thingengine.engine.BuildConfig;
 import edu.stanford.thingengine.engine.Config;
 import edu.stanford.thingengine.engine.R;
@@ -109,13 +98,12 @@ public class MainActivity extends Activity implements AssistantOutput, Assistant
             assistant.ready();
         }
     };
-    private FragmentEmbedder mListener;
+
     private AssistantHistoryAdapter mListAdapter = new AssistantHistoryAdapter(MainActivity.this);
     private final SpeechHandler mSpeechHandler = new SpeechHandler();
     private boolean mInCommand = false;
 
-    //private final MainServiceConnection engine;
-    public static MainServiceConnection engine;
+    private final MainServiceConnection engine;
 
     public MainActivity() {
         engine = new MainServiceConnection();
