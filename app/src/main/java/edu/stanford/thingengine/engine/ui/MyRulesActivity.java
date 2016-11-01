@@ -1,12 +1,11 @@
 package edu.stanford.thingengine.engine.ui;
 
 import android.app.Activity;
-import android.app.Fragment;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -23,32 +22,19 @@ import edu.stanford.thingengine.engine.R;
 import edu.stanford.thingengine.engine.service.AppInfo;
 import edu.stanford.thingengine.engine.service.ControlBinder;
 
-public class RulesFragment extends Fragment {
-    private MainServiceConnection mEngine;
+public class MyRulesActivity extends Activity {
+    private final MainServiceConnection mEngine;
     private final Runnable mReadyCallback = new Runnable() {
         @Override
         public void run() {
             refresh();
         }
     };
-    private FragmentEmbedder mListener;
 
     private ArrayAdapter<AppInfo> mApps;
 
-    public RulesFragment() {
-        // Required empty public constructor
-    }
-
-    public static RulesFragment newInstance() {
-        RulesFragment fragment = new RulesFragment();
-        Bundle args = new Bundle();
-        fragment.setArguments(args);
-        return fragment;
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    public MyRulesActivity() {
+        mEngine = new MainServiceConnection();
     }
 
     private class RefreshAppsTask extends AsyncTask<Void, Void, List<AppInfo>> {
@@ -72,13 +58,6 @@ public class RulesFragment extends Fragment {
         }
     }
 
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_rules, container, false);
-    }
-
     private class StopAppTask extends AsyncTask<String, Void, Exception> {
         @Override
         protected Exception doInBackground(String... params) {
@@ -99,7 +78,7 @@ public class RulesFragment extends Fragment {
         @Override
         public void onPostExecute(Exception e) {
             if (e != null) {
-                DialogUtils.showAlertDialog(getActivity(), "Failed to stop rule: " + e.getMessage(), new DialogInterface.OnClickListener() {
+                DialogUtils.showAlertDialog(MyRulesActivity.this, "Failed to stop rule: " + e.getMessage(), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
 
@@ -116,7 +95,7 @@ public class RulesFragment extends Fragment {
     }
 
     private void maybeStopApp(final String uniqueId) {
-        DialogUtils.showConfirmDialog(getActivity(), "Do you wish to stop this rule?", new DialogInterface.OnClickListener() {
+        DialogUtils.showConfirmDialog(MyRulesActivity.this, "Do you wish to stop this rule?", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 stopApp(uniqueId);
@@ -130,10 +109,11 @@ public class RulesFragment extends Fragment {
     }
 
     @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_rules);
 
-        mApps = new ArrayAdapter<AppInfo>(getActivity(), R.layout.layout_single_app, R.id.app_description) {
+        mApps = new ArrayAdapter<AppInfo>(this, R.layout.layout_single_app, R.id.app_description) {
             @Override
             public View getView(int position, View recycleView, ViewGroup parent) {
                 View created = super.getView(position, recycleView, parent);
@@ -145,7 +125,7 @@ public class RulesFragment extends Fragment {
                 return created;
             }
         };
-        ListView list = (ListView) getActivity().findViewById(R.id.app_list);
+        ListView list = (ListView) findViewById(R.id.app_list);
         list.setAdapter(mApps);
 
         list.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
@@ -157,16 +137,18 @@ public class RulesFragment extends Fragment {
             }
         });
 
-        Button btn = (Button) getActivity().findViewById(R.id.btn_create_rule);
+        Button btn = (Button) findViewById(R.id.btn_create_rule);
+
         btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                ControlBinder control = ((MainActivity) getActivity()).getEngine().getControl();
+                ControlBinder control = mEngine.getControl();
                 if (control == null)
                     return;
 
-                ((MainActivity) getActivity()).switchToChat();
                 control.getAssistant().handleMakeRule();
+                Intent intent = new Intent(MyRulesActivity.this, MainActivity.class);
+                startActivity(intent);
                 return;
             }
         });
@@ -180,7 +162,7 @@ public class RulesFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-
+        mEngine.start(this);
         mEngine.addEngineReadyCallback(mReadyCallback);
         refresh();
     }
@@ -188,32 +170,11 @@ public class RulesFragment extends Fragment {
     @Override
     public void onPause() {
         super.onPause();
-
         mEngine.removeEngineReadyCallback(mReadyCallback);
+        mEngine.stop(this);
     }
 
     public void refresh() {
         new RefreshAppsTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-    }
-
-    // this version of onAttach is deprecated but it's required
-    // on APIs older than 23 because otherwise onAttach is never called
-    @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-        if (activity instanceof FragmentEmbedder) {
-            mListener = (FragmentEmbedder) activity;
-            mEngine = mListener.getEngine();
-        } else {
-            throw new RuntimeException(activity.toString()
-                    + " must implement FragmentEmbedder");
-        }
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        mListener = null;
-        mEngine = null;
     }
 }

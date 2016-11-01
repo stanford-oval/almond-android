@@ -5,5 +5,4 @@ package edu.stanford.thingengine.engine.ui;
  */
 public interface FragmentEmbedder {
     MainServiceConnection getEngine();
-    void switchToMyGoods();
 }

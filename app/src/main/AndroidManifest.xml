@@ -48,6 +48,12 @@
             android:label="@string/title_activity_main"
             android:windowSoftInputMode="adjustResize"/>
         <activity
+            android:name=".ui.MyStuffActivity"
+            android:parentActivityName=".ui.MainActivity" />
+        <activity
+            android:name=".ui.MyRulesActivity"
+            android:parentActivityName=".ui.MainActivity" />
+        <activity
             android:name=".ui.DeviceConfigureChooseKindActivity"
             android:parentActivityName=".ui.MainActivity" />
         <activity
@@ -59,7 +65,7 @@
             android:windowSoftInputMode="adjustPan" />
         <activity
             android:name=".ui.DeviceDetailsActivity"
-            android:parentActivityName=".ui.MainActivity" />
+            android:parentActivityName=".ui.MyStuffActivity" />
         <activity
             android:name=".ui.SettingsActivity"
             android:parentActivityName=".ui.MainActivity" />

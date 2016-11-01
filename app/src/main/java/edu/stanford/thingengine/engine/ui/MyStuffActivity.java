@@ -1,14 +1,12 @@
 package edu.stanford.thingengine.engine.ui;
 
 import android.app.Activity;
-import android.app.Fragment;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -30,27 +28,21 @@ import edu.stanford.thingengine.engine.R;
 import edu.stanford.thingengine.engine.service.ControlBinder;
 import edu.stanford.thingengine.engine.service.DeviceInfo;
 
-public class MyStuffFragment extends Fragment {
+public class MyStuffActivity extends Activity {
     private static final int REQUEST_CREATE_DEVICE = 2;
 
-    private MainServiceConnection mEngine;
+    private final MainServiceConnection mEngine;
     private final Runnable mReadyCallback = new Runnable() {
         @Override
         public void run() {
             refresh();
         }
     };
-    private FragmentEmbedder mListener;
 
     private ArrayAdapter<DeviceInfo> mDevices;
 
-    public MyStuffFragment() {}
-
-    public static MyStuffFragment newInstance() {
-        MyStuffFragment fragment = new MyStuffFragment();
-        Bundle args = new Bundle();
-        fragment.setArguments(args);
-        return fragment;
+    public MyStuffActivity() {
+        mEngine = new MainServiceConnection();
     }
 
     private class RefreshDevicesTask extends AsyncTask<Void, Void, List<DeviceInfo>> {
@@ -76,7 +68,7 @@ public class MyStuffFragment extends Fragment {
 
     private class DeviceArrayAdapter extends ArrayAdapter<DeviceInfo> {
         public DeviceArrayAdapter() {
-            super(getActivity(), 0);
+            super(MyStuffActivity.this, 0);
         }
 
         private String getIcon(DeviceInfo device) {
@@ -99,7 +91,7 @@ public class MyStuffFragment extends Fragment {
 
             TextView name = (TextView)secondChild;
 
-            LoadImageTask.load(getActivity(), icon, getIcon(device));
+            LoadImageTask.load(MyStuffActivity.this, icon, getIcon(device));
             name.setText(device.name);
             return true;
         }
@@ -128,7 +120,7 @@ public class MyStuffFragment extends Fragment {
             textParams.gravity = Gravity.CENTER_HORIZONTAL;
             linearLayout.addView(text, textParams);
 
-            LoadImageTask.load(getActivity(), icon, getIcon(device));
+            LoadImageTask.load(MyStuffActivity.this, icon, getIcon(device));
             text.setText(device.name);
 
             return linearLayout;
@@ -144,7 +136,7 @@ public class MyStuffFragment extends Fragment {
 
         @Override
         public void onClick(View view) {
-            Intent intent = new Intent(getActivity(), DeviceConfigureChooseKindActivity.class);
+            Intent intent = new Intent(MyStuffActivity.this, DeviceConfigureChooseKindActivity.class);
             intent.setAction(DeviceConfigureChooseKindActivity.ACTION);
             intent.putExtra("extra.CLASS", _class);
 
@@ -153,8 +145,9 @@ public class MyStuffFragment extends Fragment {
     }
 
     @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_my_stuff);
 
         mDevices = new DeviceArrayAdapter();
 
@@ -162,7 +155,7 @@ public class MyStuffFragment extends Fragment {
         int[] view_ids = new int[] { R.id.my_devices_view };
         for (int i = 0; i < view_ids.length; i++) {
             ListAdapter adapter = adapters[i];
-            GridView view = (GridView) getActivity().findViewById(view_ids[i]);
+            GridView view = (GridView) this.findViewById(view_ids[i]);
 
             view.setAdapter(adapter);
             view.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -171,7 +164,7 @@ public class MyStuffFragment extends Fragment {
                     DeviceInfo device = (DeviceInfo) parent.getAdapter().getItem(position);
 
                     String _class = device.isDataSource ? "data" : (device.isOnlineAccount ? "online" : "physical");
-                    Intent intent = new Intent(getActivity(), DeviceDetailsActivity.class);
+                    Intent intent = new Intent(MyStuffActivity.this, DeviceDetailsActivity.class);
                     intent.setAction(DeviceDetailsActivity.ACTION);
                     intent.putExtra("extra.INFO", device);
                     intent.putExtra("extra.CLASS", _class);
@@ -185,7 +178,7 @@ public class MyStuffFragment extends Fragment {
         String[] classes = new String[] { "physical", "online" };
 
         for (int i = 0; i < classes.length; i++) {
-            Button btn = (Button) getActivity().findViewById(button_ids[i]);
+            Button btn = (Button) findViewById(button_ids[i]);
             String _class = classes[i];
 
             btn.setOnClickListener(new OnCreateButtonClicked(_class));
@@ -195,7 +188,7 @@ public class MyStuffFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-
+        mEngine.start(this);
         mEngine.addEngineReadyCallback(mReadyCallback);
         refresh();
     }
@@ -203,8 +196,8 @@ public class MyStuffFragment extends Fragment {
     @Override
     public void onPause() {
         super.onPause();
-
         mEngine.removeEngineReadyCallback(mReadyCallback);
+        mEngine.stop(this);
     }
 
     public void refresh() {
@@ -226,34 +219,6 @@ public class MyStuffFragment extends Fragment {
                 return lhs.name.compareTo(rhs.name);
             }
         });
-    }
-
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_my_stuff, container, false);
-    }
-
-    // this version of onAttach is deprecated but it's required
-    // on APIs older than 23 because otherwise onAttach is never called
-    @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-        if (activity instanceof FragmentEmbedder) {
-            mListener = (FragmentEmbedder) activity;
-            mEngine = mListener.getEngine();
-        } else {
-            throw new RuntimeException(activity.toString()
-                    + " must implement FragmentEmbedder");
-        }
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        mListener = null;
-        mEngine = null;
     }
 
     @Override

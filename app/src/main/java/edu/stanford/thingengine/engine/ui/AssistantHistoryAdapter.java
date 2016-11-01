@@ -41,7 +41,7 @@ import edu.stanford.thingengine.engine.service.AssistantMessage;
  * Created by gcampagn on 8/22/16.
  */
 class AssistantHistoryAdapter extends RecyclerView.Adapter<AssistantHistoryAdapter.AssistantMessageViewHolder> implements AssistantHistoryModel.Listener {
-    private AssistantFragment fragment;
+    private MainActivity fragment;
 
     public abstract static class AssistantMessageViewHolder extends RecyclerView.ViewHolder {
         protected final Context ctx;
@@ -187,9 +187,9 @@ class AssistantHistoryAdapter extends RecyclerView.Adapter<AssistantHistoryAdapt
         public static class Picture extends AssistantMessageViewHolder {
             private ImageView view;
             private String cachedUrl;
-            protected final AssistantFragment owner;
+            protected final MainActivity owner;
 
-            public Picture(Context ctx, AssistantFragment owner) {
+            public Picture(Context ctx, MainActivity owner) {
                 super(ctx);
                 this.owner = owner;
             }
@@ -221,9 +221,9 @@ class AssistantHistoryAdapter extends RecyclerView.Adapter<AssistantHistoryAdapt
 
         public static abstract class AbstractButton extends AssistantMessageViewHolder {
             protected android.widget.Button btn;
-            protected final AssistantFragment owner;
+            protected final MainActivity owner;
 
-            public AbstractButton(Context ctx, AssistantFragment owner) {
+            public AbstractButton(Context ctx, MainActivity owner) {
                 super(ctx);
                 this.owner = owner;
             }
@@ -241,9 +241,9 @@ class AssistantHistoryAdapter extends RecyclerView.Adapter<AssistantHistoryAdapt
             private LinearLayout view;
             private TextView title;
             private TextView body;
-            private final AssistantFragment owner;
+            private final MainActivity owner;
 
-            public RDL(Context ctx, AssistantFragment owner) {
+            public RDL(Context ctx, MainActivity owner) {
                 super(ctx);
                 this.owner = owner;
             }
@@ -289,7 +289,7 @@ class AssistantHistoryAdapter extends RecyclerView.Adapter<AssistantHistoryAdapt
         }
 
         public static class Button extends AbstractButton {
-            public Button(Context ctx, AssistantFragment owner) {
+            public Button(Context ctx, MainActivity owner) {
                 super(ctx, owner);
             }
 
@@ -308,7 +308,7 @@ class AssistantHistoryAdapter extends RecyclerView.Adapter<AssistantHistoryAdapt
         }
 
         public static class Link extends AbstractButton {
-            public Link(Context ctx, AssistantFragment owner) {
+            public Link(Context ctx, MainActivity owner) {
                 super(ctx, owner);
             }
 
@@ -327,7 +327,7 @@ class AssistantHistoryAdapter extends RecyclerView.Adapter<AssistantHistoryAdapt
         }
 
         public static class Choice extends AbstractButton {
-            public Choice(Context ctx, AssistantFragment owner) {
+            public Choice(Context ctx, MainActivity owner) {
                 super(ctx, owner);
             }
 
@@ -349,9 +349,9 @@ class AssistantHistoryAdapter extends RecyclerView.Adapter<AssistantHistoryAdapt
             private android.widget.Button yesbtn;
             private android.widget.Button nobtn;
             private LinearLayout yesno;
-            private final AssistantFragment owner;
+            private final MainActivity owner;
 
-            public YesNo(Context ctx, AssistantFragment owner) {
+            public YesNo(Context ctx, MainActivity owner) {
                 super(ctx);
                 this.owner = owner;
             }
@@ -398,9 +398,9 @@ class AssistantHistoryAdapter extends RecyclerView.Adapter<AssistantHistoryAdapt
 
         public static class SlotFilling extends AssistantMessageViewHolder {
             private FlexboxLayout slotFilling;
-            private final AssistantFragment owner;
+            private final MainActivity owner;
 
-            public SlotFilling(Context ctx, AssistantFragment owner) {
+            public SlotFilling(Context ctx, MainActivity owner) {
                 super(ctx);
                 this.owner = owner;
             }
@@ -560,7 +560,7 @@ class AssistantHistoryAdapter extends RecyclerView.Adapter<AssistantHistoryAdapt
         }
 
         public static class ChooseLocation extends AbstractButton {
-            public ChooseLocation(Context ctx, AssistantFragment owner) {
+            public ChooseLocation(Context ctx, MainActivity owner) {
                 super(ctx, owner);
             }
 
@@ -578,7 +578,7 @@ class AssistantHistoryAdapter extends RecyclerView.Adapter<AssistantHistoryAdapt
         }
 
         public static class ChoosePicture extends AbstractButton {
-            public ChoosePicture(Context ctx, AssistantFragment owner) {
+            public ChoosePicture(Context ctx, MainActivity owner) {
                 super(ctx, owner);
             }
 
@@ -596,7 +596,7 @@ class AssistantHistoryAdapter extends RecyclerView.Adapter<AssistantHistoryAdapt
         }
 
         public static class ChooseContact extends AbstractButton {
-            public ChooseContact(Context ctx, AssistantFragment owner) {
+            public ChooseContact(Context ctx, MainActivity owner) {
                 super(ctx, owner);
             }
 
@@ -606,7 +606,7 @@ class AssistantHistoryAdapter extends RecyclerView.Adapter<AssistantHistoryAdapt
                 btn.setText(R.string.btn_choose_contact);
 
                 final AssistantMessage.AskSpecial msg = (AssistantMessage.AskSpecial)base;
-                final int requestCode = msg.what == AssistantMessage.AskSpecialType.PHONE_NUMBER ? AssistantFragment.REQUEST_PHONE_NUMBER : AssistantFragment.REQUEST_EMAIL;
+                final int requestCode = msg.what == AssistantMessage.AskSpecialType.PHONE_NUMBER ? MainActivity.REQUEST_PHONE_NUMBER : MainActivity.REQUEST_EMAIL;
                 btn.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -620,8 +620,8 @@ class AssistantHistoryAdapter extends RecyclerView.Adapter<AssistantHistoryAdapt
     private Context ctx;
     private AssistantHistoryModel history;
 
-    public AssistantHistoryAdapter(AssistantFragment fragment) {
-        this.fragment = fragment;
+    public AssistantHistoryAdapter(MainActivity activity) {
+        this.fragment = activity;
         setHasStableIds(false);
     }
 
