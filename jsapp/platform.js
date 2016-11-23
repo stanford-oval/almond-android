@@ -12,9 +12,6 @@ const Q = require('q');
 const fs = require('fs');
 const Gettext = require('node-gettext');
 
-// FIXME
-const sql = require('thingengine-core/lib/util/sql');
-
 const JavaAPI = require('./java_api');
 const StreamAPI = require('./streams');
 
@@ -136,9 +133,6 @@ module.exports = {
         }).then((value) => {
             cacheDir = value;
             safeMkdirSync(cacheDir);
-
-            return sql.ensureSchema(filesDir + '/sqlite.db',
-                                    '../data/schema.sql');
         });
     },
 
@@ -320,6 +314,12 @@ module.exports = {
     // Get the filename of the sqlite database
     getSqliteDB: function() {
         return filesDir + '/sqlite.db';
+    },
+
+    // For now, the version of sqlite compiled with jxcore does not support
+    // on-disk encryption, so no key returned here
+    getSqliteKey: function() {
+        return null;
     },
 
     getGraphDB: function() {
