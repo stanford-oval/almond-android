@@ -35,7 +35,6 @@
     <string name="no_developer_key">Non hai una chiave sviluppatore. Entra in Thingpedia per ottenerne una.</string>
     <string name="pref_cloud_sync_title">Abilita cloud sync</string>
     <string name="pref_developer_key_title">Chiave sviluppatore</string>
-    <string name="action_help">Aiuto</string>
     <string name="no">No</string>
     <string name="yes">Sì</string>
     <string name="pref_username_title">Nome utente</string>
@@ -55,4 +54,15 @@
     <string name="sabrina_sends_picture">Sabrina invia un\'immagine</string>
     <string name="toast_download_failed">Errore nello scaricare l\'immagine</string>
     <string name="toast_downloaded">Salvata nella galleria</string>
+    <string name="show_landing_page">Mostra sempre la pagina di benvenuto</string>
+    <string name="suggestion_discover">Ricerca dispositivi</string>
+    <string name="suggestion_gmail">Gmail</string>
+    <string name="suggestion_help">Aiuto</string>
+    <string name="suggestion_nest">Nest</string>
+    <string name="suggestion_news">WA Post</string>
+    <string name="suggestion_twitter">Twitter</string>
+    <string name="example_commands">Comandi di esempio</string>
+    <string name="get_started">Per iniziare</string>
+    <string name="intro_text">Cosa puoi fare con Sabrina</string>
+    <string name="make_rule">Crea la tua regola</string>
 </resources>

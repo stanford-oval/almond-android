@@ -36,7 +36,6 @@
     <string name="cloud_sync_enabled">云同步已开启</string>
     <string name="cloud_sync_disabled">云同步已关闭，点击开启…</string>
     <string name="no_developer_key">你没有开发者密钥，登录ThingPedia以获得密钥</string>
-    <string name="action_help">帮助</string>
     <string name="yes">是</string>
     <string name="no">否</string>
     <string name="pref_username_title">用户名</string>
