@@ -12,6 +12,7 @@ import org.json.JSONTokener;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.Closeable;
+import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
@@ -114,6 +115,8 @@ public class ControlChannel implements AutoCloseable, Closeable {
                     if (newLine < 0) {
                         char[] buffer = new char[64];
                         int read = controlReader.read(buffer);
+                        if (read < 0)
+                            throw new EOFException("Control channel closed");
                         partialMsg.append(buffer, 0, read);
                         continue;
                     }
