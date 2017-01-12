@@ -42,12 +42,17 @@ public abstract class JavascriptAPI {
                 control.getThreadPool().execute(new Runnable() {
                     @Override
                     public void run() {
+                        Object result = null;
+                        Exception error = null;
                         try {
-                            Object result = call.run(params.toArray());
-                            sendCallback(callbackId, null, result);
+                            result = call.run(params.toArray());
                         } catch (Exception e) {
-                            sendCallback(callbackId, e.getMessage(), null);
+                            error = e;
                         }
+                        if (error != null)
+                            sendCallback(callbackId, error.getMessage(), null);
+                        else
+                            sendCallback(callbackId, null, result);
                     }
                 });
             }
