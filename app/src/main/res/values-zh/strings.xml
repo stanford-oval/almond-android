@@ -1,11 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Sabrina</string>
     <string name="title_activity_web_ui">Sabrina</string>
-
     <string name="action_settings">设置</string>
     <string name="action_clear_chat">重置</string>
     <string name="title_activity_main">Sabrina</string>
-
     <string name="chat_tab">对话</string>
     <string name="mystuff_tab">我的东西</string>
     <string name="myrules_tab">我的规则</string>
@@ -40,4 +39,30 @@
     <string name="no">否</string>
     <string name="pref_username_title">用户名</string>
     <string name="action_train">训练</string>
+    <string name="btn_download">下载</string>
+    <string name="btn_assistant_voice">使用语音</string>
+    <string name="btn_never_mind">取消</string>
+    <string name="btn_share">分享...</string>
+    <string name="content_hidden">因为隐私问题，内容已被隐藏</string>
+    <string name="download_permission_needed">Sabrina需要</string>
+    <string name="example_commands">示例命令</string>
+    <string name="get_started">开始</string>
+    <string name="intro_text">你可以做些什么</string>
+    <string name="make_rule">创建你的规则</string>
+    <string name="never_mind">取消</string>
+    <string name="sabrina_says">Sabrina说</string>
+    <string name="sabrina_says_dotdotdot">Sabrina说...</string>
+    <string name="sabrina_says_something">Sabrina说了些什么</string>
+    <string name="sabrina_sends_button">Sabrina发了一个按键</string>
+    <string name="sabrina_sends_link">Sabrina发了一个链接</string>
+    <string name="sabrina_sends_picture">Sabrian发了一个图片</string>
+    <string name="show_landing_page">永远显示登陆页面</string>
+    <string name="suggestion_discover">搜索设备</string>
+    <string name="suggestion_gmail">Gmail</string>
+    <string name="suggestion_help">帮助</string>
+    <string name="suggestion_nest">Nest</string>
+    <string name="suggestion_news">华盛顿邮报</string>
+    <string name="suggestion_twitter">推特</string>
+    <string name="toast_download_failed">下载图片失败</string>
+    <string name="toast_downloaded">保存到手机</string>
 </resources>
