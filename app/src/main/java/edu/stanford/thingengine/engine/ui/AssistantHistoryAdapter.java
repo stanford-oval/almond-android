@@ -474,11 +474,14 @@ class AssistantHistoryAdapter extends RecyclerView.Adapter<AssistantHistoryAdapt
                     case "Number":
                         et.setInputType(InputType.TYPE_CLASS_NUMBER);
                         break;
-                    case "PhoneNumber":
+                    case "Entity(tt:phone_number)":
                         et.setInputType(InputType.TYPE_CLASS_PHONE);
                         break;
-                    case "EmailAddress":
+                    case "Entity(tt:email_address)":
                         et.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_WEB_EMAIL_ADDRESS);
+                        break;
+                    case "Entity(tt:url)":
+                        et.setInputType(InputType.TYPE_TEXT_VARIATION_URI);
                         break;
                     case "Boolean":
                         return enumSpinner("Enum(on,off)");
@@ -487,7 +490,7 @@ class AssistantHistoryAdapter extends RecyclerView.Adapter<AssistantHistoryAdapt
                     case "Date":
                     case "Time":
                     // the following types are not supposed to appear here
-                    case "Picture":
+                    case "Entity(tt:picture)":
                     case "Contact":
                     case "Choice":
                     case "List":

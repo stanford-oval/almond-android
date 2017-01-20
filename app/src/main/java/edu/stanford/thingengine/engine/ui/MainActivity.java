@@ -815,11 +815,23 @@ public class MainActivity extends Activity implements AssistantOutput, Assistant
         }
     }
 
+    //TODO: smarter way to handle types
     private String getArgType(String type) {
         if (type.startsWith("Enum("))
             return "Enum";
         else if (type.equals("Boolean"))
             return "Bool";
+        else if (type.startsWith("Entity")) {
+            switch (type) {
+                case "Entity(tt:url)":          return "URL";
+                case "Entity(tt:username)":     return "Username";
+                case "Entity(tt:hashtag)":      return "Hashtag";
+                case "Entity(tt:picture)":      return "Picture";
+                case "Entity(tt:phone_number":  return "PhoneNumber";
+                case "Entity(tt:email_address": return "EmailAddress";
+                default: return "String";
+            }
+        }
         else
             return type;
     }
