@@ -3,9 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".ui.MainActivity"
-    android:orientation="vertical"
-    android:showDividers="middle"
-    android:divider="@android:color/black">
+    android:orientation="vertical">
 
     <android.support.v7.widget.RecyclerView
         android:layout_width="match_parent"
