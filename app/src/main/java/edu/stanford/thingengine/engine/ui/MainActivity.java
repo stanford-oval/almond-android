@@ -384,7 +384,7 @@ public class MainActivity extends Activity implements AssistantOutput, Assistant
 
     private boolean mScrollScheduled;
 
-    private void syncNeverMindButton(AssistantMessage.AskSpecial msg) {
+    private void syncSuggestions(AssistantMessage.AskSpecial msg) {
         final boolean visible = msg.what != AssistantMessage.AskSpecialType.NULL;
         findViewById(R.id.suggestion_nevermind).setVisibility(visible ? View.VISIBLE : View.GONE);
         findViewById(R.id.suggestion_twitter).setVisibility(visible ? View.GONE : View.VISIBLE);
@@ -415,16 +415,27 @@ public class MainActivity extends Activity implements AssistantOutput, Assistant
         ((TextView) findViewById(R.id.assistant_input)).setInputType(type);
     }
 
+    private void hideSuggestionBar() {
+        final View v = findViewById(R.id.suggestions);
+        v.setVisibility(View.GONE);
+        v.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                v.setVisibility(View.VISIBLE);
+            }
+        }, 3000);
+    }
+
     public void display(AssistantMessage msg) {
         if (msg.direction == AssistantMessage.Direction.FROM_SABRINA &&
                 msg.type == AssistantMessage.Type.TEXT)
             mSpeechHandler.say(msg.toText());
         if (msg.type == AssistantMessage.Type.ASK_SPECIAL) {
-            syncNeverMindButton((AssistantMessage.AskSpecial) msg);
+            syncSuggestions((AssistantMessage.AskSpecial) msg);
             syncKeyboardType((AssistantMessage.AskSpecial) msg);
         }
+        hideSuggestionBar();
         showInput();
-
         scheduleScroll();
     }
 
@@ -880,7 +891,7 @@ public class MainActivity extends Activity implements AssistantOutput, Assistant
     private void onContactSelected(int requestCode, Uri contact) {
         new ReadContactTask(requestCode, contact).execute();
     }
-    
+
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         Map<String, Integer> permissionMap = new ArrayMap<>();
