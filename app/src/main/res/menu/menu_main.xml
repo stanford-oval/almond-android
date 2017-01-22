@@ -19,7 +19,7 @@
         android:id="@+id/action_train"
         android:orderInCategory="2"
         android:menuCategory="alternative"
-        android:showAsAction="ifRoom"
+        android:showAsAction="always"
         android:title="@string/action_train"
         />
     <item
