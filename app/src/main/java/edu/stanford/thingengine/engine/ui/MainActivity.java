@@ -122,6 +122,13 @@ public class MainActivity extends Activity implements AssistantOutput, Assistant
 
         mListAdapter.setContext(this);
         final AutoCompleteTextView input = (AutoCompleteTextView)findViewById(R.id.assistant_input);
+        input.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                hideSuggestionBar();
+                return false;
+            }
+        });
         input.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
@@ -173,6 +180,12 @@ public class MainActivity extends Activity implements AssistantOutput, Assistant
             public boolean onTouch(View v, MotionEvent event) {
                 hideKeyboard(v);
                 showInput();
+                v.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        showSuggestionBar();
+                    }
+                }, 100);
                 return false;
             }
         });
@@ -415,17 +428,6 @@ public class MainActivity extends Activity implements AssistantOutput, Assistant
         ((TextView) findViewById(R.id.assistant_input)).setInputType(type);
     }
 
-    private void hideSuggestionBar() {
-        final View v = findViewById(R.id.suggestions);
-        v.setVisibility(View.GONE);
-        v.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                v.setVisibility(View.VISIBLE);
-            }
-        }, 3000);
-    }
-
     public void display(AssistantMessage msg) {
         if (msg.direction == AssistantMessage.Direction.FROM_SABRINA &&
                 msg.type == AssistantMessage.Type.TEXT)
@@ -434,7 +436,6 @@ public class MainActivity extends Activity implements AssistantOutput, Assistant
             syncSuggestions((AssistantMessage.AskSpecial) msg);
             syncKeyboardType((AssistantMessage.AskSpecial) msg);
         }
-        hideSuggestionBar();
         showInput();
         scheduleScroll();
     }
@@ -603,8 +604,16 @@ public class MainActivity extends Activity implements AssistantOutput, Assistant
     }
 
     private void showInput() {
-        findViewById(R.id.suggestion_bar).setVisibility(View.VISIBLE);
+        //findViewById(R.id.suggestion_bar).setVisibility(View.VISIBLE);
         findViewById(R.id.input_bar).setVisibility(View.VISIBLE);
+    }
+
+    private void hideSuggestionBar() {
+        findViewById(R.id.suggestion_bar).setVisibility(View.GONE);
+    }
+
+    private void showSuggestionBar() {
+        findViewById(R.id.suggestion_bar).setVisibility(View.VISIBLE);
     }
 
     @Override
