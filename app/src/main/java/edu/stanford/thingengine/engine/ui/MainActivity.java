@@ -274,7 +274,7 @@ public class MainActivity extends Activity implements AssistantOutput, Assistant
                 public MicrophoneRecognitionClient call() throws Exception {
                     return SpeechRecognitionServiceFactory.createMicrophoneClient(MainActivity.this,
                             SpeechRecognitionMode.ShortPhrase,
-                            Config.LOCALE,
+                            Config.getLanguage(),
                             SpeechHandler.this,
                             Config.MS_SPEECH_RECOGNITION_PRIMARY_KEY,
                             Config.MS_SPEECH_RECOGNITION_SECONDARY_KEY);
@@ -604,7 +604,6 @@ public class MainActivity extends Activity implements AssistantOutput, Assistant
     }
 
     private void showInput() {
-        //findViewById(R.id.suggestion_bar).setVisibility(View.VISIBLE);
         findViewById(R.id.input_bar).setVisibility(View.VISIBLE);
     }
 
