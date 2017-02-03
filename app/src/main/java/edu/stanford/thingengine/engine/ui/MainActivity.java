@@ -400,6 +400,7 @@ public class MainActivity extends Activity implements AssistantOutput, Assistant
     private void syncSuggestions(AssistantMessage.AskSpecial msg) {
         final boolean visible = msg.what != AssistantMessage.AskSpecialType.NULL;
         findViewById(R.id.suggestion_nevermind).setVisibility(visible ? View.VISIBLE : View.GONE);
+        findViewById(R.id.suggestion_cheatsheet).setVisibility(visible ? View.GONE : View.VISIBLE);
         findViewById(R.id.suggestion_twitter).setVisibility(visible ? View.GONE : View.VISIBLE);
         findViewById(R.id.suggestion_gmail).setVisibility(visible ? View.GONE : View.VISIBLE);
         findViewById(R.id.suggestion_nest).setVisibility(visible ? View.GONE : View.VISIBLE);
@@ -544,6 +545,14 @@ public class MainActivity extends Activity implements AssistantOutput, Assistant
                 if (control == null)
                     return;
                 control.getAssistant().handleNeverMind();
+            }
+        });
+        View suggestion_cheatsheet = findViewById(R.id.suggestion_cheatsheet);
+        suggestion_cheatsheet.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(MainActivity.this, CheatsheetActivity.class);
+                startActivity(intent);
             }
         });
         View suggestion_twitter = findViewById(R.id.suggestion_twitter);

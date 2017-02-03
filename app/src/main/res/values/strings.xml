@@ -66,6 +66,7 @@
     <string name="suggestion_gmail">Gmail</string>
     <string name="suggestion_discover">Search devices</string>
     <string name="suggestion_help">Help</string>
+    <string name="cheatsheet">Cheatsheet</string>
 
 
     <string-array name="sabrina_highlights">

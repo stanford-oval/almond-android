@@ -48,6 +48,9 @@
             android:label="@string/title_activity_main"
             android:windowSoftInputMode="adjustResize"/>
         <activity
+            android:name=".ui.CheatsheetActivity"
+            android:parentActivityName=".ui.MainActivity" />
+        <activity
             android:name=".ui.MyStuffActivity"
             android:parentActivityName=".ui.MainActivity" />
         <activity

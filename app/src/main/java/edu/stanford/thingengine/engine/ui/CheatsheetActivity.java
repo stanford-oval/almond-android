@@ -1,0 +1,25 @@
+package edu.stanford.thingengine.engine.ui;
+
+import android.app.Activity;
+import android.os.Bundle;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
+
+import edu.stanford.thingengine.engine.R;
+
+public class CheatsheetActivity extends Activity {
+
+    private WebView webview;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_cheatsheet);
+
+        //TODO: hide the navigation bar from the web page to avoid annoying double bar
+        webview = (WebView) findViewById(R.id.cheatsheet_webview);
+        webview.setWebViewClient(new WebViewClient());
+        webview.loadUrl("https://thingengine.stanford.edu/thingpedia/cheatsheet");
+    }
+
+}
