@@ -16,10 +16,12 @@ public class CheatsheetActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_cheatsheet);
 
-        //TODO: hide the navigation bar from the web page to avoid annoying double bar
         webview = (WebView) findViewById(R.id.cheatsheet_webview);
         webview.setWebViewClient(new WebViewClient());
         webview.loadUrl("https://thingengine.stanford.edu/thingpedia/cheatsheet");
+
+        //TODO: hide the navigation bar from the web page instead of action bar of the app
+        getActionBar().hide();
     }
 
 }
