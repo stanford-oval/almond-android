@@ -107,11 +107,11 @@ APP_STL := gnustl_static
 LOCAL_MODULE    := jxcore
 LOCAL_C_INCLUDES := $(JXCORE_OUT_ANDROID)
 LOCAL_SRC_FILES := JniHelper.cpp jxcore.cpp
-LOCAL_LDLIBS := -llog \
+LOCAL_LDLIBS := -lc -llog \
                 -lz \
                 -ldl \
                 -landroid
-LOCAL_LDLIBS += -Wl,--no-warn-shared-textrel
+#LOCAL_LDLIBS += -Wl,--no-warn-shared-textrel
 LOCAL_STATIC_LIBRARIES := cares openssl
 LOCAL_WHOLE_STATIC_LIBRARIES := zlib http_parser sqlite3 libuv liblevel libsnappy libdown libmozjs jxcore_native
 include $(BUILD_SHARED_LIBRARY)
