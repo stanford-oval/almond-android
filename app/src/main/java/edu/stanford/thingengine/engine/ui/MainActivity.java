@@ -122,13 +122,6 @@ public class MainActivity extends Activity implements AssistantOutput, Assistant
 
         mListAdapter.setContext(this);
         final AutoCompleteTextView input = (AutoCompleteTextView)findViewById(R.id.assistant_input);
-        input.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View view, MotionEvent motionEvent) {
-                hideSuggestionBar();
-                return false;
-            }
-        });
         input.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
@@ -191,12 +184,6 @@ public class MainActivity extends Activity implements AssistantOutput, Assistant
             public boolean onTouch(View v, MotionEvent event) {
                 hideKeyboard(v);
                 showInput();
-                v.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        showSuggestionBar();
-                    }
-                }, 100);
                 return false;
             }
         });
@@ -226,7 +213,6 @@ public class MainActivity extends Activity implements AssistantOutput, Assistant
         chatList.setLayoutManager(layoutManager);
 
         findViewById(R.id.assistant_progress).setVisibility(View.GONE);
-        setupSuggestionBar();
 
         mSpeechHandler.onCreate();
 
@@ -416,13 +402,6 @@ public class MainActivity extends Activity implements AssistantOutput, Assistant
 
     private void syncSuggestions(AssistantMessage.AskSpecial msg) {
         final boolean visible = msg.what != AssistantMessage.AskSpecialType.NULL;
-        findViewById(R.id.suggestion_nevermind).setVisibility(visible ? View.VISIBLE : View.GONE);
-        findViewById(R.id.suggestion_cheatsheet).setVisibility(visible ? View.GONE : View.VISIBLE);
-        findViewById(R.id.suggestion_twitter).setVisibility(visible ? View.GONE : View.VISIBLE);
-        findViewById(R.id.suggestion_gmail).setVisibility(visible ? View.GONE : View.VISIBLE);
-        findViewById(R.id.suggestion_nest).setVisibility(visible ? View.GONE : View.VISIBLE);
-        findViewById(R.id.suggestion_news).setVisibility(visible ? View.GONE : View.VISIBLE);
-        findViewById(R.id.suggestion_discover).setVisibility(visible ? View.GONE : View.VISIBLE);
         ((AutoCompleteTextView) findViewById(R.id.assistant_input)).setThreshold(visible? 1000 : 1);
     }
 
@@ -538,92 +517,11 @@ public class MainActivity extends Activity implements AssistantOutput, Assistant
                     }
                 }
             });
-
         } else {
             onButtonActivated(item.utterance, item.targetJson);
         }
     }
 
-    private void setupSuggestionBar() {
-        View suggestion_help = findViewById(R.id.suggestion_help);
-        suggestion_help.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                ControlBinder control = engine.getControl();
-                if (control == null)
-                    return;
-                control.getAssistant().handleHelp();
-            }
-        });
-        View suggestion_nevermind = findViewById(R.id.suggestion_nevermind);
-        suggestion_nevermind.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                ControlBinder control = engine.getControl();
-                if (control == null)
-                    return;
-                control.getAssistant().handleNeverMind();
-            }
-        });
-        View suggestion_cheatsheet = findViewById(R.id.suggestion_cheatsheet);
-        suggestion_cheatsheet.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(MainActivity.this, CheatsheetActivity.class);
-                startActivity(intent);
-            }
-        });
-        View suggestion_twitter = findViewById(R.id.suggestion_twitter);
-        suggestion_twitter.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                ControlBinder control = engine.getControl();
-                if (control == null)
-                    return;
-                control.getAssistant().handleHelp("tt:device.twitter");
-            }
-        });
-        View suggestion_gmail = findViewById(R.id.suggestion_gmail);
-        suggestion_gmail.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                ControlBinder control = engine.getControl();
-                if (control == null)
-                    return;
-                control.getAssistant().handleHelp("tt:device.gmail");
-            }
-        });
-        View suggestion_nest = findViewById(R.id.suggestion_nest);
-        suggestion_nest.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                ControlBinder control = engine.getControl();
-                if (control == null)
-                    return;
-                control.getAssistant().handleHelp("tt:device.nest");
-            }
-        });
-        View suggestion_news = findViewById(R.id.suggestion_news);
-        suggestion_news.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                ControlBinder control = engine.getControl();
-                if (control == null)
-                    return;
-                control.getAssistant().handleHelp("tt:device.washington_post");
-            }
-        });
-        View suggestion_discover = findViewById(R.id.suggestion_discover);
-        suggestion_discover.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                ControlBinder control = engine.getControl();
-                if (control == null)
-                    return;
-                control.getAssistant().handleDiscover();
-            }
-        });
-    }
 
     private void hideKeyboard(View v) {
         InputMethodManager keyboard = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -632,14 +530,6 @@ public class MainActivity extends Activity implements AssistantOutput, Assistant
 
     private void showInput() {
         findViewById(R.id.input_bar).setVisibility(View.VISIBLE);
-    }
-
-    private void hideSuggestionBar() {
-        findViewById(R.id.suggestion_bar).setVisibility(View.GONE);
-    }
-
-    private void showSuggestionBar() {
-        findViewById(R.id.suggestion_bar).setVisibility(View.VISIBLE);
     }
 
     @Override

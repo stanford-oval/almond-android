@@ -521,7 +521,6 @@ class AssistantHistoryAdapter extends RecyclerView.Adapter<AssistantHistoryAdapt
                     @Override
                     public void onFocusChange(View view, boolean hasFocus) {
                         if (hasFocus) {
-                            ((MainActivity) ctx).findViewById(R.id.suggestion_bar).setVisibility(View.GONE);
                             ((MainActivity) ctx).findViewById(R.id.input_bar).setVisibility(View.GONE);
                         }
                     }
