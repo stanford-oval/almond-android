@@ -1010,6 +1010,25 @@ public class MainActivity extends Activity implements AssistantOutput, Assistant
             return true;
         }
 
+        if (id == R.id.action_help) {
+            ControlBinder control = engine.getControl();
+            if (control == null)
+                return true;
+
+            control.getAssistant().handleHelp();
+            return true;
+        }
+
+        if (id == R.id.cheatsheet) {
+            ControlBinder control = engine.getControl();
+            if (control == null)
+                return true;
+
+            Intent intent = new Intent(MainActivity.this, CheatsheetActivity.class);
+            startActivity(intent);
+            return true;
+        }
+
         if (id == R.id.my_stuff) {
             ControlBinder control = engine.getControl();
             if (control == null)

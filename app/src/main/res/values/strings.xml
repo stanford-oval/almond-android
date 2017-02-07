@@ -68,6 +68,7 @@
     <string name="suggestion_help">Help</string>
     <string name="cheatsheet">Cheatsheet</string>
     <string name="btn_cancel">Cancel</string>
+    <string name="action_help">Help</string>
 
 
     <string-array name="sabrina_highlights">
