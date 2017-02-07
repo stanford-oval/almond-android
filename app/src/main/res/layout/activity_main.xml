@@ -31,6 +31,7 @@
             android:id="@+id/assistant_input"
             android:minLines="1"
             android:maxLines="1"
+            android:hint="@string/input_hint"
             android:enabled="true"
             android:imeOptions="actionSend"
             android:focusable="true"
