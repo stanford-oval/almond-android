@@ -119,6 +119,18 @@
         <ImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:id="@+id/btn_cancel"
+            android:src="@drawable/ic_cancel_black"
+            android:tint="@color/stanford_cardinal"
+            android:clickable="true"
+            android:padding="5dp"
+            android:visibility="gone"
+            android:layout_gravity="center"
+            android:contentDescription="@string/btn_cancel" />
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:id="@+id/btn_assistant_voice"
             android:src="@drawable/ic_mic_black"
             android:tint="@color/stanford_cardinal"

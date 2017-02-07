@@ -173,6 +173,17 @@ public class MainActivity extends Activity implements AssistantOutput, Assistant
             }
         });
 
+        View cancelbtn = findViewById(R.id.btn_cancel);
+        cancelbtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ControlBinder control = engine.getControl();
+                if (control == null)
+                    return;
+                control.getAssistant().handleNeverMind();
+            }
+        });
+
         final RecyclerView chatList = ((RecyclerView) findViewById(R.id.chat_list));
 
         chatList.setOnTouchListener(new View.OnTouchListener() {
@@ -397,6 +408,12 @@ public class MainActivity extends Activity implements AssistantOutput, Assistant
 
     private boolean mScrollScheduled;
 
+    private void syncCancelButton(AssistantMessage.AskSpecial msg) {
+        final boolean visible = msg.what != AssistantMessage.AskSpecialType.NULL;
+        findViewById(R.id.btn_cancel).setVisibility(visible ? View.VISIBLE : View.GONE);
+    }
+
+
     private void syncSuggestions(AssistantMessage.AskSpecial msg) {
         final boolean visible = msg.what != AssistantMessage.AskSpecialType.NULL;
         findViewById(R.id.suggestion_nevermind).setVisibility(visible ? View.VISIBLE : View.GONE);
@@ -435,6 +452,7 @@ public class MainActivity extends Activity implements AssistantOutput, Assistant
             mSpeechHandler.say(msg.toText());
         if (msg.type == AssistantMessage.Type.ASK_SPECIAL) {
             syncSuggestions((AssistantMessage.AskSpecial) msg);
+            syncCancelButton((AssistantMessage.AskSpecial) msg);
             syncKeyboardType((AssistantMessage.AskSpecial) msg);
         }
         showInput();
