@@ -538,7 +538,7 @@ class AssistantHistoryAdapter extends RecyclerView.Adapter<AssistantHistoryAdapt
             }
 
             private Spinner enumSpinner(String type) {
-                List<String> options = new ArrayList(Arrays.asList(type.substring(5, type.length() - 1).split(",")));
+                List<String> options = new ArrayList<>(Arrays.asList(type.substring(5, type.length() - 1).split(",")));
                 ArrayAdapter<String> adapter = new ArrayAdapter<String>(
                         ctx, android.R.layout.simple_spinner_item, options) {
                     @Override

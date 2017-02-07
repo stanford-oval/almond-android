@@ -27,6 +27,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.Window;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
@@ -34,18 +35,17 @@ import android.widget.AutoCompleteTextView;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.view.Window;
 
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.ui.PlacePicker;
-import com.microsoft.projectoxford.speechrecognition.ISpeechRecognitionServerEvents;
-import com.microsoft.projectoxford.speechrecognition.MicrophoneRecognitionClient;
-import com.microsoft.projectoxford.speechrecognition.RecognitionResult;
-import com.microsoft.projectoxford.speechrecognition.SpeechRecognitionMode;
-import com.microsoft.projectoxford.speechrecognition.SpeechRecognitionServiceFactory;
+import com.microsoft.cognitiveservices.speechrecognition.ISpeechRecognitionServerEvents;
+import com.microsoft.cognitiveservices.speechrecognition.MicrophoneRecognitionClient;
+import com.microsoft.cognitiveservices.speechrecognition.RecognitionResult;
+import com.microsoft.cognitiveservices.speechrecognition.SpeechRecognitionMode;
+import com.microsoft.cognitiveservices.speechrecognition.SpeechRecognitionServiceFactory;
 
 import net.hockeyapp.android.CrashManager;
 import net.hockeyapp.android.UpdateManager;
@@ -121,7 +121,7 @@ public class MainActivity extends Activity implements AssistantOutput, Assistant
         setContentView(R.layout.activity_main);
 
         mListAdapter.setContext(this);
-        final AutoCompleteTextView input = (AutoCompleteTextView)findViewById(R.id.assistant_input);
+        final AutoCompleteTextView input = (AutoCompleteTextView) findViewById(R.id.assistant_input);
         input.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
@@ -133,7 +133,7 @@ public class MainActivity extends Activity implements AssistantOutput, Assistant
                 }
             }
         });
-        input.setInputType(InputType.TYPE_CLASS_TEXT|InputType.TYPE_TEXT_FLAG_AUTO_CORRECT);
+        input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_AUTO_CORRECT);
         input.setThreshold(1);
         input.setAdapter(new AutoCompletionAdapter(new ThingpediaClient(this), this));
         input.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -449,7 +449,7 @@ public class MainActivity extends Activity implements AssistantOutput, Assistant
             public void run() {
                 mScrollScheduled = false;
                 if (mListAdapter.getItemCount() > 0)
-                    listView.smoothScrollToPosition(mListAdapter.getItemCount()-1);
+                    listView.smoothScrollToPosition(mListAdapter.getItemCount() - 1);
             }
         }, 500);
     }
@@ -505,7 +505,7 @@ public class MainActivity extends Activity implements AssistantOutput, Assistant
                 public void run() {
                     try {
                         control.presentSlotFilling(item.utterance, item.targetJson);
-                    } catch(Exception e) {
+                    } catch (Exception e) {
                         Log.e(MainActivity.LOG_TAG, "Failed to prepare slot filling button", e);
                         // fall back to slot filling questions
                         runOnUiThread(new Runnable() {
@@ -621,7 +621,7 @@ public class MainActivity extends Activity implements AssistantOutput, Assistant
             intent.putExtra("extra.TITLE", name);
             intent.putExtra("extra.CONTROLS", (Serializable) DeviceFactory.FormControl.fromJSONArray((JSONArray) jsonParse(controls)));
             startActivityForResult(intent, REQUEST_CREATE_DEVICE);
-        } catch(JSONException e) {
+        } catch (JSONException e) {
             Log.e(MainActivity.LOG_TAG, "Unexpected JSON exception configuring " + kind, e);
         }
     }
@@ -738,7 +738,7 @@ public class MainActivity extends Activity implements AssistantOutput, Assistant
     }
 
     private Object getArgValue(String value, String type) {
-        switch(type) {
+        switch (type) {
             case "Number":
                 return Integer.valueOf(value);
             case "Boolean":
