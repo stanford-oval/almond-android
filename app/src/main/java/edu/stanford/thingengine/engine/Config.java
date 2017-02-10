@@ -15,6 +15,8 @@ public class Config {
                 return "en-us";
             case "zh_CN_#Hans":
                 return "zh-cn";
+            case "zh_TW_#Hant":
+                return "zh-tw";
             case "it_IT":
                 return "it-it";
             default:
