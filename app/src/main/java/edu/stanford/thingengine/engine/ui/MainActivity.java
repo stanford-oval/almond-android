@@ -134,7 +134,7 @@ public class MainActivity extends Activity implements AssistantOutput, Assistant
             }
         });
         input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_AUTO_CORRECT);
-        input.setThreshold(1);
+        input.setThreshold(1000);
         input.setAdapter(new AutoCompletionAdapter(new ThingpediaClient(this), this));
         input.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
@@ -399,12 +399,6 @@ public class MainActivity extends Activity implements AssistantOutput, Assistant
         findViewById(R.id.btn_cancel).setVisibility(visible ? View.VISIBLE : View.GONE);
     }
 
-
-    private void syncSuggestions(AssistantMessage.AskSpecial msg) {
-        final boolean visible = msg.what != AssistantMessage.AskSpecialType.NULL;
-        ((AutoCompleteTextView) findViewById(R.id.assistant_input)).setThreshold(visible? 1000 : 1);
-    }
-
     private void syncKeyboardType(AssistantMessage.AskSpecial msg) {
         int type;
 
@@ -430,7 +424,6 @@ public class MainActivity extends Activity implements AssistantOutput, Assistant
                 msg.type == AssistantMessage.Type.TEXT)
             mSpeechHandler.say(msg.toText());
         if (msg.type == AssistantMessage.Type.ASK_SPECIAL) {
-            syncSuggestions((AssistantMessage.AskSpecial) msg);
             syncCancelButton((AssistantMessage.AskSpecial) msg);
             syncKeyboardType((AssistantMessage.AskSpecial) msg);
         }
