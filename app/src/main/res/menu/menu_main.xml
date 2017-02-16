@@ -3,37 +3,37 @@
     tools:context="edu.stanford.thingengine.engine.ui.MainActivity">
     <item
         android:id="@+id/action_help"
-        android:orderInCategory="0"
+        android:orderInCategory="3"
         android:menuCategory="alternative"
         android:showAsAction="always"
         android:title="@string/action_help"
         />
     <item
         android:id="@+id/action_train"
-        android:orderInCategory="1"
+        android:orderInCategory="4"
         android:menuCategory="alternative"
         android:showAsAction="always"
         android:title="@string/action_train"
         />
     <item
         android:id="@+id/my_stuff"
-        android:orderInCategory="2"
+        android:orderInCategory="0"
         android:menuCategory="alternative"
-        android:showAsAction="ifRoom"
+        android:showAsAction="always"
         android:title="@string/mystuff_tab"
         />
     <item
         android:id="@+id/my_rules"
-        android:orderInCategory="3"
+        android:orderInCategory="1"
         android:menuCategory="alternative"
-        android:showAsAction="ifRoom"
+        android:showAsAction="always"
         android:title="@string/myrules_tab"
         />
     <item
         android:id="@+id/cheatsheet"
-        android:orderInCategory="4"
+        android:orderInCategory="2"
         android:menuCategory="alternative"
-        android:showAsAction="ifRoom"
+        android:showAsAction="always"
         android:title="@string/cheatsheet"
         />
     <item
