@@ -217,7 +217,7 @@ public class FullscreenPictureActivity extends Activity {
                     // find where to save the picture
                     File[] dirs = getExternalMediaDirs();
                     File root = Environment.getExternalStorageDirectory();
-                    File directory = new File(root, "Sabrina");
+                    File directory = new File(root, "Almond");
                     if (!directory.mkdir() && !directory.isDirectory())
                         throw new IOException("Failed to create app folder");
 

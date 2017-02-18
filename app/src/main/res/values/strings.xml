@@ -1,11 +1,11 @@
 <resources tools:locale="en-US" xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
-    <string name="app_name">Sabrina</string>
-    <string name="title_activity_web_ui">Sabrina</string>
+    <string name="app_name">Almond</string>
+    <string name="title_activity_web_ui">Almond</string>
 
     <string name="action_settings">Settings</string>
     <string name="action_clear_chat">Clear history</string>
     <string name="action_train">Train</string>
-    <string name="title_activity_main">Sabrina</string>
+    <string name="title_activity_main">Almond</string>
 
     <string name="chat_tab">Chat</string>
     <string name="mystuff_tab">My Goods</string>
@@ -27,7 +27,7 @@
     <string name="btn_refresh">Refresh</string>
     <string name="btn_choose_location">Pick a location…</string>
     <string name="btn_choose_picture">Choose…</string><!-- picture is implied by the context -->
-    <string name="audio_permission_needed">You must allow Sabrina to record audio in order to use voice interaction</string>
+    <string name="audio_permission_needed">You must allow Almond to record audio in order to use voice interaction</string>
     <string name="speak_now">Speak now…</string>
     <string name="btn_choose_contact">Choose a contact…</string>
     <string name="btn_upgrade">Update</string>
@@ -44,18 +44,18 @@
     <string name="btn_download">Download</string>
     <string name="toast_downloaded">Saved to gallery</string>
     <string name="toast_download_failed">Failed to download picture</string>
-    <string name="download_permission_needed">Sabrina must be able to write to the SD card to download this picture</string>
+    <string name="download_permission_needed">Almond must be able to write to the SD card to download this picture</string>
     <string name="btn_never_mind">Start over</string>
     <string name="btn_assistant_voice">Use voice</string>
     <string name="never_mind">Cancel</string>
-    <string name="sabrina_says_something">Sabrina says something</string>
+    <string name="sabrina_says_something">Almond says something</string>
     <string name="content_hidden">Content hidden for privacy</string>
-    <string name="sabrina_says">Sabrina says</string>
-    <string name="sabrina_sends_picture">Sabrina sends a picture</string>
-    <string name="sabrina_sends_button">Sabrina sends a button</string>
-    <string name="sabrina_sends_link">Sabrina sends a link</string>
-    <string name="sabrina_says_dotdotdot">Sabrina says…</string>
-    <string name="intro_text">What you can do with Sabrina</string>
+    <string name="sabrina_says">Almond says</string>
+    <string name="sabrina_sends_picture">Almond sends a picture</string>
+    <string name="sabrina_sends_button">Almond sends a button</string>
+    <string name="sabrina_sends_link">Almond sends a link</string>
+    <string name="sabrina_says_dotdotdot">Almond says…</string>
+    <string name="intro_text">What you can do with Almond</string>
     <string name="get_started">Get started</string>
     <string name="example_commands">Example commands</string>
     <string name="show_landing_page">Always show landing pages </string>
