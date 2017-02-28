@@ -2,10 +2,10 @@
 <resources>
     <style name="Stanford" parent="@android:style/Theme.Material.Light.DarkActionBar">
         <item name="android:actionBarTheme">@style/StanfordActionBar</item>
-        <item name="android:colorPrimary">@color/stanford_cardinal</item>
-        <item name="android:colorPrimaryDark">@color/dark_stanford_cardinal</item>
-        <item name="android:colorAccent">@color/stanford_almost_cardinal</item>
-        <item name="android:colorBackground">@color/stanford_background</item>
+        <item name="android:colorPrimary">@color/almond_primary</item>
+        <item name="android:colorPrimaryDark">@color/almond_primary_dark</item>
+        <item name="android:colorAccent">@color/almond_accent</item>
+        <item name="android:colorBackground">@color/almond_background</item>
         <item name="android:textColorPrimaryInverse">#ffffff</item>
     </style>
 
@@ -43,4 +43,11 @@
     <color name="stanford_background">#DEDEDE</color>
     <color name="black_overlay">#66000000</color>
     <color name="white">#ffffff</color>
+    <color name="almond_primary">#dea844</color>
+    <color name="almond_primary_dark">#c28921</color>
+    <color name="almond_accent">#c67432</color>
+    <color name="almond_highlight">#f7c374</color>
+    <color name="almond_background">#f3f4f2</color>
+    <color name="complementary_secondary">#e4f8f7</color>
+
 </resources>

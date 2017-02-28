@@ -25,7 +25,7 @@
         android:layout_marginRight="20dp"
         android:gravity="center"
         android:text="Large Text"
-        android:textColor="@color/dark_stanford_cardinal"
+        android:textColor="@color/almond_accent"
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:layout_below="@+id/highlight_description"
         android:layout_centerHorizontal="true"/>
