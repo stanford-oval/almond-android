@@ -17,8 +17,8 @@ android {
         applicationId "edu.stanford.thingengine.engine"
         minSdkVersion 21
         targetSdkVersion 25
-        versionCode 140
-        versionName '1.4.0'
+        versionCode 150
+        versionName '1.5.0'
         manifestPlaceholders = [HOCKEYAPP_APP_ID: "d6e09574c0f9434e8e20e8d8f2234285"]
     }
     buildTypes {
