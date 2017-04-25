@@ -9,7 +9,7 @@
 
 const Config = require('./config');
 
-const Sabrina = require('sabrina');
+const Almond = require('sabrina');
 
 const JavaAPI = require('./java_api');
 
@@ -47,8 +47,20 @@ class AssistantDispatcher {
     _ensureConversation() {
         if (this._conversation)
             return;
-        this._conversation = new Sabrina(this._engine, new LocalUser(), this, true, Config.SEMPRE_URL);
+        this._conversation = new Almond(this._engine, 'native-android', new LocalUser(), this, {
+            debug: true,
+            sempreUrl: Config.SEMPRE_URL,
+            showWelcome: true
+        });
         this._conversation.start();
+    }
+
+    notifyAll(data) {
+        return this._conversation.notify(data);
+    }
+
+    notifyErrorAll(data) {
+        return this._conversation.notifyError(data);
     }
 
     getConversation() {
