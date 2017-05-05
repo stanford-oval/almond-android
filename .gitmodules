@@ -16,3 +16,6 @@
 [submodule "jsapp/node_modules/sabrina"]
 	path = jsapp/node_modules/almond
 	url = https://github.com/Stanford-Mobisocial-IoT-Lab/Sabrina
+[submodule "jsapp/node_modules/omlib"]
+	path = jsapp/node_modules/omlib
+	url = https://github.com/Stanford-Mobisocial-IoT-Lab/omclient

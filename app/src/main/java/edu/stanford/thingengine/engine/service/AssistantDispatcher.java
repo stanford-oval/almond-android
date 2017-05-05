@@ -160,7 +160,7 @@ public class AssistantDispatcher implements Handler.Callback {
     }
 
     public void handleHelp() {
-        handleParsedCommand("{\"special\":{"\id\":\"tt:root.special.help\"}}");
+        handleParsedCommand("{\"special\":{\"id\":\"tt:root.special.help\"}}");
         history.removeButtons();
     }
 
