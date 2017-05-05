@@ -256,7 +256,7 @@ module.exports = {
             return _telephoneApi;
 
         case 'assistant':
-            return this._assistant.getConversation();
+            return this._assistant;
 
         case 'gettext':
             return this._gettext;

@@ -9,7 +9,7 @@
 
 const Config = require('./config');
 
-const Almond = require('sabrina');
+const Almond = require('almond');
 
 const JavaAPI = require('./java_api');
 
