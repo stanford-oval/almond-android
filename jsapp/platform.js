@@ -38,7 +38,7 @@ const _contentApi = {
         });
     }
 }
-const _contactApi = JavaAPI.makeJavaAPI('Contacts', ['lookup'], [], []);
+const _contactApi = JavaAPI.makeJavaAPI('Contacts', ['lookup', 'lookupPrincipal'], [], []);
 const _telephoneApi = JavaAPI.makeJavaAPI('Telephone', ['call', 'callEmergency'], [], []);
 
 var filesDir = null;

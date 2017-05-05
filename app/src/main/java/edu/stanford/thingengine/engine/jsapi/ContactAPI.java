@@ -33,6 +33,66 @@ public class ContactAPI extends JavascriptAPI {
                 return lookup((String)args[0], (String)args[1]);
             }
         });
+        registerAsync("lookupPrincipal", new GenericCall() {
+            @Override
+            public Object run(Object... args) throws Exception {
+                return lookupPrincipal((String)args[0]);
+            }
+        });
+    }
+
+    private JSONObject lookupPhone(String phoneNumber) {
+        Uri lookup = Uri.withAppendedPath(ContactsContract.PhoneLookup.CONTENT_FILTER_URI,
+                Uri.encode(phoneNumber));
+
+        try (Cursor cursor = ctx.getContentResolver().query(lookup,
+                new String[] {
+                        ContactsContract.PhoneLookup.TYPE,
+                        ContactsContract.Contacts.DISPLAY_NAME }, "", new String[]{}, null)) {
+            if (cursor == null || !cursor.moveToFirst())
+                return null;
+
+            try {
+                JSONObject obj = new JSONObject();
+                obj.put("value", "phone:" + phoneNumber);
+                obj.put("type", cursor.getInt(0));
+                obj.put("displayName", cursor.getString(1));
+                return obj;
+            } catch(JSONException e) {
+                Log.e(EngineService.LOG_TAG, "Unexpected JSON exception in marshalling contact", e);
+                return null;
+            }
+        }
+    }
+
+    private JSONObject lookupEmail(String email) {
+        try (Cursor cursor = ctx.getContentResolver().query(ContactsContract.CommonDataKinds.Email.CONTENT_URI,
+                new String[] {
+                        ContactsContract.CommonDataKinds.Email.TYPE,
+                        ContactsContract.Contacts.DISPLAY_NAME },
+                ContactsContract.CommonDataKinds.Email.ADDRESS + "=?", new String[]{email}, null)) {
+            if (cursor == null || !cursor.moveToFirst())
+                return null;
+
+            try {
+                JSONObject obj = new JSONObject();
+                obj.put("value", "email:" + email);
+                obj.put("type", cursor.getInt(0));
+                obj.put("displayName", cursor.getString(1));
+                return obj;
+            } catch(JSONException e) {
+                Log.e(EngineService.LOG_TAG, "Unexpected JSON exception in marshalling contact", e);
+                return null;
+            }
+        }
+    }
+
+    private JSONObject lookupPrincipal(String principal) {
+        if (principal.startsWith("phone:"))
+            return lookupPhone(principal.substring("phone:".length()));
+        if (principal.startsWith("email:"))
+            return lookupEmail(principal.substring("email:".length()));
+        return null;
     }
 
     private void requestPermission() throws InterruptedException {
