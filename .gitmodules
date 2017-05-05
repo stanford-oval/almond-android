@@ -14,5 +14,5 @@
 	path = jsapp/node_modules/thingtalk
 	url = https://github.com/Stanford-Mobisocial-IoT-Lab/ThingTalk.git
 [submodule "jsapp/node_modules/sabrina"]
-	path = jsapp/node_modules/sabrina
+	path = jsapp/node_modules/almond
 	url = https://github.com/Stanford-Mobisocial-IoT-Lab/Sabrina
