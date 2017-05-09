@@ -428,6 +428,9 @@ class AssistantHistoryAdapter extends RecyclerView.Adapter<AssistantHistoryAdapt
                         lastEditable = idx;
                         slots.put("__person", slot);
                         slotFilling.addView(slot);
+                        if (word.equals("$__person's")) {
+                            slotFilling.addView(btnStyleText("'s"));
+                        }
                     } else if (word.startsWith("$")) {
                         String slotName = word.substring(1);
                         String slotType = msg.slotTypes.optString(slotName, "UNKNOWN");

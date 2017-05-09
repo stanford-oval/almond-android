@@ -698,7 +698,7 @@ public class MainActivity extends Activity implements AssistantOutput, Assistant
             if (values.containsKey("__person")) {
                 String slotValue = values.get("__person");
                 cmd.put("person", slotValue);
-                title = title.replace("__person", slotValue.trim());
+                title = title.replace("$__person", slotValue.trim());
             }
 
             if (!cmd.has("slots") || cmd.getJSONArray("slots").length() == 0)
@@ -709,6 +709,9 @@ public class MainActivity extends Activity implements AssistantOutput, Assistant
 
                 for (int i = slots.length() - 1; i >= 0; i--) {
                     String slotName = slots.getString(i);
+                    if (slotName.equals("__person"))
+                        continue;
+
                     String slotValue = values.get(slotName);
                     if (slotValue.length() == 0) {
                         title = title.replace("$" + slotName, "____");
