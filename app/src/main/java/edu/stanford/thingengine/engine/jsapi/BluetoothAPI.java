@@ -17,6 +17,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -36,6 +37,7 @@ public class BluetoothAPI extends JavascriptAPI {
     private final BluetoothAdapter adapter;
     private final Map<String, BluetoothDevice> pairing = new HashMap<>();
     private final Map<String, BluetoothDevice> fetchingUuids = new HashMap<>();
+    private final Map<String, ArrayList<ParcelUuid>> fetchedUUIDs = new HashMap<>();
 
     private Receiver receiver;
     private volatile boolean discovering;
@@ -60,8 +62,11 @@ public class BluetoothAPI extends JavascriptAPI {
                 case BluetoothDevice.ACTION_CLASS_CHANGED:
                 case BluetoothDevice.ACTION_BOND_STATE_CHANGED:
                 case BluetoothDevice.ACTION_NAME_CHANGED:
-                case BluetoothDevice.ACTION_UUID:
                     onDeviceChanged((BluetoothDevice)intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE));
+
+                case BluetoothDevice.ACTION_UUID:
+                    onUUIDProbed((BluetoothDevice)intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE),
+                            (ParcelUuid)intent.getParcelableExtra(BluetoothDevice.EXTRA_UUID));
                     return;
             }
         }
@@ -169,6 +174,14 @@ public class BluetoothAPI extends JavascriptAPI {
         return ret;
     }
 
+    @NonNull
+    private JSONArray uuidsToJson(ArrayList<ParcelUuid> uuids) {
+        JSONArray ret = new JSONArray();
+        for (ParcelUuid uuid : uuids)
+            ret.put(uuid.getUuid().toString());
+        return ret;
+    }
+
     private JSONObject serializeBtDevice(BluetoothDevice device) throws JSONException {
         JSONObject obj = new JSONObject();
         obj.put("address", device.getAddress().toLowerCase());
@@ -181,6 +194,8 @@ public class BluetoothAPI extends JavascriptAPI {
 
     private void onDeviceFound(BluetoothDevice device) {
         try {
+            if (device.getName() == null)
+                return;
             invokeAsync("ondeviceadded", serializeBtDevice(device));
         } catch (JSONException e) {
             Log.i(LOG_TAG, "Failed to serialize Location", e);
@@ -189,6 +204,8 @@ public class BluetoothAPI extends JavascriptAPI {
 
     private void onDeviceChanged(BluetoothDevice device) {
         try {
+            if (device.getName() == null)
+                return;
             invokeAsync("ondevicechanged", serializeBtDevice(device));
         } catch (JSONException e) {
             Log.i(LOG_TAG, "Failed to serialize Location", e);
@@ -201,12 +218,28 @@ public class BluetoothAPI extends JavascriptAPI {
                 pairing.put(hwAddress, device);
                 shouldNotify = true;
             }
-            if (fetchingUuids.containsKey(hwAddress)) {
+            if (fetchingUuids.containsKey(hwAddress) && device.getUuids() != null) {
                 fetchingUuids.put(hwAddress, device);
                 shouldNotify = true;
             }
             if (shouldNotify)
                 notifyAll();
+        }
+    }
+
+    private void onUUIDProbed(BluetoothDevice device, ParcelUuid uuid) {
+        if (uuid == null)
+            return;
+
+        synchronized (this) {
+            boolean shouldNotify = false;
+            String hwAddress = device.getAddress().toLowerCase();
+            ArrayList<ParcelUuid> uuids = fetchedUUIDs.get(hwAddress);
+            if (uuids == null) {
+                uuids = new ArrayList<>();
+                fetchedUUIDs.put(hwAddress, uuids);
+            }
+            uuids.add(uuid);
         }
     }
 
@@ -275,7 +308,14 @@ public class BluetoothAPI extends JavascriptAPI {
         }
     }
 
-    private final long FETCH_UUID_TIMEOUT = 20000;
+    private static final long FETCH_UUID_TIMEOUT = 5000;
+
+    private JSONArray getFetchedUUIDorTimeout(String hwAddress) throws InterruptedException {
+        ArrayList<ParcelUuid> uuids = fetchedUUIDs.get(hwAddress);
+        if (uuids == null || uuids.isEmpty())
+            throw new InterruptedException("Fetching UUIDs timed out");
+        return uuidsToJson(uuids);
+    }
 
     @NonNull
     private JSONArray readUUIDs(String address) throws InterruptedException {
@@ -300,14 +340,15 @@ public class BluetoothAPI extends JavascriptAPI {
 
                     long now = System.currentTimeMillis();
                     if (FETCH_UUID_TIMEOUT - (now - startTime) < 1)
-                        throw new InterruptedException("Fetching UUIDs timed out");
+                        return getFetchedUUIDorTimeout(address);
                     wait(FETCH_UUID_TIMEOUT - (now - startTime));
                     now = System.currentTimeMillis();
                     if (now - startTime > FETCH_UUID_TIMEOUT)
-                        throw new InterruptedException("Fetching UUIDs timed out");
+                        return getFetchedUUIDorTimeout(address);
                 }
             } finally {
                 fetchingUuids.remove(address);
+                fetchedUUIDs.remove(address);
             }
         }
     }
