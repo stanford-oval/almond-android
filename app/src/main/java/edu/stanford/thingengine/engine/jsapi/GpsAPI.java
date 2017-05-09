@@ -4,6 +4,7 @@ import android.Manifest;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
@@ -72,22 +73,33 @@ public class GpsAPI extends JavascriptAPI {
                 return null;
             }
         });
+
+        registerAsync("getCurrentLocation", new GenericCall() {
+            @Override
+            public Object run(Object... args) throws Exception {
+                return getCurrentLocation();
+            }
+        });
+    }
+
+    private JSONObject makeLocation(@NonNull Location location) throws JSONException {
+        JSONObject jsonLocation = new JSONObject();
+
+        jsonLocation.put("latitude", location.getLatitude());
+        jsonLocation.put("longitude", location.getLongitude());
+        jsonLocation.put("altitude", location.getAltitude());
+        jsonLocation.put("bearing", location.getBearing());
+        jsonLocation.put("provider", location.getProvider());
+        jsonLocation.put("speed", location.getSpeed());
+        jsonLocation.put("time", location.getTime());
+
+        return jsonLocation;
     }
 
     private void reportLocation(@Nullable Location location) {
         try {
             if (location != null) {
-                JSONObject jsonLocation = new JSONObject();
-
-                jsonLocation.put("latitude", location.getLatitude());
-                jsonLocation.put("longitude", location.getLongitude());
-                jsonLocation.put("altitude", location.getAltitude());
-                jsonLocation.put("bearing", location.getBearing());
-                jsonLocation.put("provider", location.getProvider());
-                jsonLocation.put("speed", location.getSpeed());
-                jsonLocation.put("time", location.getTime());
-
-                invokeAsync("onlocationchanged", jsonLocation);
+                invokeAsync("onlocationchanged", makeLocation(location));
             } else {
                 invokeAsync("onlocationchanged", null);
             }
@@ -146,6 +158,20 @@ public class GpsAPI extends JavascriptAPI {
         LocationRequest request = requestLocationSync();
         LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, request, this.callback, this.handler.getLooper());
         reportLocation(LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient));
+    }
+
+    private JSONObject getCurrentLocation() throws InterruptedException, IOException, JSONException {
+        ConnectionResult result = mGoogleApiClient.blockingConnect();
+        if (!result.isSuccess())
+            throw new IOException("Failed to connect to Google Play Services: " + result.getErrorMessage());
+
+        int permissionCheck = ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION);
+        if (permissionCheck != PackageManager.PERMISSION_GRANTED)
+            requestPermission();
+
+        LocationRequest request = requestLocationSync();
+        Location location = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+        return location != null ? makeLocation(location) : null;
     }
 
     private void requestPermission() throws InterruptedException {

@@ -832,11 +832,15 @@ public class MainActivity extends Activity implements AssistantOutput, Assistant
         if (permissionMap.containsKey(Manifest.permission.RECORD_AUDIO) &&
                 permissionMap.get(Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED)
             mSpeechHandler.startRecording();
+
+        engine.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent intent) {
         super.onActivityResult(requestCode, resultCode, intent);
+
+        engine.onActivityResult(requestCode, resultCode, intent);
 
         if (requestCode == REQUEST_OAUTH2 || requestCode == REQUEST_CREATE_DEVICE) {
             // do something with it

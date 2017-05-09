@@ -16,7 +16,7 @@ const JavaAPI = require('./java_api');
 const StreamAPI = require('./streams');
 
 const _unzipApi = JavaAPI.makeJavaAPI('Unzip', ['unzip'], [], []);
-const _gpsApi = JavaAPI.makeJavaAPI('Gps', ['start', 'stop'], [], ['onlocationchanged']);
+const _gpsApi = JavaAPI.makeJavaAPI('Gps', ['start', 'stop', 'getCurrentLocation'], [], ['onlocationchanged']);
 const _notifyApi = JavaAPI.makeJavaAPI('Notify', [], ['showMessage'], []);
 const _audioManagerApi = JavaAPI.makeJavaAPI('AudioManager', [],
     ['setRingerMode', 'adjustMediaVolume', 'setMediaVolume'], []);
