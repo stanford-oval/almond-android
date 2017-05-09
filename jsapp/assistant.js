@@ -56,10 +56,12 @@ class AssistantDispatcher {
     }
 
     notifyAll(data) {
+        this._ensureConversation();
         return this._conversation.notify(data);
     }
 
     notifyErrorAll(data) {
+        this._ensureConversation();
         return this._conversation.notifyError(data);
     }
 
