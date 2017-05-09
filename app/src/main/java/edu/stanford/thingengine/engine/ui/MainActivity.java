@@ -695,6 +695,12 @@ public class MainActivity extends Activity implements AssistantOutput, Assistant
             JSONObject jsonObj = new JSONObject(json);
             String cmdType = jsonObj.keys().next();
             JSONObject cmd = jsonObj.getJSONObject(cmdType);
+            if (values.containsKey("__person")) {
+                String slotValue = values.get("__person");
+                cmd.put("person", slotValue);
+                title = title.replace("__person", slotValue.trim());
+            }
+
             if (!cmd.has("slots") || cmd.getJSONArray("slots").length() == 0)
                 display(control.getAssistant().handleButton(title, json));
             else {
