@@ -697,8 +697,14 @@ public class MainActivity extends Activity implements AssistantOutput, Assistant
             JSONObject cmd = jsonObj.getJSONObject(cmdType);
             if (values.containsKey("__person")) {
                 String slotValue = values.get("__person");
-                cmd.put("person", slotValue);
-                title = title.replace("$__person", slotValue.trim());
+                if (!slotValue.isEmpty()) {
+                    cmd.put("person", slotValue);
+                    title = title.replace("$__person", slotValue.trim());
+                } else {
+                    //TODO: fix tokenizing in helper.js
+                    title = title.replace("$__person ' s", "my");
+                    title = title.replace("$__person", "me");
+                }
             }
 
             if (!cmd.has("slots") || cmd.getJSONArray("slots").length() == 0)
