@@ -569,6 +569,151 @@ class AssistantHistoryAdapter extends RecyclerView.Adapter<AssistantHistoryAdapt
             }
         }
 
+        public static class Filter extends AssistantMessageViewHolder {
+            private FlexboxLayout Filter;
+            private final MainActivity owner;
+
+            public Filter(Context ctx, MainActivity owner) {
+                super(ctx);
+                this.owner = owner;
+            }
+
+            @Override
+            public void bind(AssistantMessage base) {
+                final AssistantMessage.Filter msg = (AssistantMessage.Filter) base;
+
+                if (Filter != null) {
+                    Filter.removeAllViews();
+                } else {
+                    Filter = new FlexboxLayout(ctx);
+                    Filter.setFlexWrap(FlexboxLayout.FLEX_WRAP_WRAP);
+                    Filter.setAlignItems(FlexboxLayout.ALIGN_ITEMS_CENTER);
+                    Filter.setJustifyContent(FlexboxLayout.JUSTIFY_CONTENT_CENTER);
+                }
+
+                View slot = null;
+                String[] words = msg.title.split(" ");
+                for (String word : words) {
+                    if (word.equals("____")) {
+                        slot = slotByType(msg.type);
+                        Filter.addView(slot);
+                    }
+                    else
+                        Filter.addView(btnStyleText(word));
+                }
+                final View finalSlot = slot;
+                Filter.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        String value ;
+                        if (finalSlot instanceof EditText)
+                            value = ((EditText) finalSlot).getText().toString();
+                        else if (finalSlot instanceof Spinner)
+                            value = ((Spinner) finalSlot).getSelectedItem().toString();
+                        else
+                            value = "";
+                        owner.onFilterActivated(msg.title, msg.json, msg.type, value);
+                    }
+                });
+                applyBubbleStyle(Filter, AssistantMessage.Direction.FROM_USER);
+                setSideAndAlignment(Filter, msg);
+                setIcon(msg);
+            }
+
+            private View slotByType(String type) {
+                EditText et = new EditText(ctx);
+                if (type == null) type = "UNKNOWN";
+                switch(type) {
+                    case "Number":
+                        et.setInputType(InputType.TYPE_CLASS_NUMBER);
+                        break;
+                    case "Entity(tt:phone_number)":
+                        et.setInputType(InputType.TYPE_CLASS_PHONE);
+                        break;
+                    case "Entity(tt:email_address)":
+                        et.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_WEB_EMAIL_ADDRESS);
+                        break;
+                    case "Entity(tt:url)":
+                        et.setInputType(InputType.TYPE_TEXT_VARIATION_URI);
+                        break;
+                    case "Boolean":
+                        return enumSpinner("Enum(on,off)");
+                    case "Location":
+                    case "Measure":
+                    case "Date":
+                    case "Time":
+                        // the following types are not supposed to appear here
+                    case "Entity(tt:picture)":
+                    case "Contact":
+                    case "Choice":
+                    case "List":
+                    case "UNKNOWN":
+                        et.setFocusable(false);
+                        et.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                Filter.performClick();
+                            }
+                        });
+                        break;
+                    default:
+                        if (type.startsWith("Enum"))
+                            return enumSpinner(type);
+                        et.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_AUTO_CORRECT);
+                        break;
+                }
+                int wrapContent = LinearLayout.LayoutParams.WRAP_CONTENT;
+                LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(wrapContent, wrapContent);
+                et.setLayoutParams(lp);
+                et.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
+                et.setMinWidth(75);
+                et.setBackgroundResource(android.R.drawable.editbox_background);
+                et.setPadding(20, 5, 20, 5);
+                et.setGravity(Gravity.CENTER);
+                et.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+                    @Override
+                    public void onFocusChange(View view, boolean hasFocus) {
+                        if (hasFocus) {
+                            ((MainActivity) ctx).findViewById(R.id.input_bar).setVisibility(View.GONE);
+                        }
+                    }
+                });
+                return et;
+            }
+
+            private TextView btnStyleText(String word) {
+                android.widget.Button btn = new android.widget.Button(ctx);
+                TextView tv = new TextView(ctx);
+                tv.setTypeface(btn.getTypeface());
+                tv.setTextColor(btn.getTextColors());
+                tv.setText(word + " ");
+                return tv;
+            }
+
+            private Spinner enumSpinner(String type) {
+                List<String> options = new ArrayList<>(Arrays.asList(type.substring(5, type.length() - 1).split(",")));
+                ArrayAdapter<String> adapter = new ArrayAdapter<String>(
+                        ctx, android.R.layout.simple_spinner_item, options) {
+                    @Override
+                    public View getView(int position, View convertView, ViewGroup parent) {
+                        View v = super.getView(position, convertView, parent);
+                        TextView tv = ((TextView) v);
+                        tv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
+                        tv.setGravity(Gravity.CENTER);
+                        tv.setPadding(0, 0, 0, 0);
+                        return tv;
+                    }
+                };
+                adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                Spinner spinner = new Spinner(ctx);
+                spinner.setAdapter(adapter);
+                spinner.setBackgroundResource(android.R.drawable.editbox_background);
+                spinner.setPadding(0, 10, 0, 10);
+                spinner.setGravity(Gravity.CENTER);
+                return spinner;
+            }
+        }
+
         public static class ChooseLocation extends AbstractButton {
             public ChooseLocation(Context ctx, MainActivity owner) {
                 super(ctx, owner);
@@ -693,6 +838,8 @@ class AssistantHistoryAdapter extends RecyclerView.Adapter<AssistantHistoryAdapt
                 return new AssistantMessageViewHolder.Button(getContext(), fragment);
             case SLOT_FILLING:
                 return new AssistantMessageViewHolder.SlotFilling(getContext(), fragment);
+            case FILTER:
+                return new AssistantMessageViewHolder.Filter(getContext(), fragment);
             case ASK_SPECIAL:
                 assert askSpecialType != null;
                 switch (askSpecialType) {

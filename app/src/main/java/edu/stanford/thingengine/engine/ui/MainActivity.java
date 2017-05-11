@@ -686,6 +686,26 @@ public class MainActivity extends Activity implements AssistantOutput, Assistant
         display(control.getAssistant().handleChoice(title, idx));
     }
 
+    void onFilterActivated(String title, String json, String type, String value) {
+        ControlBinder control = engine.getControl();
+        if (control == null)
+            return;
+
+        try {
+            JSONObject jsonObj = new JSONObject(json);
+            if (!value.isEmpty()) {
+                title = title.replace("____", value);
+                if (type.equals("Number"))
+                    jsonObj.getJSONObject("filter").put("value", Float.parseFloat(value));
+                else
+                    jsonObj.getJSONObject("filter").put("value", value);
+            }
+            display(control.getAssistant().handleButton(title, jsonObj.toString()));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
     void onSlotFillingActivated(String title, String json, JSONObject slotTypes, Map<String, String> values) {
         ControlBinder control = engine.getControl();
         if (control == null)

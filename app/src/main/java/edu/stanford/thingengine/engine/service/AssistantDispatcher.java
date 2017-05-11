@@ -455,8 +455,25 @@ public class AssistantDispatcher implements Handler.Callback {
     public void dispatch(AssistantMessage msg) {
         if (isSlotFilling(msg))
             dispatchSlotFilling((AssistantMessage.Button)msg);
+        else if (isFilter(msg)) {
+            dispatchFilters((AssistantMessage.Button)msg);
+        }
         else
             assistantHandler.obtainMessage(MSG_ASSISTANT_MESSAGE, msg).sendToTarget();
+    }
+
+    private boolean isFilter(AssistantMessage msg) {
+        if (msg.type == AssistantMessage.Type.BUTTON) {
+            try {
+                JSONObject jsonObj = new JSONObject(((AssistantMessage.Button) msg).json);
+                if (jsonObj.has("filter"))
+                    return true;
+            } catch (JSONException e) {
+                Log.e(EngineService.LOG_TAG, "Failed to parse button JSON", e);
+                assistantHandler.obtainMessage(MSG_ASSISTANT_MESSAGE, msg).sendToTarget();
+            }
+        }
+        return false;
     }
 
     private boolean isSlotFilling(AssistantMessage msg) {
@@ -469,10 +486,21 @@ public class AssistantDispatcher implements Handler.Callback {
     private void dispatchSlotFilling(AssistantMessage.Button msg) {
         try {
             JSONObject obj = new JSONObject(msg.json);
-
             AssistantMessage slotFilling = new AssistantMessage.SlotFilling(
                     msg.direction, msg.title, msg.json, obj.getJSONObject("slotTypes"));
             assistantHandler.obtainMessage(MSG_ASSISTANT_MESSAGE, slotFilling).sendToTarget();
+        } catch (JSONException e) {
+            Log.e(EngineService.LOG_TAG, "Failed to parse button JSON", e);
+            assistantHandler.obtainMessage(MSG_ASSISTANT_MESSAGE, msg).sendToTarget();
+        }
+    }
+
+    private void dispatchFilters(AssistantMessage.Button msg) {
+        try {
+            JSONObject obj = new JSONObject(msg.json);
+            String type = obj.getJSONObject("filter").getString("type");
+            AssistantMessage filter = new AssistantMessage.Filter(msg.direction, msg.title, msg.json, type);
+            assistantHandler.obtainMessage(MSG_ASSISTANT_MESSAGE, filter).sendToTarget();
         } catch (JSONException e) {
             Log.e(EngineService.LOG_TAG, "Failed to parse button JSON", e);
             assistantHandler.obtainMessage(MSG_ASSISTANT_MESSAGE, msg).sendToTarget();
