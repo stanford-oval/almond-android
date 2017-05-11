@@ -103,7 +103,7 @@ class AppControlChannel extends ControlChannel {
                      description: d.description || "Description not available",
                      kind: d.kind,
                      ownerTier: d.ownerTier,
-                     version: d.constructor.version || 0,
+                     version: d.constructor.metadata.version || 0,
                      isTransient: d.isTransient,
                      isOnlineAccount: d.hasKind('online-account'),
                      isDataSource: d.hasKind('data-source'),
