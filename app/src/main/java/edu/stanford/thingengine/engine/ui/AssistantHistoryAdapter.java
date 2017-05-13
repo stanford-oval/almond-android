@@ -636,7 +636,7 @@ class AssistantHistoryAdapter extends RecyclerView.Adapter<AssistantHistoryAdapt
                     case "Entity(tt:url)":
                         et.setInputType(InputType.TYPE_TEXT_VARIATION_URI);
                         break;
-                    case "Boolean":
+                    case "Bool":
                         return enumSpinner("Enum(on,off)");
                     case "Location":
                     case "Measure":
