@@ -22,7 +22,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import edu.stanford.thingengine.engine.service.ControlChannel;
 import edu.stanford.thingengine.engine.service.EngineService;
 import edu.stanford.thingengine.engine.ui.InteractionCallback;
 
@@ -72,8 +71,8 @@ public class BluetoothAPI extends JavascriptAPI {
         }
     }
 
-    public BluetoothAPI(Handler handler, EngineService ctx, ControlChannel control) {
-        super("Bluetooth", control);
+    public BluetoothAPI(Handler handler, EngineService ctx) {
+        super("Bluetooth");
 
         this.ctx = ctx;
         this.handler = handler;

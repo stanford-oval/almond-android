@@ -8,7 +8,6 @@ import org.json.JSONTokener;
 
 import edu.stanford.thingengine.engine.service.AssistantCommandHandler;
 import edu.stanford.thingengine.engine.service.AssistantMessage;
-import edu.stanford.thingengine.engine.service.ControlChannel;
 import edu.stanford.thingengine.engine.service.EngineService;
 
 /**
@@ -17,8 +16,8 @@ import edu.stanford.thingengine.engine.service.EngineService;
 public class AssistantAPI extends JavascriptAPI implements AssistantCommandHandler {
     private EngineService mService;
 
-    public AssistantAPI(EngineService service, ControlChannel channel) {
-        super("Assistant", channel);
+    public AssistantAPI(EngineService service) {
+        super("Assistant");
 
         mService = service;
 

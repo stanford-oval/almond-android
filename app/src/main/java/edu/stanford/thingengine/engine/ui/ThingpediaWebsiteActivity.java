@@ -175,10 +175,15 @@ public class ThingpediaWebsiteActivity extends Activity {
             if (oldInfo != null && oldInfo.equals(newInfo))
                 return true;
 
-            if (control.setCloudId(newInfo)) {
-                mAuthInfo = newInfo;
-                return true;
-            } else {
+            try {
+                if (control.setCloudId(newInfo)) {
+                    mAuthInfo = newInfo;
+                    return true;
+                } else {
+                    return false;
+                }
+            } catch(Exception e) {
+                Log.e(MainActivity.LOG_TAG, "Failed to set cloud ID", e);
                 return false;
             }
         }
@@ -234,12 +239,19 @@ public class ThingpediaWebsiteActivity extends Activity {
         AsyncTask.THREAD_POOL_EXECUTOR.execute(new Runnable() {
             @Override
             public void run() {
-                final boolean ok = control.setServerAddress(host, port, authToken);
+                boolean ok;
+                try {
+                    ok = control.setServerAddress(host, port, authToken);
+                } catch(Exception e) {
+                    Log.e(MainActivity.LOG_TAG, "Failed to set server address", e);
+                    ok = false;
+                }
+                final boolean fok = ok;
 
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        showConfirmDialog(ok);
+                        showConfirmDialog(fok);
                     }
                 });
             }

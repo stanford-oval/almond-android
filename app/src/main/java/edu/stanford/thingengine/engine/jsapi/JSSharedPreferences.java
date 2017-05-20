@@ -7,15 +7,13 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONTokener;
 
-import edu.stanford.thingengine.engine.service.ControlChannel;
-
 /**
  * Created by gcampagn on 10/26/15.
  */
 public class JSSharedPreferences extends JavascriptAPI {
     private final Context context;
-    public JSSharedPreferences(Context context, ControlChannel control) {
-        super("SharedPreferences", control);
+    public JSSharedPreferences(Context context) {
+        super("SharedPreferences");
 
         this.context = context;
 

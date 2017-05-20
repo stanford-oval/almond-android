@@ -5,16 +5,14 @@ import android.content.Intent;
 import android.media.AudioManager;
 import android.view.KeyEvent;
 
-import edu.stanford.thingengine.engine.service.ControlChannel;
-
 /**
  * Created by gcampagn on 7/7/16.
  */
 public class SystemAppsAPI extends JavascriptAPI {
     private final Context ctx;
 
-    public SystemAppsAPI(Context ctx, ControlChannel control) {
-        super("SystemApps", control);
+    public SystemAppsAPI(Context ctx) {
+        super("SystemApps");
 
         this.ctx = ctx;
 

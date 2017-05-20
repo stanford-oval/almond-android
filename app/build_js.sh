@@ -62,5 +62,5 @@ set -e
 set -x
 
 test -d ../node_modules/babel-cli || install_babel
-transpile_js
-install_deps
+#transpile_js
+#install_deps

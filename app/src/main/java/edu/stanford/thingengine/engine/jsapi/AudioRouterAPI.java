@@ -14,7 +14,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import edu.stanford.thingengine.engine.service.ControlChannel;
 import edu.stanford.thingengine.engine.service.EngineService;
 
 /**
@@ -52,8 +51,8 @@ public class AudioRouterAPI extends JavascriptAPI {
         }
     };
 
-    public AudioRouterAPI(Handler handler, Context ctx, ControlChannel control) {
-        super("AudioRouter", control);
+    public AudioRouterAPI(Handler handler, Context ctx) {
+        super("AudioRouter");
 
         this.handler = handler;
         this.ctx = ctx;

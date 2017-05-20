@@ -3,16 +3,14 @@ package edu.stanford.thingengine.engine.jsapi;
 import android.content.Context;
 import android.media.AudioManager;
 
-import edu.stanford.thingengine.engine.service.ControlChannel;
-
 /**
  * Created by gcampagn on 5/16/16.
  */
 public class AudioManagerAPI extends JavascriptAPI {
     private final Context ctx;
 
-    public AudioManagerAPI(Context ctx, ControlChannel control) {
-        super("AudioManager", control);
+    public AudioManagerAPI(Context ctx) {
+        super("AudioManager");
 
         this.ctx = ctx;
 

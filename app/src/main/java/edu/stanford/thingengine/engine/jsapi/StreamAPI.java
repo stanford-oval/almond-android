@@ -10,8 +10,6 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import edu.stanford.thingengine.engine.service.ControlChannel;
-
 /**
  * Created by gcampagn on 7/21/16.
  */
@@ -19,8 +17,8 @@ public class StreamAPI extends JavascriptAPI {
     private final AtomicInteger counter = new AtomicInteger(0);
     private final Executor executor = Executors.newFixedThreadPool(6);
 
-    public StreamAPI(ControlChannel control) {
-        super("Stream", control);
+    public StreamAPI() {
+        super("Stream");
     }
 
     public class Stream {

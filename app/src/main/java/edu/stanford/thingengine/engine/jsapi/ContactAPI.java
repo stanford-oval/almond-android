@@ -12,7 +12,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import edu.stanford.thingengine.engine.service.ControlChannel;
 import edu.stanford.thingengine.engine.service.EngineService;
 import edu.stanford.thingengine.engine.ui.InteractionCallback;
 
@@ -22,8 +21,8 @@ import edu.stanford.thingengine.engine.ui.InteractionCallback;
 public class ContactAPI extends JavascriptAPI {
     private final EngineService ctx;
 
-    public ContactAPI(EngineService ctx, ControlChannel control) {
-        super("Contacts", control);
+    public ContactAPI(EngineService ctx) {
+        super("Contacts");
 
         this.ctx = ctx;
 

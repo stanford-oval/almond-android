@@ -9,17 +9,16 @@ import java.util.List;
 import edu.stanford.thingengine.engine.CloudAuthInfo;
 import edu.stanford.thingengine.engine.IThingEngine;
 import edu.stanford.thingengine.engine.ui.InteractionCallback;
+import edu.stanford.thingengine.nodejs.NodeJSLauncher;
 
 /**
  * Created by gcampagn on 8/16/15.
  */
 public class ControlBinder extends IThingEngine.Stub {
     private final EngineService service;
-    private final ControlChannel channel;
 
-    public ControlBinder(EngineService service, ControlChannel channel) {
+    public ControlBinder(EngineService service) {
         this.service = service;
-        this.channel = channel;
     }
 
     public AssistantDispatcher getAssistant() {
@@ -30,36 +29,36 @@ public class ControlBinder extends IThingEngine.Stub {
         service.setInteractionCallback(callback);
     }
 
-    public boolean setCloudId(CloudAuthInfo authInfo) {
-        return channel.sendSetCloudId(authInfo);
+    public boolean setCloudId(CloudAuthInfo authInfo) throws Exception {
+        return (boolean)NodeJSLauncher.invokeSync("setCloudId", authInfo.getCloudId(), authInfo.getAuthToken());
     }
 
-    public boolean setServerAddress(String host, int port, String authToken) {
-        return channel.sendSetServerAddress(host, port, authToken);
+    public boolean setServerAddress(String host, int port, String authToken) throws Exception {
+        return (boolean)NodeJSLauncher.invokeSync("setServerAddress", host, port, authToken);
     }
 
     public boolean handleOAuth2Callback(String kind, JSONObject req) throws Exception {
-        return channel.sendHandleOAuth2Callback(kind, req);
+        return (boolean)NodeJSLauncher.invokeSync("handleOAuth2Callback", kind, req);
     }
 
     public JSONArray startOAuth2(String kind) throws Exception {
-        return channel.sendStartOAuth2(kind);
+        return (JSONArray)NodeJSLauncher.invokeSync("startOAuth2", kind);
     }
 
     public boolean createDevice(JSONObject object) throws Exception {
-        return channel.sendCreateDevice(object);
+        return (boolean)NodeJSLauncher.invokeSync("createDevice", object);
     }
 
     public boolean deleteDevice(String uniqueId) throws Exception {
-        return channel.sendDeleteDevice(uniqueId);
+        return (boolean)NodeJSLauncher.invokeSync("deleteDevice", uniqueId);
     }
 
     public boolean upgradeDevice(String kind) throws Exception {
-        return channel.sendUpgradeDevice(kind);
+        return (boolean)NodeJSLauncher.invokeSync("upgradeDevice", kind);
     }
 
     public List<DeviceInfo> getDeviceInfos() throws Exception {
-        JSONArray jsonDeviceInfos = channel.sendGetDeviceInfos();
+        JSONArray jsonDeviceInfos = (JSONArray) NodeJSLauncher.invokeSync("getDeviceInfos");
 
         List<DeviceInfo> deviceInfos = new ArrayList<>();
         for (int i = 0; i < jsonDeviceInfos.length(); i++)
@@ -69,15 +68,15 @@ public class ControlBinder extends IThingEngine.Stub {
     }
 
     public DeviceInfo getDeviceInfo(String uniqueId) throws Exception {
-        return new DeviceInfo(channel.sendGetDeviceInfo(uniqueId));
+        return new DeviceInfo((JSONObject) NodeJSLauncher.invokeSync("getDeviceInfo"));
     }
 
     public int checkDeviceAvailable(String uniqueId) throws Exception {
-        return channel.sendCheckDeviceAvailable(uniqueId);
+        return (int)(double)NodeJSLauncher.invokeSync("checkDeviceAvailable", uniqueId);
     }
 
     public List<AppInfo> getAppInfos() throws Exception {
-        JSONArray jsonAppInfos = channel.sendGetAppInfos();
+        JSONArray jsonAppInfos = (JSONArray) NodeJSLauncher.invokeSync("getAppInfos");
 
         List<AppInfo> appInfos = new ArrayList<>();
         for (int i = 0; i < jsonAppInfos.length(); i++)
@@ -86,11 +85,11 @@ public class ControlBinder extends IThingEngine.Stub {
         return appInfos;
     }
 
-    public void deleteApp(String uniqueId) throws Exception {
-        channel.sendDeleteApp(uniqueId);
+    public void deleteApp(String uniqueId) {
+        NodeJSLauncher.invokeAsync("deleteApp", uniqueId);
     }
 
-    public void presentSlotFilling(String utterance, String targetJson) throws Exception {
-        channel.sendPresentSlotFilling(utterance, targetJson);
+    public void presentSlotFilling(String utterance, String targetJson) {
+        NodeJSLauncher.invokeAsync("presentSlotFilling", utterance, targetJson);
     }
 }

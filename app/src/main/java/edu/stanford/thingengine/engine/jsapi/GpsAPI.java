@@ -26,7 +26,6 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 
-import edu.stanford.thingengine.engine.service.ControlChannel;
 import edu.stanford.thingengine.engine.service.EngineService;
 import edu.stanford.thingengine.engine.ui.InteractionCallback;
 
@@ -48,8 +47,8 @@ public class GpsAPI extends JavascriptAPI {
         }
     }
 
-    public GpsAPI(Handler handler, EngineService context, ControlChannel control) {
-        super("Gps", control);
+    public GpsAPI(Handler handler, EngineService context) {
+        super("Gps");
         this.handler = handler;
         this.context = context;
         this.callback = new GpsLocationCallback();

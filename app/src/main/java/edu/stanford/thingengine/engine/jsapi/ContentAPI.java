@@ -10,7 +10,6 @@ import java.io.InputStream;
 import java.util.concurrent.RejectedExecutionException;
 
 import edu.stanford.thingengine.engine.ContentUtils;
-import edu.stanford.thingengine.engine.service.ControlChannel;
 import edu.stanford.thingengine.engine.service.EngineService;
 
 /**
@@ -20,8 +19,8 @@ public class ContentAPI extends JavascriptAPI {
     private final StreamAPI streams;
     private final EngineService ctx;
 
-    public ContentAPI(EngineService ctx, ControlChannel control, StreamAPI streams) {
-        super("Content", control);
+    public ContentAPI(EngineService ctx, StreamAPI streams) {
+        super("Content");
 
         this.ctx = ctx;
         this.streams = streams;

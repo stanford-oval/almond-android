@@ -4,7 +4,6 @@ import android.app.Notification;
 import android.app.NotificationManager;
 import android.content.Context;
 
-import edu.stanford.thingengine.engine.service.ControlChannel;
 import edu.stanford.thingengine.engine.R;
 
 /**
@@ -13,8 +12,8 @@ import edu.stanford.thingengine.engine.R;
 public class NotifyAPI extends JavascriptAPI {
     private final Context context;
 
-    public NotifyAPI(Context context, ControlChannel control) {
-        super("Notify", control);
+    public NotifyAPI(Context context) {
+        super("Notify");
 
         this.context = context;
 

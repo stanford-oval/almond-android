@@ -2,21 +2,38 @@ package edu.stanford.thingengine.engine.service;
 
 import android.app.Service;
 import android.content.Intent;
+import android.os.Handler;
+import android.os.HandlerThread;
 import android.os.IBinder;
 import android.util.Log;
 
-import java.io.IOException;
-
+import edu.stanford.thingengine.engine.jsapi.AssistantAPI;
+import edu.stanford.thingengine.engine.jsapi.AudioManagerAPI;
+import edu.stanford.thingengine.engine.jsapi.AudioRouterAPI;
+import edu.stanford.thingengine.engine.jsapi.BluetoothAPI;
+import edu.stanford.thingengine.engine.jsapi.ContactAPI;
+import edu.stanford.thingengine.engine.jsapi.ContentAPI;
+import edu.stanford.thingengine.engine.jsapi.GpsAPI;
+import edu.stanford.thingengine.engine.jsapi.ImageAPI;
+import edu.stanford.thingengine.engine.jsapi.JSSharedPreferences;
+import edu.stanford.thingengine.engine.jsapi.NotifyAPI;
+import edu.stanford.thingengine.engine.jsapi.SmsAPI;
+import edu.stanford.thingengine.engine.jsapi.StreamAPI;
+import edu.stanford.thingengine.engine.jsapi.SystemAppsAPI;
+import edu.stanford.thingengine.engine.jsapi.TelephoneAPI;
+import edu.stanford.thingengine.engine.jsapi.UnzipAPI;
 import edu.stanford.thingengine.engine.ui.InteractionCallback;
+import edu.stanford.thingengine.nodejs.JavaCallback;
+import edu.stanford.thingengine.nodejs.NodeJSLauncher;
 
 public class EngineService extends Service {
     public static final String LOG_TAG = "thingengine.Service";
 
     private AssistantDispatcher assistant;
-    private ControlChannel control;
     private volatile InteractionCallback callback;
-    private EngineThread engineThread;
-    
+    private HandlerThread worker;
+    private boolean started;
+
     public EngineService() {}
 
     public AssistantDispatcher getAssistant() {
@@ -25,7 +42,7 @@ public class EngineService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        if (engineThread != null)
+        if (started)
             return START_STICKY;
 
         Log.i(LOG_TAG, "Starting service");
@@ -41,20 +58,42 @@ public class EngineService extends Service {
     }
 
     private void startThread() {
-        control = null;
+        worker = new HandlerThread("EngineWorker");
+        worker.setDaemon(true);
+        worker.start();
+        final Handler workerHandler = new Handler(worker.getLooper());
 
-        engineThread = new EngineThread(this);
-        engineThread.start();
+        // initialize all the APIs that nodejs will need...
+        new JSSharedPreferences(this);
+        new NotifyAPI(this);
+        new UnzipAPI();
+        new GpsAPI(workerHandler, this);
+        new AudioManagerAPI(this);
+        new SmsAPI(workerHandler, this);
+        new BluetoothAPI(workerHandler, this);
+        new AudioRouterAPI(workerHandler, this);
+        new SystemAppsAPI(this);
+        StreamAPI stream = new StreamAPI();
+        new ImageAPI(stream);
+        new ContentAPI(this, stream);
+        new ContactAPI(this);
+        new TelephoneAPI(this);
+
+        NodeJSLauncher.registerJavaCall("ready", new JavaCallback() {
+            @Override
+            public Object invoke(Object... args) throws Exception {
+                controlReady(new AssistantAPI(EngineService.this));
+                return null;
+            }
+        });
+
+        // And start the nodejs code!
+        NodeJSLauncher.launch(this);
     }
 
-    // these methods are called from the EngineThread
-    void engineBroken() {
-        stopSelf();
-    }
-    void controlReady(AssistantCommandHandler cmdHandler, ControlChannel control) {
+    void controlReady(AssistantCommandHandler cmdHandler) {
         synchronized (this) {
             assistant = new AssistantDispatcher(this, cmdHandler);
-            this.control = control;
             notifyAll();
         }
     }
@@ -70,42 +109,13 @@ public class EngineService extends Service {
     @Override
     public void onDestroy() {
         Log.i(LOG_TAG, "Destroying service");
-        try {
-            if (engineThread != null) {
-                ControlChannel control;
-                synchronized (this) {
-                    control = this.control;
-                }
-                if (control != null)
-                    control.sendStop();
-
-                try {
-                    // give the thread 10 seconds to die
-                    engineThread.join(10000);
-                } catch (InterruptedException e) {
-                    Log.e(LOG_TAG, "InterruptedException while destroying the nodejs thread", e);
-                }
-                engineThread = null;
-                if (control != null)
-                    control.close();
-            }
-        } catch(IOException e) {
-            Log.e(LOG_TAG, "IOException while destroying the nodejs thread", e);
-        }
+        NodeJSLauncher.invokeAsync("stop");
         Log.i(LOG_TAG, "Destroyed service");
     }
 
     @Override
     public IBinder onBind(Intent intent) {
         onStartCommand(null, 0, 0);
-        try {
-            synchronized (this) {
-                while (control == null)
-                    wait();
-            }
-            return new ControlBinder(this, control);
-        } catch(InterruptedException e) {
-            return null;
-        }
+        return new ControlBinder(this);
     }
 }

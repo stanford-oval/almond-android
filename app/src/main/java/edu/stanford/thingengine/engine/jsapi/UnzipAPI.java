@@ -1,13 +1,11 @@
 package edu.stanford.thingengine.engine.jsapi;
 
-import edu.stanford.thingengine.engine.service.ControlChannel;
-
 /**
  * Created by gcampagn on 12/1/15.
  */
 public class UnzipAPI extends JavascriptAPI {
-    public UnzipAPI(ControlChannel control) {
-        super("Unzip", control);
+    public UnzipAPI() {
+        super("Unzip");
 
         registerAsync("unzip", new GenericCall() {
             @Override

@@ -16,7 +16,6 @@ import android.util.Log;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import edu.stanford.thingengine.engine.service.ControlChannel;
 import edu.stanford.thingengine.engine.service.EngineService;
 import edu.stanford.thingengine.engine.ui.InteractionCallback;
 
@@ -39,8 +38,8 @@ public final class SmsAPI extends JavascriptAPI {
         }
     }
 
-    public SmsAPI(Handler handler, EngineService ctx, ControlChannel control) {
-        super("Sms", control);
+    public SmsAPI(Handler handler, EngineService ctx) {
+        super("Sms");
 
         this.ctx = ctx;
         this.handler = handler;

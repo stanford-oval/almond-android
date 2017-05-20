@@ -13,8 +13,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import edu.stanford.thingengine.engine.service.ControlChannel;
-
 /**
  * Created by gcampagn on 7/21/16.
  */
@@ -107,8 +105,8 @@ public class ImageAPI extends JavascriptAPI {
         }
     }
 
-    public ImageAPI(ControlChannel control, StreamAPI streams) {
-        super("Image", control);
+    public ImageAPI(StreamAPI streams) {
+        super("Image");
 
         this.streams = streams;
 

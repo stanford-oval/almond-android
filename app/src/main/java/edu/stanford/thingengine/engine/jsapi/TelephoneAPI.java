@@ -7,7 +7,6 @@ import android.net.Uri;
 import android.support.v4.content.ContextCompat;
 import android.telephony.PhoneNumberUtils;
 
-import edu.stanford.thingengine.engine.service.ControlChannel;
 import edu.stanford.thingengine.engine.service.EngineService;
 import edu.stanford.thingengine.engine.ui.InteractionCallback;
 
@@ -17,8 +16,8 @@ import edu.stanford.thingengine.engine.ui.InteractionCallback;
 public class TelephoneAPI extends JavascriptAPI {
     private final EngineService ctx;
 
-    public TelephoneAPI(EngineService ctx, ControlChannel control) {
-        super("Telephone", control);
+    public TelephoneAPI(EngineService ctx) {
+        super("Telephone");
 
         this.ctx = ctx;
 
