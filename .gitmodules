@@ -1,6 +1,3 @@
-[submodule "jxcore"]
-	path = jxcore
-	url = https://github.com/gcampax/jxcore
 [submodule "jsapp/node_modules/thingengine-core"]
 	path = jsapp/node_modules/thingengine-core
 	url = https://github.com/Stanford-Mobisocial-IoT-Lab/thingengine-core.git
