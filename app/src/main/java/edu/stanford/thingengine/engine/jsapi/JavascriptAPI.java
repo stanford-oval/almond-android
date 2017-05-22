@@ -55,10 +55,6 @@ public abstract class JavascriptAPI {
         registerAsync(callback, call);
     }
 
-    protected void registerSync(String callback, final Callable<?> callable) {
-        registerAsync(callback, callable);
-    }
-
     protected void registerSync(String callback, Runnable runnable) {
         registerAsync(callback, runnable);
     }

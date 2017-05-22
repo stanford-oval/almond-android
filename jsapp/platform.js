@@ -10,27 +10,37 @@
 
 const Q = require('q');
 const fs = require('fs');
+const Module = require('module');
 const Gettext = require('node-gettext');
 
 const JavaAPI = require('./java_api');
 const StreamAPI = require('./streams');
 
-const _unzipApi = JavaAPI.makeJavaAPI('Unzip', ['unzip'], [], []);
-const _gpsApi = JavaAPI.makeJavaAPI('Gps', ['start', 'stop', 'getCurrentLocation'], [], ['onlocationchanged']);
-const _notifyApi = JavaAPI.makeJavaAPI('Notify', [], ['showMessage'], []);
+const _platformApi = JavaAPI.makeJavaAPI('Platform', [],
+    ['getFilesDir', 'getCacheDir', 'getLocale', 'getTimezone'], []);
+const _unzipApi = JavaAPI.makeJavaAPI('Unzip', ['unzip'],
+    [], []);
+const _gpsApi = JavaAPI.makeJavaAPI('Gps', ['start', 'stop', 'getCurrentLocation'],
+    [], ['onlocationchanged']);
+const _notifyApi = JavaAPI.makeJavaAPI('Notify', [],
+    ['showMessage'], []);
 const _audioManagerApi = JavaAPI.makeJavaAPI('AudioManager', [],
     ['setRingerMode', 'adjustMediaVolume', 'setMediaVolume'], []);
-const _smsApi = JavaAPI.makeJavaAPI('Sms', ['start', 'stop', 'sendMessage'], [], ['onsmsreceived']);
+const _smsApi = JavaAPI.makeJavaAPI('Sms', ['start', 'stop', 'sendMessage'],
+    [], ['onsmsreceived']);
 const _btApi = JavaAPI.makeJavaAPI('Bluetooth',
     ['start', 'startDiscovery', 'pairDevice', 'readUUIDs'],
     ['stop', 'stopDiscovery'],
     ['ondeviceadded', 'ondevicechanged', 'onstatechanged', 'ondiscoveryfinished']);
 const _audioRouterApi = JavaAPI.makeJavaAPI('AudioRouter',
-    ['setAudioRouteBluetooth'], ['start', 'stop', 'isAudioRouteBluetooth'], []);
-const _systemAppsApi = JavaAPI.makeJavaAPI('SystemApps', [], ['startMusic'], []);
+    ['setAudioRouteBluetooth'],
+    ['start', 'stop', 'isAudioRouteBluetooth'], []);
+const _systemAppsApi = JavaAPI.makeJavaAPI('SystemApps', [],
+    ['startMusic'], []);
 const _graphicsApi = require('./graphics');
 
-const _contentJavaApi = JavaAPI.makeJavaAPI('Content', ['getStream'], [], []);
+const _contentJavaApi = JavaAPI.makeJavaAPI('Content', ['getStream'],
+    [], []);
 const _contentApi = {
     getStream(url) {
         return _contentJavaApi.getStream(url).then(function(obj) {
@@ -38,12 +48,60 @@ const _contentApi = {
         });
     }
 }
-const _contactApi = JavaAPI.makeJavaAPI('Contacts', ['lookup', 'lookupPrincipal'], [], []);
-const _telephoneApi = JavaAPI.makeJavaAPI('Telephone', ['call', 'callEmergency'], [], []);
+const _contactApi = JavaAPI.makeJavaAPI('Contacts', ['lookup', 'lookupPrincipal'],
+    [], []);
+const _telephoneApi = JavaAPI.makeJavaAPI('Telephone', ['call', 'callEmergency'],
+    [], []);
+const _sharedPrefsApi = JavaAPI.makeJavaAPI('SharedPreferences', [],
+    ['readSharedPref', 'writeSharedPref'], []);
+
+class AndroidSharedPreferences {
+    constructor() {
+        this._writes = [];
+        this._scheduledWrite = false;
+    }
+
+    _flushWrites() {
+        if (this._writes.length == 0)
+            return;
+
+        var writes = this._writes;
+        this._writes = [];
+        // can't pass complex objects to Java, so go through JSON
+        try {
+            _sharedPrefsApi.writeSharedPref(JSON.stringify(writes));
+        } catch(error) {
+            console.error('Failed to flush shared preferences to disk');
+        }
+    }
+
+    get(name) {
+        this._flushWrites();
+
+        var _value = _sharedPrefsApi.readSharedPref(name);
+        if (_value === null)
+            return undefined;
+        return JSON.parse(_value);
+    }
+
+    set(name, value) {
+        this._writes.push([name, JSON.stringify(value)]);
+
+        if (this._scheduledWrite)
+            return value;
+
+        this._scheduledWrite = true;
+        setTimeout(function() {
+            this._flushWrites();
+            this._scheduledWrite = false;
+        }.bind(this), 30000);
+
+        return value;
+    }
+}
 
 var filesDir = null;
 var cacheDir = null;
-var encoding = null;
 
 function safeMkdirSync(dir) {
     try {
@@ -54,54 +112,20 @@ function safeMkdirSync(dir) {
     }
 }
 
-var _prefs = null;
+var _prefs;
 
-// monkey patch fs to support virtual symlinks, which we need to get
-// symlinks to js files in the apk
-var _originalRealpathSync = fs.realpathSync;
-var _originalStatSync = fs.statSync;
-var _originalLStatSync = fs.lstatSync;
-var _virtualSymlinks = {};
-var _virtualSymlinksStat = {};
-fs.statSync = function(p) {
-    for (var symlink in _virtualSymlinks) {
-        if (p.startsWith(symlink + '/')) {
-            var relative = p.substr(symlink.length);
-            //console.log('found', _virtualSymlinks[symlink] + relative);
-            return fs.statSync(_virtualSymlinks[symlink] + relative);
-        }
-    }
-
-    return _originalStatSync(p);
-};
-fs.lstatSync = function(p) {
-    for (var symlink in _virtualSymlinks) {
-        if (p === symlink) {
-            if (_virtualSymlinksStat.hasOwnProperty(p))
-                return _virtualSymlinksStat[p];
-
-            var stats = new fs.JXStats(0, 41471); // 0777 | S_IFLNK
-            stats.isSymbolicLink = function() {
-                return true;
-            }
-            return _virtualSymlinksStat[p] = stats;
-        } else if (p.startsWith(symlink + '/')) {
-            return fs.statSync(p);
-        }
-    }
-
-    return _originalLStatSync(p);
-};
-fs.realpathSync = function(p, cache) {
-    for (var symlink in _virtualSymlinks) {
-        if (p.startsWith(symlink + '/')) {
-            var relative = p.substr(symlink.length);
-            return fs.realpathSync(_virtualSymlinks[symlink] + relative, cache);
-        }
-    }
-
-    return _originalRealpathSync(p, cache);
-};
+// patch Module to know about some of our browserified modules
+var oldModuleLoad = Module._load;
+Module._load = function(request, parent, isMain) {
+    if (request === 'thingpedia')
+        return require('thingpedia');
+    if (request === 'thingtalk')
+        return require('thingtalk');
+    // for compat with twitter...
+    if (request === 'thingpedia/lib/ref_counted')
+        return require('thingpedia/lib/ref_counted');
+    return oldModuleLoad.apply(this, arguments);
+}
 
 module.exports = {
     // Initialize the platform code
@@ -113,27 +137,14 @@ module.exports = {
 
         new StreamAPI();
 
-        return Q.nfcall(JXMobile.GetDocumentsPath).then((dir) => {
-            filesDir = dir;
-            safeMkdirSync(filesDir + '/tmp');
-            return Q.nfcall(JXMobile.GetEncoding);
-        }).then((value) => {
-            encoding = value;
-            return Q.nfcall(JXMobile.GetLocale);
-        }).then((value) => {
-            this._locale = value;
-            this._gettext.setlocale(value);
-            return Q.nfcall(JXMobile.GetTimezone);
-        }).then((value) => {
-            this._timezone = value;
-            return Q.nfcall(JXMobile.GetSharedPreferences);
-        }).then((prefs) => {
-            _prefs = prefs;
-            return Q.nfcall(JXMobile.GetCachePath);
-        }).then((value) => {
-            cacheDir = value;
-            safeMkdirSync(cacheDir);
-        });
+        filesDir = _platformApi.getFilesDir();
+        cacheDir = _platformApi.getCacheDir();
+        safeMkdirSync(cacheDir);
+        safeMkdirSync(cacheDir + '/tmp');
+        this._locale = _platformApi.getLocale();
+        this._gettext.setlocale(this._locale);
+        this._timezone = _platformApi.getTimezone();
+        _prefs = new AndroidSharedPreferences();
     },
 
     setAssistant(ad) {
@@ -143,7 +154,7 @@ module.exports = {
     type: 'android',
 
     get encoding() {
-        return encoding;
+        return 'utf16be';
     },
 
     get locale() {
@@ -292,7 +303,7 @@ module.exports = {
     // to persist across reboots or for long times
     // (ie, it could be periodically cleaned by the system)
     getTmpDir: function() {
-        return filesDir + '/tmp';
+        return cacheDir + '/tmp';
     },
 
     // Get a directory good for long term caching of code
@@ -303,12 +314,7 @@ module.exports = {
 
     // Make a symlink potentially to a file that does not exist physically
     makeVirtualSymlink: function(file, link) {
-        _virtualSymlinks[link] = file;
-        // fix some brokenness in Android 6
-        // not sure what's going on but half of the code sees paths
-        // with /data/data and the other half with /data/user/0
-        link = link.replace(/\/data\/user\/[0-9]+\//, "/data/data/");
-        _virtualSymlinks[link] = file;
+        // FIXME
     },
 
     // Get the filename of the sqlite database
@@ -331,7 +337,7 @@ module.exports = {
     // This function should be called by the platform integration
     // code, after stopping the engine
     exit: function() {
-        return JXMobile.Exit();
+        return process.exit();
     },
 
     // Get the ThingPedia developer key, if one is configured

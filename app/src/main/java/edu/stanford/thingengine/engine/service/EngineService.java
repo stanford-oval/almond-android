@@ -15,15 +15,15 @@ import edu.stanford.thingengine.engine.jsapi.ContactAPI;
 import edu.stanford.thingengine.engine.jsapi.ContentAPI;
 import edu.stanford.thingengine.engine.jsapi.GpsAPI;
 import edu.stanford.thingengine.engine.jsapi.ImageAPI;
-import edu.stanford.thingengine.engine.jsapi.JSSharedPreferences;
 import edu.stanford.thingengine.engine.jsapi.NotifyAPI;
+import edu.stanford.thingengine.engine.jsapi.PlatformAPI;
+import edu.stanford.thingengine.engine.jsapi.SharedPreferencesAPI;
 import edu.stanford.thingengine.engine.jsapi.SmsAPI;
 import edu.stanford.thingengine.engine.jsapi.StreamAPI;
 import edu.stanford.thingengine.engine.jsapi.SystemAppsAPI;
 import edu.stanford.thingengine.engine.jsapi.TelephoneAPI;
 import edu.stanford.thingengine.engine.jsapi.UnzipAPI;
 import edu.stanford.thingengine.engine.ui.InteractionCallback;
-import edu.stanford.thingengine.nodejs.JavaCallback;
 import edu.stanford.thingengine.nodejs.NodeJSLauncher;
 
 public class EngineService extends Service {
@@ -47,7 +47,7 @@ public class EngineService extends Service {
 
         Log.i(LOG_TAG, "Starting service");
         try {
-            startThread();
+            doStart();
 
             Log.i(LOG_TAG, "Started service");
             return START_STICKY;
@@ -57,14 +57,16 @@ public class EngineService extends Service {
         }
     }
 
-    private void startThread() {
+    private void doStart() {
+        started = true;
         worker = new HandlerThread("EngineWorker");
         worker.setDaemon(true);
         worker.start();
         final Handler workerHandler = new Handler(worker.getLooper());
 
         // initialize all the APIs that nodejs will need...
-        new JSSharedPreferences(this);
+        new PlatformAPI(this);
+        new SharedPreferencesAPI(this);
         new NotifyAPI(this);
         new UnzipAPI();
         new GpsAPI(workerHandler, this);
@@ -78,25 +80,12 @@ public class EngineService extends Service {
         new ContentAPI(this, stream);
         new ContactAPI(this);
         new TelephoneAPI(this);
-
-        NodeJSLauncher.registerJavaCall("ready", new JavaCallback() {
-            @Override
-            public Object invoke(Object... args) throws Exception {
-                controlReady(new AssistantAPI(EngineService.this));
-                return null;
-            }
-        });
+        assistant = new AssistantDispatcher(this, new AssistantAPI(this));
 
         // And start the nodejs code!
         NodeJSLauncher.launch(this);
     }
 
-    void controlReady(AssistantCommandHandler cmdHandler) {
-        synchronized (this) {
-            assistant = new AssistantDispatcher(this, cmdHandler);
-            notifyAll();
-        }
-    }
     public InteractionCallback getInteractionCallback() {
         return callback;
     }

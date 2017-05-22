@@ -245,11 +245,11 @@ private:
     } storage;
 
     String& string() {
-        assert (type == Type::string);
+        assert (type == Type::json || type == Type::string);
         return reinterpret_cast<String&>(storage.s);
     }
     const String& string() const {
-        assert (type == Type::string);
+        assert (type == Type::json || type == Type::string);
         return reinterpret_cast<const String&>(storage.s);
     }
 
@@ -351,6 +351,10 @@ public:
 
     bool InitFromJava(JNIEnv *env, jobject obj, bool do_throw = true) {
         assert(type == Type::empty);
+        if (obj == nullptr) {
+            type = Type::null;
+            return true;
+        }
 
         jclass Number = env->FindClass("java/lang/Number");
         jclass String = env->FindClass("java/lang/String");
@@ -358,9 +362,7 @@ public:
         jclass JSONObject = env->FindClass("org/json/JSONObject");
         jclass JSONArray = env->FindClass("org/json/JSONArray");
         jclass byteArray = env->FindClass("[B");
-        if (obj == nullptr) {
-            type = Type::null;
-        } else if (env->IsInstanceOf(obj, Number)) {
+        if (env->IsInstanceOf(obj, Number)) {
             type = Type::number;
             n() = env->CallDoubleMethod(obj, env->GetMethodID(Number, "doubleValue", "()D"));
         } else if (env->IsInstanceOf(obj, String)) {
@@ -425,7 +427,7 @@ public:
             case Type::json: {
                 jclass JSONTokener = env->FindClass("org/json/JSONTokener");
                 jobject jsonTokener = env->NewObject(JSONTokener, env->GetMethodID(JSONTokener, "<init>", "(Ljava/lang/String;)V"), string_to_jstring(env, string()));
-                return env->CallObjectMethod(jsonTokener, env->GetMethodID(JSONTokener, "next", "()Ljava/lang/Object;"));
+                return env->CallObjectMethod(jsonTokener, env->GetMethodID(JSONTokener, "nextValue", "()Ljava/lang/Object;"));
             }
         }
     }
@@ -511,13 +513,33 @@ private:
         Local<Value> value = info[0];
 
         std::promise<InteropValue>* promise = static_cast<std::promise<InteropValue>*>(info.Data().As<Object>()->GetAlignedPointerFromInternalField(0));
-        if (promise == nullptr)
-            return;
-        info.Data().As<Object>()->SetAlignedPointerInInternalField(0, nullptr);
-
         Local<String> message = value->ToDetailString(info.GetIsolate()->GetCurrentContext()).ToLocalChecked();
+        if (promise == nullptr) {
+            String::Utf8Value msg(message);
+            log_error("nodejs", "Lost exception %s", *msg);
+            return;
+        }
+
+        info.Data().As<Object>()->SetAlignedPointerInInternalField(0, nullptr);
         promise->set_exception(std::make_exception_ptr(js_exception(v8_to_string(message))));
         delete promise;
+    }
+
+    static v8::Global<v8::ObjectTemplate> tmpl_g;
+
+    Local<Object> make_promise_holder(Isolate *isolate, void *data) {
+        Local<v8::ObjectTemplate> tmpl;
+        if (tmpl_g.IsEmpty()) {
+            tmpl = v8::ObjectTemplate::New(isolate);
+            tmpl->SetInternalFieldCount(1);
+            tmpl_g = v8::Global<v8::ObjectTemplate>(isolate, tmpl);
+        } else {
+            tmpl = tmpl_g.Get(isolate);
+        }
+
+        Local<Object> holder = tmpl->NewInstance();
+        holder->SetAlignedPointerInInternalField(0, data);
+        return holder;
     }
 
 public:
@@ -546,24 +568,25 @@ public:
         if (try_catch.HasCaught()) {
             SetException(isolate, try_catch.Exception());
         } else if (ret_value->IsPromise()) {
-            if (!use_return)
-                return;
-            std::promise<InteropValue> *return_copy = new std::promise<InteropValue>(
-                    std::move(m_return));
-
-            Local<v8::ObjectTemplate> tmpl = v8::ObjectTemplate::New(isolate);
-            tmpl->SetInternalFieldCount(1);
-            Local<Object> return_copy_gced = tmpl->NewInstance();
-            return_copy_gced->SetAlignedPointerInInternalField(0, return_copy);
-
-            Local<v8::Function> then = v8::Function::New(isolate, &then_promise, return_copy_gced, 1);
-            Local<v8::Function> _catch = v8::Function::New(isolate, &catch_promise, return_copy_gced, 1);
-            ret_value.As<v8::Promise>()->Then(then)->Catch(_catch);
+            if (use_return) {
+                std::promise<InteropValue> *return_copy = new std::promise<InteropValue>(
+                        std::move(m_return));
+                Local<Object> holder = make_promise_holder(isolate, return_copy);
+                Local<v8::Function> then = v8::Function::New(isolate, &then_promise, holder, 1);
+                Local<v8::Function> _catch = v8::Function::New(isolate, &catch_promise, holder, 1);
+                ret_value.As<v8::Promise>()->Then(then)->Catch(_catch);
+            } else {
+                Local<Object> holder = make_promise_holder(isolate, nullptr);
+                Local<v8::Function> _catch = v8::Function::New(isolate, &catch_promise, holder, 1);
+                ret_value.As<v8::Promise>()->Catch(_catch);
+            }
         } else {
             SetReturn(isolate, ret_value);
         }
     }
 };
+
+v8::Global<v8::ObjectTemplate> PackagedNodeCall::tmpl_g;
 
 class CallQueue {
 private:
@@ -684,6 +707,24 @@ public:
     }
 };
 
+class LocalJavaFrame
+{
+private:
+    JNIEnv *env;
+
+public:
+    LocalJavaFrame(JNIEnv *env) : env(env) {
+        env->PushLocalFrame(20);
+    }
+    ~LocalJavaFrame() {
+        env->PopLocalFrame(nullptr);
+    }
+
+    LocalJavaFrame(const LocalJavaFrame&) = delete;
+    LocalJavaFrame(LocalJavaFrame&&) = delete;
+    LocalJavaFrame& operator=(const LocalJavaFrame&) = delete;
+    LocalJavaFrame& operator=(LocalJavaFrame&&) = delete;
+};
 
 class JavaInvoker
 {
@@ -741,6 +782,8 @@ public:
 
     InteropValue InvokeSync(Isolate *isolate, std::u16string&& function_name, std::vector<InteropValue>&& arguments)
     {
+        LocalJavaFrame frame(env);
+
         jobject callback;
         {
             std::unique_lock<std::mutex> lock(method_lock);
@@ -778,6 +821,8 @@ public:
 
     Local<v8::Promise> InvokeAsync(Isolate *isolate, std::u16string&& function_name, std::vector<InteropValue>&& arguments)
     {
+        LocalJavaFrame frame(env);
+
         Local<v8::Promise::Resolver> resolver = v8::Promise::Resolver::New(isolate);
         jobject callback;
         {
@@ -930,6 +975,10 @@ static void register_module(Local<Object> exports, Local<Value>, void *)
     NODE_SET_METHOD(exports, "callJavaSync", call_java_sync);
 }
 
+namespace node_sqlite3 {
+    extern node::node_module module;
+}
+
 static node::node_module launcher_module = {
         .nm_version = NODE_MODULE_VERSION,
         .nm_flags = 0,
@@ -1022,6 +1071,7 @@ start_node(JavaVM *vm, AAsset *app_code, jobject jClassLoader)
     global_state.java_invoker.Init(jnienv, jClassLoader);
 
     node_module_register(&launcher_module);
+    node_module_register(&node_sqlite3::module);
     node::Init(&argc, const_cast<const char**>(argv), &exec_argc, &exec_argv);
 
     std::unique_ptr<v8::Platform> platform(v8::platform::CreateDefaultPlatform(0));
@@ -1049,8 +1099,8 @@ start_node(JavaVM *vm, AAsset *app_code, jobject jClassLoader)
                                                          argc, argv, exec_argc, exec_argv);
         Local<Object> process = node::GetProcessObject(env);
         std::unique_ptr<char[]> code_buffer = read_full_asset(app_code);
-        process->DefineOwnProperty(context, OneByteString(isolate, "_eval"), OneByteString(isolate, code_buffer.get()),
-                           v8::PropertyAttribute::ReadOnly).FromJust();
+        process->DefineOwnProperty(context, OneByteString(isolate, "_eval"), String::NewFromUtf8(isolate, code_buffer.get()),
+                           v8::PropertyAttribute::None).FromJust();
         code_buffer = nullptr;
         node::LoadEnvironment(env);
         //assert(!global_state.launcher_module.IsEmpty());
@@ -1068,6 +1118,7 @@ start_node(JavaVM *vm, AAsset *app_code, jobject jClassLoader)
 
     isolate->Dispose();
     V8::Dispose();
+    V8::ShutdownPlatform();
     delete[] exec_argv;
 
     global_state.java_invoker.Deinit();
@@ -1138,14 +1189,14 @@ Java_edu_stanford_thingengine_nodejs_NodeJSLauncher_invokeSync(JNIEnv *env, jcla
         InteropValue return_value = global_state.queue.InvokeSync(jstring_to_string(env, fn_),
                                                                   std::move(interop_args));
         return return_value.ToJava(env);
-    } catch (js_exception &js) {
+    } catch (const js_exception &js) {
         jclass RuntimeException = env->FindClass("java/lang/RuntimeException");
         jobject e = env->NewObject(RuntimeException, env->GetMethodID(RuntimeException, "<init>",
                                                                       "(Ljava/lang/String;)V"),
                                    string_to_jstring(env, js.message));
         env->Throw((jthrowable) e);
         return nullptr;
-    } catch (std::exception &e) {
+    } catch (const std::exception &e) {
         env->ThrowNew(env->FindClass("java/lang/RuntimeException"), e.what());
         return nullptr;
     }

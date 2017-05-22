@@ -5,81 +5,61 @@
 // Copyright 2015 Giovanni Campagna <gcampagn@cs.stanford.edu>
 //
 // See COPYING for details
+"use strict";
 
 const Q = require('q');
-
-var asyncCallbacks = {};
-var eventCallbacks = {};
+const Launcher = require('./launcher');
 
 module.exports.makeJavaAPI = function makeJavaAPI(klass, asyncMethods, syncMethods, events) {
     var obj = {};
     asyncMethods.forEach(function(method) {
+        var call = klass + '_' + method;
         Object.defineProperty(obj, method, {
             configurable: true,
             enumerable: false,
             writable: true,
-            value: function() {
-                var call = JXMobile(klass + '_' + method);
-                var cb = call.callAsyncNative.apply(call, arguments);
-                var defer = Q.defer();
-                asyncCallbacks[cb] = defer;
-                return defer.promise;
+            value: function(...args) {
+                // for compatibility, wrap the native promise into a Q
+                // promise
+                return Q(Launcher.callJavaAsync(call, ...args));
             }
         });
     });
     syncMethods.forEach(function(method) {
+        var call = klass + '_' + method;
         Object.defineProperty(obj, method, {
             configurable: true,
             enumerable: false,
             writable: true,
-            value: function() {
-                var call = JXMobile(klass + '_' + method);
-                return Q.npost(call, 'callNative', arguments).catch((e) => {
-                    if (typeof e === 'string')
-                        throw new Error(e);
-                    else
-                        throw e;
-                });
+            value: function(...args) {
+                return Launcher.callJavaSync(call, ...args);
             }
         });
     });
     events.forEach(function(event) {
-        eventCallbacks[klass + '_' + event] = undefined;
         Object.defineProperty(obj, event, {
             configurable: true,
             enumerable: false,
             get() {
-                return eventCallbacks[klass + '_' + callbackName];
+                return Launcher.getCallback(klass + '_' + event) || null;
             },
             set(callback) {
-                if (callback !== null)
-                    eventCallbacks[klass + '_' + event] = callback;
-                else
-                    eventCallbacks[klass + '_' + event] = undefined;
+                if (callback !== null) {
+                    Launcher.registerCallback(klass + '_' + event, function() {
+                        var r = callback.apply(obj, arguments);
+                        // make sure that all promises are native v8 promises, because the c++ code
+                        // relies on that
+                        if (typeof r === 'object' && r !== null && typeof r.then === 'function')
+                            return Promise.resolve(r);
+                        else
+                            return r;
+                    });
+                } else {
+                    Launcher.unregisterCallback(klass + '_' + event);
+                }
             }
         });
     });
 
     return obj;
 }
-
-module.exports.invokeCallback = function(callbackId, error, value) {
-    if (callbackId in eventCallbacks) {
-        if (eventCallbacks[callbackId] === undefined) {
-            // ignore event with no listeners
-            return;
-        }
-        return eventCallbacks[callbackId](error, value);
-    }
-
-    if (!callbackId in asyncCallbacks) {
-        console.log('Invalid callback ID ' + callbackId);
-        return;
-    }
-
-    if (error)
-        asyncCallbacks[callbackId].reject(new Error(error));
-    else
-        asyncCallbacks[callbackId].resolve(value);
-    delete asyncCallbacks[callbackId];
-};

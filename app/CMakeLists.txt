@@ -13,8 +13,10 @@ cmake_minimum_required(VERSION 3.4.1)
 add_library(node-launcher SHARED
              src/main/jni/node-launcher.cpp )
 
+add_subdirectory(src/main/jni/sqlite)
+add_subdirectory(src/main/jni/node-sqlite3)
 
 find_library(log-lib log)
 find_library(android-lib android)
 target_link_libraries(node-launcher
-                      ${CMAKE_CURRENT_SOURCE_DIR}/src/main/jniLibs/${ANDROID_ABI}/libnode.so ${log-lib} ${android-lib})
+                      node-sqlite3 sqlite ${CMAKE_CURRENT_SOURCE_DIR}/src/main/jniLibs/${ANDROID_ABI}/libnode.so ${log-lib} ${android-lib})

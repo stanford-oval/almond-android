@@ -23,13 +23,9 @@ class Image {
 
     getSize() {
         return this._promise.then((token) => {
-            // the api calls are actually sync so we can execute them
-            // "in parallel" with the guarantee that imageDispose will not be executed
-            // until getWidth and getHeight have run
-            return Q.all([ImageAPI.imageGetWidth(token),
-                          ImageAPI.imageGetHeight(token),
-                          ImageAPI.imageDispose(token)]);
-        }).then(([width, height, _]) => {
+            var width = ImageAPI.imageGetWidth(token);
+            var height = ImageAPI.imageGetHeight(token);
+            ImageAPI.imageDispose(token);
             return { width: width, height: height };
         });
     }

@@ -6,17 +6,15 @@
 //
 // See COPYING for details
 "use strict";
+// must be before anything to finish setting up nodejs-android
+const Launcher = require('./launcher');
 
 console.log('ThingEngine-Android starting up...');
 
-// we would like to delay load this, but if we do we get
-// conflicts on global constructors like Number
-// (because the polyfill redefines it to support octal
-// and binary literals), which confuses adt
-require('babel-polyfill');
-
 // we need these very early on
 const Q = require('q');
+Q.longStackSupport = true;
+
 const JavaAPI = require('./java_api');
 const ControlChannel = require('./control');
 
@@ -27,17 +25,11 @@ var _stopped;
 
 class AppControlChannel extends ControlChannel {
     // handle control methods here...
-
-    invokeCallback(callbackId, error, value) {
-        return JavaAPI.invokeCallback(callbackId, error, value);
-    }
-
     stop() {
         if (_running)
             _engine.stop();
         else
             _stopped = true;
-        this.close();
     }
 
     startOAuth2(kind) {
@@ -66,6 +58,7 @@ class AppControlChannel extends ControlChannel {
     }
 
     upgradeDevice(kind) {
+        console.log('upgradeDevice', kind);
         return _engine.devices.updateDevicesOfKind(kind).then(() => {
             return true;
         });
@@ -197,61 +190,46 @@ class AppControlChannel extends ControlChannel {
     }
 }
 
-function runEngine() {
-    Q.longStackSupport = true;
+function main() {
+    var controlChannel = new AppControlChannel();
 
-    // we would like to create the control channel without
-    // initializing the platform but we can't because the
-    // control channels needs paths and encodings from the platform
     global.platform = require('./platform');
-    platform.init().then(function() {
-        console.log('Android platform initialized');
+    platform.init();
 
-        // create the control channel immediately so we free
-        // the UI thread to go on merrily on it's own
-        var controlChannel = new AppControlChannel();
+    console.log('Android platform initialized');
 
-        return controlChannel.open();
-    }).then(function() {
-        // signal to unblock the UI thread
-        // we don't need to async-wait for the result here, the call is sync
-        // and execute on our thread
-        JXMobile('controlReady').callNative();
+    // load the bulk of the code and create the engine
+    const Engine = require('thingengine-core');
+    const AssistantDispatcher = require('./assistant');
 
-        console.log('Control channel ready');
+    console.log('Creating engine...');
+    _engine = new Engine(global.platform);
 
-        // finally load the bulk of the code and create the engine
-        const Engine = require('thingengine-core');
-        const AssistantDispatcher = require('./assistant');
+    _ad = new AssistantDispatcher(_engine);
+    platform.setAssistant(_ad);
 
-        console.log('Creating engine...');
-        _engine = new Engine(global.platform);
+    console.log('Opening engine...');
 
-        _ad = new AssistantDispatcher(_engine);
-        platform.setAssistant(_ad);
-
-        _waitReady = _engine.open();
-        _ad.start();
-        return _waitReady;
-    }).then(function() {
+    _waitReady = _engine.open();
+    _ad.start();
+    _waitReady.then(function() {
         _running = true;
         if (_stopped)
             return;
         return _engine.run();
     }).catch(function(error) {
-        console.log('Uncaught exception: ' + error.message);
-        console.log(error.stack);
+        console.error('Uncaught exception: ' + error.message);
+        console.error(error.stack);
     }).finally(function() {
         _ad.stop();
         return _engine.close();
     }).catch(function(error) {
-        console.log('Exception during stop: ' + error.message);
-        console.log(error.stack);
+        console.error('Exception during stop: ' + error.message);
+        console.error(error.stack);
     }).finally(function() {
         console.log('Cleaning up');
-        platform.exit();
+        //platform.exit();
     }).done();
 }
 
-JXMobile('runEngine').registerToNative(runEngine);
-
+main();

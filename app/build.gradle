@@ -43,7 +43,7 @@ android {
     }
 
     def execTask = project.tasks.create("buildJs", Exec)
-    execTask.commandLine "./build_js.sh", "./src/main/assets/jxcore"
+    execTask.commandLine "./build_js.sh", "./src/main/assets/"
 
     applicationVariants.all { variant ->
         variant.mergeResources.dependsOn(execTask)

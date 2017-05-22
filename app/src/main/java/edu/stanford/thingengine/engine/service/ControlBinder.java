@@ -30,35 +30,35 @@ public class ControlBinder extends IThingEngine.Stub {
     }
 
     public boolean setCloudId(CloudAuthInfo authInfo) throws Exception {
-        return (boolean)NodeJSLauncher.invokeSync("setCloudId", authInfo.getCloudId(), authInfo.getAuthToken());
+        return (boolean)NodeJSLauncher.invokeSync("Control_setCloudId", authInfo.getCloudId(), authInfo.getAuthToken());
     }
 
     public boolean setServerAddress(String host, int port, String authToken) throws Exception {
-        return (boolean)NodeJSLauncher.invokeSync("setServerAddress", host, port, authToken);
+        return (boolean)NodeJSLauncher.invokeSync("Control_setServerAddress", host, port, authToken);
     }
 
     public boolean handleOAuth2Callback(String kind, JSONObject req) throws Exception {
-        return (boolean)NodeJSLauncher.invokeSync("handleOAuth2Callback", kind, req);
+        return (boolean)NodeJSLauncher.invokeSync("Control_handleOAuth2Callback", kind, req);
     }
 
     public JSONArray startOAuth2(String kind) throws Exception {
-        return (JSONArray)NodeJSLauncher.invokeSync("startOAuth2", kind);
+        return (JSONArray)NodeJSLauncher.invokeSync("Control_startOAuth2", kind);
     }
 
     public boolean createDevice(JSONObject object) throws Exception {
-        return (boolean)NodeJSLauncher.invokeSync("createDevice", object);
+        return (boolean)NodeJSLauncher.invokeSync("Control_createDevice", object);
     }
 
     public boolean deleteDevice(String uniqueId) throws Exception {
-        return (boolean)NodeJSLauncher.invokeSync("deleteDevice", uniqueId);
+        return (boolean)NodeJSLauncher.invokeSync("Control_deleteDevice", uniqueId);
     }
 
     public boolean upgradeDevice(String kind) throws Exception {
-        return (boolean)NodeJSLauncher.invokeSync("upgradeDevice", kind);
+        return (boolean)NodeJSLauncher.invokeSync("Control_upgradeDevice", kind);
     }
 
     public List<DeviceInfo> getDeviceInfos() throws Exception {
-        JSONArray jsonDeviceInfos = (JSONArray) NodeJSLauncher.invokeSync("getDeviceInfos");
+        JSONArray jsonDeviceInfos = (JSONArray) NodeJSLauncher.invokeSync("Control_getDeviceInfos");
 
         List<DeviceInfo> deviceInfos = new ArrayList<>();
         for (int i = 0; i < jsonDeviceInfos.length(); i++)
@@ -68,15 +68,15 @@ public class ControlBinder extends IThingEngine.Stub {
     }
 
     public DeviceInfo getDeviceInfo(String uniqueId) throws Exception {
-        return new DeviceInfo((JSONObject) NodeJSLauncher.invokeSync("getDeviceInfo"));
+        return new DeviceInfo((JSONObject) NodeJSLauncher.invokeSync("Control_getDeviceInfo", uniqueId));
     }
 
     public int checkDeviceAvailable(String uniqueId) throws Exception {
-        return (int)(double)NodeJSLauncher.invokeSync("checkDeviceAvailable", uniqueId);
+        return (int)(double)NodeJSLauncher.invokeSync("Control_checkDeviceAvailable", uniqueId);
     }
 
     public List<AppInfo> getAppInfos() throws Exception {
-        JSONArray jsonAppInfos = (JSONArray) NodeJSLauncher.invokeSync("getAppInfos");
+        JSONArray jsonAppInfos = (JSONArray) NodeJSLauncher.invokeSync("Control_getAppInfos");
 
         List<AppInfo> appInfos = new ArrayList<>();
         for (int i = 0; i < jsonAppInfos.length(); i++)
@@ -86,10 +86,10 @@ public class ControlBinder extends IThingEngine.Stub {
     }
 
     public void deleteApp(String uniqueId) {
-        NodeJSLauncher.invokeAsync("deleteApp", uniqueId);
+        NodeJSLauncher.invokeAsync("Control_deleteApp", uniqueId);
     }
 
     public void presentSlotFilling(String utterance, String targetJson) {
-        NodeJSLauncher.invokeAsync("presentSlotFilling", utterance, targetJson);
+        NodeJSLauncher.invokeAsync("Control_presentSlotFilling", utterance, targetJson);
     }
 }
