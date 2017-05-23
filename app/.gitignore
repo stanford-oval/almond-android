@@ -1,1 +1,4 @@
 /build
+.externalNativeBuild
+src/main/assets/app.js
+
