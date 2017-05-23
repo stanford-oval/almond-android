@@ -14,4 +14,6 @@ fi
 set -e
 set -x
 
-browserify --node -e $projectdir/jsapp/app.js -o $outputdir/app.js
+# assume levelup and levelgraph exist, they won't actually be loaded
+# at runtime
+browserify --node -e $projectdir/jsapp/app.js -x levelup -x levelgraph -o $outputdir/app.js

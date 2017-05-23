@@ -171,7 +171,7 @@ module.exports = {
     // messaging or the apps on the phone client)
     hasFeature: function(feature) {
         switch(feature) {
-        case 'ui':
+        case 'graphdb':
             return false;
 
         default:
