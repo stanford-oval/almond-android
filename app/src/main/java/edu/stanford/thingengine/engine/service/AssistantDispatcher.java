@@ -144,6 +144,10 @@ public class AssistantDispatcher implements Handler.Callback {
         history.removeButtons();
     }
 
+    private String specialJson(String specialType) {
+        return "{\"special\":{\"id\":\"tt:root.special." + specialType + "\"}}";
+    }
+
     public void handleClear() {
         (new CommandTask() {
             @Override
@@ -156,11 +160,11 @@ public class AssistantDispatcher implements Handler.Callback {
                 history.clear();
                 super.onPostExecute(unused);
             }
-        }).executeOnExecutor(async, "{\"special\":\"tt:root.special.nevermind\"}");
+        }).executeOnExecutor(async, specialJson("nevermind"));
     }
 
     public void handleHelp() {
-        handleParsedCommand("{\"special\":{\"id\":\"tt:root.special.help\"}}");
+        handleParsedCommand(specialJson("help"));
         history.removeButtons();
     }
 
@@ -170,12 +174,12 @@ public class AssistantDispatcher implements Handler.Callback {
     }
 
     public void handleTrain() {
-        handleParsedCommand("{\"special\":\"tt:root.special.train\"}");
+        handleParsedCommand(specialJson("train"));
         history.removeButtons();
     }
 
     public void handleMakeRule() {
-        handleParsedCommand("{\"command\":{\"type\":\"make\",\"value\":{\"value\":\"rule\"}}}");
+        handleParsedCommand(specialJson("makerule"));
         history.removeButtons();
     }
 
@@ -201,7 +205,7 @@ public class AssistantDispatcher implements Handler.Callback {
     }
 
     public AssistantMessage handleNeverMind() {
-        handleParsedCommand("{\"special\":\"tt:root.special.nevermind\"}");
+        handleParsedCommand(specialJson("nevermind"));
 
         AssistantMessage msg = new AssistantMessage.Text(AssistantMessage.Direction.FROM_USER, null, ctx.getString(R.string.never_mind));
         history.removeButtons();
@@ -210,7 +214,7 @@ public class AssistantDispatcher implements Handler.Callback {
     }
 
     public AssistantMessage handleYes() {
-        handleParsedCommand("{\"special\":\"tt:root.special.yes\"}");
+        handleParsedCommand(specialJson("yes"));
 
         AssistantMessage.Text msg = new AssistantMessage.Text(AssistantMessage.Direction.FROM_USER, null, ctx.getString(R.string.yes));
         history.removeButtons();
@@ -219,7 +223,7 @@ public class AssistantDispatcher implements Handler.Callback {
     }
 
     public AssistantMessage handleNo() {
-        handleParsedCommand("{\"special\":\"tt:root.special.no\"}");
+        handleParsedCommand(specialJson("no"));
 
         AssistantMessage.Text msg = new AssistantMessage.Text(AssistantMessage.Direction.FROM_USER, null, ctx.getString(R.string.no));
         history.removeButtons();
