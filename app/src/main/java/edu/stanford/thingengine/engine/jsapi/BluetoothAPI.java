@@ -46,8 +46,7 @@ public class BluetoothAPI extends JavascriptAPI {
         public void onReceive(Context context, Intent intent) {
             switch (intent.getAction()) {
                 case BluetoothAdapter.ACTION_STATE_CHANGED:
-                    onStateChanged(intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, -1),
-                        intent.getIntExtra(BluetoothAdapter.EXTRA_PREVIOUS_STATE, -1));
+                    onStateChanged(intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, -1));
                     return;
 
                 case BluetoothAdapter.ACTION_DISCOVERY_FINISHED:
@@ -151,8 +150,8 @@ public class BluetoothAPI extends JavascriptAPI {
         receiver = null;
     }
 
-    private void onStateChanged(int newState, int oldState) {
-        invokeAsync("onstatechanged", new int[] { newState, oldState });
+    private void onStateChanged(int newState) {
+        invokeAsync("onstatechanged", newState);
 
         if (discovering && newState == BluetoothAdapter.STATE_ON && adapter != null)
             adapter.startDiscovery();
@@ -231,7 +230,6 @@ public class BluetoothAPI extends JavascriptAPI {
             return;
 
         synchronized (this) {
-            boolean shouldNotify = false;
             String hwAddress = device.getAddress().toLowerCase();
             ArrayList<ParcelUuid> uuids = fetchedUUIDs.get(hwAddress);
             if (uuids == null) {
