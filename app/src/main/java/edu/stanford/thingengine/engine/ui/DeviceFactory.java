@@ -119,11 +119,9 @@ public abstract class DeviceFactory {
     }
 
     public static class Discovery extends DeviceFactory {
-        private final String discoveryType;
 
-        public Discovery(String name, String kind, String _class, String discoveryType) {
+        public Discovery(String name, String kind, String _class) {
             super(name, kind, _class);
-            this.discoveryType = discoveryType;
         }
 
         @Override
@@ -132,7 +130,7 @@ public abstract class DeviceFactory {
             if (control == null)
                 return;
 
-            control.getAssistant().handleDiscover(discoveryType, kind, name);
+            control.getAssistant().handleConfigure(kind);
 
             Intent intent = new Intent(activity, MainActivity.class);
             intent.setAction(Intent.ACTION_MAIN);

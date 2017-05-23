@@ -72,7 +72,7 @@ public class DeviceConfigureChooseKindActivity extends Activity {
                         break;
 
                     case "discovery":
-                        factory = new DeviceFactory.Discovery(name, kind, _class, jsonFactory.optString("discoveryType", null));
+                        factory = new DeviceFactory.Discovery(name, kind, _class);
                         break;
 
                     default:

@@ -18,6 +18,7 @@ import android.util.Log;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.maps.model.LatLng;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -183,11 +184,6 @@ public class AssistantDispatcher implements Handler.Callback {
         history.removeButtons();
     }
 
-    public void handleDiscover() {
-        handleParsedCommand("{\"command\":{\"type\":\"discover\",\"value\":{\"value\":\"generic\"}}}");
-        history.removeButtons();
-    }
-
     public void handleSetting(String name) {
         try {
             JSONObject obj = new JSONObject();
@@ -232,14 +228,22 @@ public class AssistantDispatcher implements Handler.Callback {
     }
 
 
-    public void handleDiscover(String discoveryType, String kind, String name) {
+    public void handleConfigure(String kind) {
         try {
             JSONObject obj = new JSONObject();
             JSONObject inner = new JSONObject();
-            obj.put("discover", inner);
-            inner.put("type", discoveryType);
-            inner.put("kind", kind);
-            inner.put("text", name);
+            obj.put("action", inner);
+            inner.put("name", "tt:builtin.configure");
+            JSONArray argArray = new JSONArray();
+            JSONObject arg = new JSONObject();
+            JSONObject argValue = new JSONObject();
+            arg.put("operator", "is");
+            arg.put("name", "tt:param.device");
+            arg.put("type", "Entity(tt:device)");
+            arg.put("value", argValue);
+            argValue.put("value", kind);
+            argArray.put(0, arg);
+            inner.put("args", argArray);
 
             handleParsedCommand(obj.toString());
         } catch(JSONException e) {
