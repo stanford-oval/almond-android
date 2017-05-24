@@ -68,7 +68,6 @@ public class SettingsActivity extends Activity {
                 ControlBinder control = mEngine.getControl();
                 if (control == null)
                     return true;
-                control.getAssistant().handleSetting(newValue.toString());
 
                 pref_username.setSummary(newValue.toString());
                 return true;

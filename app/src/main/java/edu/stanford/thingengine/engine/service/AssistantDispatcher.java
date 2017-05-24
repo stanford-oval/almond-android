@@ -184,22 +184,6 @@ public class AssistantDispatcher implements Handler.Callback {
         history.removeButtons();
     }
 
-    public void handleSetting(String name) {
-        try {
-            JSONObject obj = new JSONObject();
-            JSONObject inner = new JSONObject();
-            obj.put("command", inner);
-            inner.put("type", "setting");
-            JSONObject value = new JSONObject();
-            inner.put("value", value);
-            value.put("name", name);
-
-            handleParsedCommand(obj.toString());
-        } catch(JSONException e) {
-            Log.e(EngineService.LOG_TAG, "Unexpected json exception while constructing setting JSON", e);
-        }
-    }
-
     public AssistantMessage handleNeverMind() {
         handleParsedCommand(specialJson("nevermind"));
 
