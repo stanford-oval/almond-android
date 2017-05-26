@@ -618,6 +618,10 @@ private:
             for (PackagedNodeCall& call : tmp) {
                 call.Invoke(isolate, self->receiver.Get(isolate), self->this_obj.Get(isolate));
             }
+
+            // run all microtasks before we hit the loop again
+            // this will ensure that promises are resolved properly
+            isolate->RunMicrotasks();
         }
     }
 
