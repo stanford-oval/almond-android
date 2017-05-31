@@ -14,8 +14,6 @@ public class AppInfo {
     public final boolean isRunning;
     public final boolean isEnabled;
     public final String error;
-    public final String feedId;
-    public final String feedName;
 
     public AppInfo(JSONObject object) throws JSONException {
         uniqueId = object.getString("uniqueId");
@@ -29,8 +27,6 @@ public class AppInfo {
         isRunning = object.getBoolean("isRunning");
         isEnabled = object.getBoolean("isEnabled");
         error = object.getString("error");
-        feedId = object.getString("feedId");
-        feedName = object.getString("feedName");
     }
 
     // for convenience of ArrayAdapter

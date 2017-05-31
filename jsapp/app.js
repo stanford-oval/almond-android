@@ -115,29 +115,19 @@ class AppControlChannel extends ControlChannel {
     }
 
     getAppInfos() {
-        const feeds = require('./util/feeds');
-
         return _waitReady.then(function() {
             var apps = _engine.apps.getAllApps();
 
-            return Q.all(apps.map(function(a) {
-                return Q.try(function() {
-                    if (a.state.$F) {
-                        return engine.messaging.getFeedMeta(a.state.$F).then(function(f) {
-                            return feeds.getFeedName(engine, f, true);
-                        });
-                    } else {
-                        return null;
-                    }
-                }).then(function(feed) {
-                    var app = { uniqueId: a.uniqueId, name: a.name || "Some app",
-                                description: a.description || a.name || "Some app",
-                                icon: a.icon || null,
-                                isRunning: a.isRunning, isEnabled: a.isEnabled,
-                                error: a.error, feedId: a.state.$F || null, feedName: feed };
-                    return app;
-                });
-            }));
+            return apps.map(function(a) {
+                var app = { uniqueId: a.uniqueId,
+                            name: a.name || "Some app",
+                            description: a.description || a.name || "Some app",
+                            icon: a.icon || null,
+                            isRunning: a.isRunning,
+                            isEnabled: a.isEnabled,
+                            error: a.error };
+                return app;
+            });
         });
     }
 
