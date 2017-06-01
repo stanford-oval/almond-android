@@ -3,7 +3,6 @@
   "version": "1.0.0",
   "private": true,
   "dependencies": {
-    "babel-polyfill": "^6.9.1",
     "node-gettext": "https://github.com/gcampax/node-gettext/tarball/master",
     "q": "~1.4.0"
   }

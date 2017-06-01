@@ -14,6 +14,13 @@ fi
 set -e
 set -x
 
+for mod in almond thingengine-core ; do
+	podir="$projectdir/jsapp/node_modules/$mod/po"
+	for pofile in $podir/*.po ; do
+		node $projectdir/jsapp/build_translations.js "$pofile" > "$podir/"$(basename $pofile .po)".json"
+	done
+done
+
 # assume levelup and levelgraph exist, they won't actually be loaded
 # at runtime
 browserify --node -e $projectdir/jsapp/app.js -x levelup -x levelgraph -o $outputdir/app.js

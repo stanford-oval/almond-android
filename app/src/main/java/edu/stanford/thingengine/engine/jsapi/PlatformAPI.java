@@ -7,8 +7,6 @@ import java.util.Locale;
 
 import edu.stanford.thingengine.nodejs.JavaCallback;
 
-import static java.nio.charset.Charset.isSupported;
-
 /**
  * Created by gcampagn on 5/22/17.
  */
@@ -53,5 +51,9 @@ public class PlatformAPI extends JavascriptAPI {
                 return Calendar.getInstance().getTimeZone().getID();
             }
         });
+    }
+
+    private static boolean isSupported(String language) {
+        return language.equals("en") || language.equals("it") || language.equals("zh");
     }
 }

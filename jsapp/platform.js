@@ -127,6 +127,18 @@ Module._load = function(request, parent, isMain) {
     return oldModuleLoad.apply(this, arguments);
 }
 
+// "preload" locales
+var _locales = {
+    zh_CN: {
+        almond: require('almond/po/zh'),
+        'thingengine-core': require('thingengine-core/po/zh_CN'),
+    },
+    it: {
+        almond: require('almond/po/it'),
+        'thingengine-core': require('thingengine-core/po/it')
+    }
+};
+
 module.exports = {
     // Initialize the platform code
     // Will be called before instantiating the engine
@@ -145,6 +157,20 @@ module.exports = {
         this._gettext.setlocale(this._locale);
         this._timezone = _platformApi.getTimezone();
         _prefs = new AndroidSharedPreferences();
+
+        var locale = this._locale.split(/[-_\.@]/);
+        var attempt = locale.join('_');
+        while (!_locales[attempt] && locale.length > 0) {
+            locale.pop();
+            attempt = locale.join('_');
+        }
+        if (locale.length == 0)
+            return;
+        locale = _locales[attempt];
+        for (var domain in locale)
+            this._gettext.addTextdomain(domain, locale[domain]);
+        // free the memory associated with the locales we don't need
+        _locales = null;
     },
 
     setAssistant(ad) {
