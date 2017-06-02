@@ -196,7 +196,7 @@ public abstract class AssistantMessage implements Serializable {
 
         @Override
         public String toText() {
-            return "Sabrina asks for a " + what.toString().toLowerCase();
+            return "Almond asks for a " + what.toString().toLowerCase();
         }
     }
 

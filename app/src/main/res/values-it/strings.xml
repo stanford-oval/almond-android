@@ -65,4 +65,8 @@
     <string name="get_started">Per iniziare</string>
     <string name="intro_text">Cosa puoi fare con Sabrina</string>
     <string name="make_rule">Crea la tua regola</string>
+    <string name="action_help">Aiuto</string>
+    <string name="btn_cancel">Annulla</string>
+    <string name="cheatsheet">Cheatsheet</string>
+    <string name="input_hint">Inserisci il tuo comando o la tua risposta qui</string>
 </resources>
