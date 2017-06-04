@@ -4,6 +4,6 @@
   "private": true,
   "dependencies": {
     "node-gettext": "https://github.com/gcampax/node-gettext/tarball/master",
-    "q": "~1.4.0"
+    "q": "^1.5.0"
   }
 }

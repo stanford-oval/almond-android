@@ -33,8 +33,8 @@ const _btApi = JavaAPI.makeJavaAPI('Bluetooth',
     ['stop', 'stopDiscovery'],
     ['ondeviceadded', 'ondevicechanged', 'onstatechanged', 'ondiscoveryfinished']);
 const _audioRouterApi = JavaAPI.makeJavaAPI('AudioRouter',
-    ['setAudioRouteBluetooth'],
-    ['start', 'stop', 'isAudioRouteBluetooth'], []);
+    ['setAudioRouteBluetooth', 'isAudioRouteBluetooth'],
+    ['start', 'stop'], []);
 const _systemAppsApi = JavaAPI.makeJavaAPI('SystemApps', [],
     ['startMusic'], []);
 const _graphicsApi = require('./graphics');
