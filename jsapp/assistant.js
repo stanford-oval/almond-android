@@ -19,7 +19,7 @@ const AssistantJavaApi = JavaAPI.makeJavaAPI('Assistant', [],
     ['onready', 'onhandlecommand', 'onhandleparsedcommand']);
 
 class LocalUser {
-    constructor() {
+    constructor(platform) {
         this.id = 0;
         this.account = 'INVALID';
         this.name = platform.getSharedPreferences().get('user-name');
@@ -47,7 +47,7 @@ class AssistantDispatcher {
     _ensureConversation() {
         if (this._conversation)
             return;
-        this._conversation = new Almond(this._engine, 'native-android', new LocalUser(), this, {
+        this._conversation = new Almond(this._engine, 'native-android', new LocalUser(this._engine.platform), this, {
             debug: true,
             sempreUrl: Config.SEMPRE_URL,
             showWelcome: true
@@ -89,8 +89,8 @@ class AssistantDispatcher {
     sendRDL(rdl, icon) {
         return AssistantJavaApi.sendRDL(JSON.stringify(rdl), icon);
     }
-};
-COMMANDS.forEach(function(c) {
+}
+COMMANDS.forEach((c) => {
     AssistantDispatcher.prototype[c] = AssistantJavaApi[c];
 });
 

@@ -67,4 +67,4 @@ module.exports = class Streams {
         delete this._streams[token];
         readable.push(null);
     }
-}
+};

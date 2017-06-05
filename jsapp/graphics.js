@@ -7,7 +7,6 @@
 // See COPYING for details
 "use strict";
 
-const Q = require('q');
 const JavaAPI = require('./java_api');
 const ImageAPI = JavaAPI.makeJavaAPI('Image',
     ['createImage', 'resizeFit'],
@@ -31,23 +30,19 @@ class Image {
     }
 
     resizeFit(width, height) {
-        this._promise = this._promise.then((token) => {
-            return ImageAPI.resizeFit(token, width, height).then(() => token);
-        });
+        this._promise = this._promise.then((token) =>
+            ImageAPI.resizeFit(token, width, height).then(() => token));
     }
 
     toBuffer(format) {
-        return this._promise.then((token) => {
-            return ImageAPI.imageToBuffer(token, format || 'png');
-        });
+        return this._promise.then((token) =>
+            ImageAPI.imageToBuffer(token, format || 'png'));
     }
 
     stream(format) {
-        return this._promise.then((token) => {
-            return ImageAPI.imageToStream(token, format || 'png');
-        }).then((streamToken) => {
-            return StreamAPI.get().createStream(streamToken);
-        });
+        return this._promise
+        .then((token) => ImageAPI.imageToStream(token, format || 'png'))
+        .then((streamToken) => StreamAPI.get().createStream(streamToken));
     }
 }
 

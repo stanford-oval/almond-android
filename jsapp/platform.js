@@ -5,10 +5,10 @@
 // Copyright 2015 Giovanni Campagna <gcampagn@cs.stanford.edu>
 //
 // See COPYING for details
+"use strict";
 
 // Android platform
 
-const Q = require('q');
 const fs = require('fs');
 const Module = require('module');
 const Gettext = require('node-gettext');
@@ -43,11 +43,10 @@ const _contentJavaApi = JavaAPI.makeJavaAPI('Content', ['getStream'],
     [], []);
 const _contentApi = {
     getStream(url) {
-        return _contentJavaApi.getStream(url).then(function(obj) {
-            return StreamAPI.get().createStream(obj.token, obj.contentType);
-        });
+        return _contentJavaApi.getStream(url).then((obj) =>
+            StreamAPI.get().createStream(obj.token, obj.contentType));
     }
-}
+};
 const _contactApi = JavaAPI.makeJavaAPI('Contacts', ['lookup', 'lookupPrincipal'],
     [], []);
 const _telephoneApi = JavaAPI.makeJavaAPI('Telephone', ['call', 'callEmergency'],
@@ -62,7 +61,7 @@ class AndroidSharedPreferences {
     }
 
     _flushWrites() {
-        if (this._writes.length == 0)
+        if (this._writes.length === 0)
             return;
 
         var writes = this._writes;
@@ -91,10 +90,10 @@ class AndroidSharedPreferences {
             return value;
 
         this._scheduledWrite = true;
-        setTimeout(function() {
+        setTimeout(() => {
             this._flushWrites();
             this._scheduledWrite = false;
-        }.bind(this), 30000);
+        }, 30000);
 
         return value;
     }
@@ -107,7 +106,7 @@ function safeMkdirSync(dir) {
     try {
         fs.mkdirSync(dir);
     } catch(e) {
-        if (e.code != 'EEXIST')
+        if (e.code !== 'EEXIST')
             throw e;
     }
 }
@@ -125,7 +124,7 @@ Module._load = function(request, parent, isMain) {
     if (request === 'thingpedia/lib/ref_counted')
         return require('thingpedia/lib/ref_counted');
     return oldModuleLoad.apply(this, arguments);
-}
+};
 
 // "preload" locales
 var _locales = {
@@ -164,7 +163,7 @@ module.exports = {
             locale.pop();
             attempt = locale.join('_');
         }
-        if (locale.length == 0)
+        if (locale.length === 0)
             return;
         locale = _locales[attempt];
         for (var domain in locale)
@@ -374,7 +373,7 @@ module.exports = {
     // Change the ThingPedia developer key, if possible
     // Returns true if the change actually happened
     setDeveloperKey: function(key) {
-        return _prefs.set('developer-key', key);
+        _prefs.set('developer-key', key);
         return true;
     },
 

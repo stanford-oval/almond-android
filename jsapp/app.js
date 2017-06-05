@@ -7,7 +7,7 @@
 // See COPYING for details
 "use strict";
 // must be before anything to finish setting up nodejs-android
-const Launcher = require('./launcher');
+require('./launcher');
 
 console.log('ThingEngine-Android starting up...');
 
@@ -15,7 +15,6 @@ console.log('ThingEngine-Android starting up...');
 const Q = require('q');
 Q.longStackSupport = true;
 
-const JavaAPI = require('./java_api');
 const ControlChannel = require('./control');
 
 var _engine, _ad;
@@ -24,6 +23,11 @@ var _running;
 var _stopped;
 
 class AppControlChannel extends ControlChannel {
+    constructor(platform) {
+        super();
+        this._platform = platform;
+    }
+
     // handle control methods here...
     stop() {
         if (_running)
@@ -37,15 +41,11 @@ class AppControlChannel extends ControlChannel {
     }
 
     handleOAuth2Callback(kind, req) {
-        return _engine.devices.factory.runOAuth2(kind, req).then(() => {
-            return true;
-        });
+        return _engine.devices.factory.runOAuth2(kind, req).then(() => true);
     }
 
     createDevice(state) {
-        return _engine.devices.loadOneDevice(state, true).then(() => {
-            return true;
-        });
+        return _engine.devices.loadOneDevice(state, true).then(() => true);
     }
 
     deleteDevice(uniqueId) {
@@ -59,16 +59,14 @@ class AppControlChannel extends ControlChannel {
 
     upgradeDevice(kind) {
         console.log('upgradeDevice', kind);
-        return _engine.devices.updateDevicesOfKind(kind).then(() => {
-            return true;
-        });
+        return _engine.devices.updateDevicesOfKind(kind).then(() => true);
     }
 
     getDeviceInfos() {
-        return _waitReady.then(function() {
+        return _waitReady.then(() => {
             var devices = _engine.devices.getAllDevices();
 
-            return devices.map(function(d) {
+            return devices.map((d) => {
                 return { uniqueId: d.uniqueId,
                          name: d.name || "Unknown device",
                          description: d.description || "Description not available",
@@ -80,13 +78,11 @@ class AppControlChannel extends ControlChannel {
                          isDataSource: d.hasKind('data-source'),
                          isThingEngine: d.hasKind('thingengine-system') };
             });
-        }, function(e) {
-            return [];
-        });
+        }, () => []);
     }
 
     getDeviceInfo(uniqueId) {
-        return _waitReady.then(function() {
+        return _waitReady.then(() => {
             var d = _engine.devices.getDevice(uniqueId);
             if (d === undefined)
                 throw new Error('Invalid device ' + uniqueId);
@@ -100,12 +96,12 @@ class AppControlChannel extends ControlChannel {
                      isTransient: d.isTransient,
                      isOnlineAccount: d.hasKind('online-account'),
                      isDataSource: d.hasKind('data-source'),
-                     isThingEngine: d.hasKind('thingengine-system') }
+                     isThingEngine: d.hasKind('thingengine-system') };
         });
     }
 
     checkDeviceAvailable(uniqueId) {
-        return _waitReady.then(function() {
+        return _waitReady.then(() => {
             var d = _engine.devices.getDevice(uniqueId);
             if (d === undefined)
                 return -1;
@@ -115,10 +111,10 @@ class AppControlChannel extends ControlChannel {
     }
 
     getAppInfos() {
-        return _waitReady.then(function() {
+        return _waitReady.then(() => {
             var apps = _engine.apps.getAllApps();
 
-            return apps.map(function(a) {
+            return apps.map((a) => {
                 var app = { uniqueId: a.uniqueId,
                             name: a.name || "Some app",
                             description: a.description || a.name || "Some app",
@@ -132,7 +128,7 @@ class AppControlChannel extends ControlChannel {
     }
 
     deleteApp(uniqueId) {
-        return _waitReady.then(function() {
+        return _waitReady.then(() => {
             var app = _engine.apps.getApp(uniqueId);
             if (app === undefined)
                 return false;
@@ -144,14 +140,14 @@ class AppControlChannel extends ControlChannel {
     setCloudId(cloudId, authToken) {
         if (_engine.devices.hasDevice('thingengine-own-cloud'))
             return false;
-        if (!platform.setAuthToken(authToken))
+        if (!this._platform.setAuthToken(authToken))
             return false;
 
         // we used to call loadOneDevice() with thingengine kind, tier: cloud here
         // but is incompatible with syncing the developer key (and causes
         // spurious device database writes)
         // instead we set the platform state and reopen the connection
-        platform.getSharedPreferences().set('cloud-id', cloudId);
+        this._platform.getSharedPreferences().set('cloud-id', cloudId);
         _engine.tiers.reopenOne('cloud').done();
         return true;
     }
@@ -160,7 +156,7 @@ class AppControlChannel extends ControlChannel {
         if (_engine.devices.hasDevice('thingengine-own-server'))
             return false;
         if (authToken !== null) {
-            if (!platform.setAuthToken(authToken))
+            if (!this._platform.setAuthToken(authToken))
                 return false;
         }
 
@@ -181,10 +177,9 @@ class AppControlChannel extends ControlChannel {
 }
 
 function main() {
-    var controlChannel = new AppControlChannel();
-
     global.platform = require('./platform');
-    platform.init();
+    global.platform.init();
+    new AppControlChannel(global.platform);
 
     console.log('Android platform initialized');
 
@@ -196,27 +191,27 @@ function main() {
     _engine = new Engine(global.platform);
 
     _ad = new AssistantDispatcher(_engine);
-    platform.setAssistant(_ad);
+    global.platform.setAssistant(_ad);
 
     console.log('Opening engine...');
 
     _waitReady = _engine.open();
     _ad.start();
-    _waitReady.then(function() {
+    _waitReady.then(() => {
         _running = true;
         if (_stopped)
-            return;
+            return Q();
         return _engine.run();
-    }).catch(function(error) {
+    }).catch((error) => {
         console.error('Uncaught exception: ' + error.message);
         console.error(error.stack);
-    }).finally(function() {
+    }).finally(() => {
         _ad.stop();
         return _engine.close();
-    }).catch(function(error) {
+    }).catch((error) => {
         console.error('Exception during stop: ' + error.message);
         console.error(error.stack);
-    }).finally(function() {
+    }).finally(() => {
         console.log('Cleaning up');
         //platform.exit();
     }).done();

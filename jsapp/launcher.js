@@ -9,7 +9,7 @@ process._eval = null;
 var launcher = process._linkedBinding('android-launcher');
 
 var callbacks = new Map;
-launcher.setAsyncReceiver(function(fn, args) {
+launcher.setAsyncReceiver((fn, args) => {
     if (!callbacks.has(fn))
         throw new TypeError('No such callback ' + fn);
     try {
@@ -23,13 +23,13 @@ launcher.setAsyncReceiver(function(fn, args) {
 var util = require('util');
 console.log = function(...args) {
     return launcher.log(util.format.apply(null, args) + '\n');
-}
+};
 console.error = function(...args) {
     return launcher.error(util.format.apply(null, args) + '\n');
-}
+};
 console.warn = function(...args) {
     return launcher.warn(util.format.apply(null, args) + '\n');
-}
+};
 process.reallyExit = launcher.exit;
 
 module.exports = {
@@ -45,4 +45,4 @@ module.exports = {
 
     callJavaSync: launcher.callJavaSync,
     callJavaAsync: launcher.callJavaAsync
-}
+};

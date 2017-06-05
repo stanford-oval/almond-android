@@ -12,7 +12,7 @@ const Launcher = require('./launcher');
 
 module.exports.makeJavaAPI = function makeJavaAPI(klass, asyncMethods, syncMethods, events) {
     var obj = {};
-    asyncMethods.forEach(function(method) {
+    asyncMethods.forEach((method) => {
         var call = klass + '_' + method;
         Object.defineProperty(obj, method, {
             configurable: true,
@@ -25,7 +25,7 @@ module.exports.makeJavaAPI = function makeJavaAPI(klass, asyncMethods, syncMetho
             }
         });
     });
-    syncMethods.forEach(function(method) {
+    syncMethods.forEach((method) => {
         var call = klass + '_' + method;
         Object.defineProperty(obj, method, {
             configurable: true,
@@ -36,7 +36,7 @@ module.exports.makeJavaAPI = function makeJavaAPI(klass, asyncMethods, syncMetho
             }
         });
     });
-    events.forEach(function(event) {
+    events.forEach((event) => {
         Object.defineProperty(obj, event, {
             configurable: true,
             enumerable: false,
@@ -62,4 +62,4 @@ module.exports.makeJavaAPI = function makeJavaAPI(klass, asyncMethods, syncMetho
     });
 
     return obj;
-}
+};

@@ -3,13 +3,8 @@
 # OSX specific hack
 export PATH=/usr/local/bin:$PATH
 
-outputdir="$1"
+outputdir=`realpath "$1"`
 projectdir=".."
-
-if test -z "$outputdir" ; then
-	echo "Missing destination directory"
-	exit 1
-fi
 
 set -e
 set -x
@@ -21,7 +16,8 @@ for mod in almond thingengine-core ; do
 	done
 done
 
-# assume levelup and levelgraph exist, they won't actually be loaded
-# at runtime
-browserify --node -e $projectdir/jsapp/app.js -x levelup -x levelgraph -o $outputdir/app.js
-node -c $projectdir/jsapp/app.js
+(cd $projectdir/jsapp ;
+npm install
+./node_modules/.bin/browserify -t [ eslintify --passthrough warnings ] --node -e app.js -o $outputdir/app.js
+)
+node -c $outputdir/app.js

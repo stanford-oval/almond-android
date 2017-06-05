@@ -18,15 +18,16 @@ module.exports = class ControlChannel {
                 var r = self[call].apply(self, arguments);
                 // make sure that all promises are native v8 promises, because the c++ code
                 // relies on that
-                if (typeof r === 'object' && r !== null && typeof r.then === 'function')
+                if (typeof r === 'object' && r !== null && typeof r.then === 'function') {
                     return Promise.resolve(r).catch((e) => {
                         console.error('Error in async control call ' + call, e);
                         throw e;
                     });
-                else
+                } else {
                     return r;
+                }
             });
         });
     }
-}
+};
 

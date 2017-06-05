@@ -5,7 +5,7 @@
 // Copyright 2016 Giovanni Campagna <gcampagn@cs.stanford.edu>
 //
 // See COPYING for details
+"use strict";
 
 module.exports.S3_CLOUDFRONT_HOST = 'https://d1ge76rambtuys.cloudfront.net';
-
 module.exports.SEMPRE_URL = 'https://pepperjack.stanford.edu';
