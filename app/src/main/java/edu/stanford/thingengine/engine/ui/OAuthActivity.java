@@ -18,21 +18,33 @@ import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
+import com.google.android.gms.auth.api.Auth;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.auth.api.signin.GoogleSignInResult;
+import com.google.android.gms.common.Scopes;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.Scope;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 
 import edu.stanford.thingengine.engine.R;
 import edu.stanford.thingengine.engine.service.ControlBinder;
 
 public class OAuthActivity extends Activity {
+    private static final String GOOGLE_CLIENT_ID = "739906609557-o52ck15e1ge7deb8l0e80q92mpua1p55.apps.googleusercontent.com";
     public static final String ACTION = "edu.stanford.thingengine.engine.OAUTH2";
+
+    public static final int REQUEST_GOOGLE = 2003;
+    public static final int REQUEST_GMAIL = 2004;
+    public static final int REQUEST_YOUTUBE = 2005;
+    public static final int REQUEST_GOOGLE_DRIVE = 2006;
 
     private final EngineServiceConnection mEngine;
     private Map<String, String> mSession = new HashMap<>();
@@ -160,9 +172,102 @@ public class OAuthActivity extends Activity {
         }
     }
 
+    private void startGoogle() {
+        GoogleSignInOptions.Builder builder = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestEmail()
+                .requestServerAuthCode(GOOGLE_CLIENT_ID, true)
+                .requestId();
+
+        int requestCode;
+        if (kind.equals("com.google.drive")) {
+            requestCode = REQUEST_GOOGLE_DRIVE;
+            builder.requestScopes(new Scope("https://www.googleapis.com/auth/drive"),
+                    new Scope(Scopes.DRIVE_FILE), new Scope(Scopes.DRIVE_APPFOLDER));
+        } else if (kind.equals("com.youtube")) {
+            requestCode = REQUEST_YOUTUBE;
+            builder.requestScopes(new Scope("https://www.googleapis.com/auth/youtube.force-ssl"),
+                    new Scope("https://www.googleapis.com/auth/youtube"),
+                    new Scope("https://www.googleapis.com/auth/youtube.readonly"),
+                    new Scope("https://www.googleapis.com/auth/youtube.upload"));
+        } else if (kind.equals("com.gmail")) {
+            requestCode = REQUEST_GMAIL;
+            builder.requestScopes(new Scope("https://mail.google.com/"));
+        } else {
+            requestCode = REQUEST_GOOGLE;
+        }
+
+        GoogleApiClient client = new GoogleApiClient.Builder(this)
+                .addApi(Auth.GOOGLE_SIGN_IN_API, builder.build())
+                .build();
+        startActivityForResult(Auth.GoogleSignInApi.getSignInIntent(client), requestCode);
+    }
+
     private void startOAuth2() {
+        if (started)
+            return;
         started = true;
+        if (isGoogle()) {
+            startGoogle();
+            return;
+        }
+
         new StartOAuth2Task().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, kind);
+    }
+
+    private static boolean isGoogleRequestCode(int requestCode) {
+        switch (requestCode) {
+            case REQUEST_GMAIL:
+            case REQUEST_GOOGLE:
+            case REQUEST_YOUTUBE:
+            case REQUEST_GOOGLE_DRIVE:
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    private void completeGoogleSignIn(Intent intent, int requestCode) {
+        GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(intent);
+        if (!result.isSuccess()) {
+            setResult(RESULT_CANCELED);
+            finish();
+            return;
+        }
+
+        String kind;
+        switch (requestCode) {
+            case REQUEST_GMAIL:
+                kind = "com.gmail";
+                break;
+            case REQUEST_GOOGLE:
+                kind = "com.google";
+                break;
+            case REQUEST_YOUTUBE:
+                kind = "com.youtube";
+                break;
+            case REQUEST_GOOGLE_DRIVE:
+                kind = "com.google.drive";
+                break;
+            default:
+                throw new AssertionError();
+        }
+        GoogleSignInAccount account = result.getSignInAccount();
+        if (account == null) {
+            setResult(RESULT_CANCELED);
+            finish();
+            return;
+        }
+        String code = account.getServerAuthCode();
+
+        String url = "https://thingengine.stanford.edu/devices/oauth2/callback/" + kind
+                + "?code=" + Uri.encode(code);
+
+        handleCallback(Uri.parse(url));
+    }
+
+    private boolean isGoogle() {
+        return kind.equals("com.google") || kind.equals("com.youtube") ||
+                kind.equals("com.google.drive") || kind.equals("com.gmail");
     }
 
     private void continueStartOAuth2(String redirect, Map<String, String> session) {
@@ -234,65 +339,17 @@ public class OAuthActivity extends Activity {
         }
     }
 
-    private static JSONObject mapToJson(Map<String, String> map) throws JSONException {
-        JSONObject o = new JSONObject();
-
-        for (Map.Entry<String, String> e : map.entrySet())
-            o.put(e.getKey(), e.getValue());
-
-        return o;
-    }
-
-    private static JSONObject queryToJson(Uri uri) throws JSONException {
-        Collection<String> names = uri.getQueryParameterNames();
-        JSONObject o = new JSONObject();
-
-        for (String name : names) {
-            List<String> values = uri.getQueryParameters(name);
-
-            if (values.size() == 1) {
-                o.put(name, values.get(0));
-            } else {
-                JSONArray a = new JSONArray();
-                for (String value : values)
-                    a.put(value);
-                o.put(name, a);
-            }
-        }
-
-        return o;
-    }
-
     private void handleCallback(Uri url) {
-        try {
-            String kind = url.getLastPathSegment();
-
-            JSONObject req = new JSONObject();
-            // there is no actual http request going on, so the values are fake
-            // oauth modules should not rely on these anyway
-            req.put("httpVersion", "1.0");
-            req.put("headers", new JSONArray());
-            req.put("rawHeaders", new JSONArray());
-
-            req.put("method", "GET");
-            req.put("url", url.toString());
-            // body is always empty for a GET request!
-            req.put("query", queryToJson(url));
-            req.put("session", mapToJson(mSession));
-
-            ControlBinder control = mEngine.getControl();
-            if (control != null) {
-                try {
-                    control.handleOAuth2Callback(kind, req);
+        new DeviceHandleOAuth2Callback(mEngine, mSession) {
+            protected void onPostExecute(Exception e) {
+                if (e == null) {
                     setResult(RESULT_OK);
                     finish();
-                } catch (Exception e) {
-                    DialogUtils.showFailureDialog(this, "Failed to complete OAuth2 flow: " + e.getMessage());
+                } else {
+                    DialogUtils.showFailureDialog(OAuthActivity.this, "Failed to complete OAuth2 flow: " + e.getMessage());
                 }
             }
-        } catch(JSONException e) {
-            throw new RuntimeException(e);
-        }
+        }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, url);
     }
 
     private void navigateUp() {
@@ -310,6 +367,15 @@ public class OAuthActivity extends Activity {
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
+        }
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent intent) {
+        super.onActivityResult(requestCode, resultCode, intent);
+
+        if (isGoogleRequestCode(requestCode)) {
+            completeGoogleSignIn(intent, requestCode);
         }
     }
 }

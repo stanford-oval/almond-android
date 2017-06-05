@@ -18,8 +18,8 @@ import edu.stanford.thingengine.engine.service.ControlBinder;
  * Created by gcampagn on 6/27/16.
  */
 public abstract class DeviceFactory {
-    public static final int REQUEST_OAUTH2 = 1;
-    public static final int REQUEST_FORM = 2;
+    public static final int REQUEST_OAUTH2 = 1001;
+    public static final int REQUEST_FORM = 1002;
 
     protected final String name;
     protected final String kind;
