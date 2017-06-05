@@ -153,7 +153,6 @@ module.exports = {
         safeMkdirSync(cacheDir);
         safeMkdirSync(cacheDir + '/tmp');
         this._locale = _platformApi.getLocale();
-        this._gettext.setlocale(this._locale);
         this._timezone = _platformApi.getTimezone();
         _prefs = new AndroidSharedPreferences();
 
@@ -167,9 +166,11 @@ module.exports = {
             return;
         locale = _locales[attempt];
         for (var domain in locale)
-            this._gettext.addTextdomain(domain, locale[domain]);
+            this._gettext.addTranslations(this._locale, domain, locale[domain]);
         // free the memory associated with the locales we don't need
         _locales = null;
+
+        this._gettext.setLocale(this._locale);
     },
 
     setAssistant(ad) {
