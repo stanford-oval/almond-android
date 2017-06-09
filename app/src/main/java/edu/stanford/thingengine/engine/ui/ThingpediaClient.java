@@ -29,7 +29,7 @@ public class ThingpediaClient {
 
     private String getDeveloperKey() {
         SharedPreferences sharedPreferences = ctx.getSharedPreferences("thingengine", Context.MODE_PRIVATE);
-        JSONTokener jsonTokener = new JSONTokener(sharedPreferences.getString("developerKey", "null"));
+        JSONTokener jsonTokener = new JSONTokener(sharedPreferences.getString("developer-key", "null"));
         try {
             return jsonTokener.nextValue().toString();
         } catch (JSONException e) {
@@ -41,7 +41,7 @@ public class ThingpediaClient {
         String developerKey = getDeveloperKey();
 
         if (developerKey != null && developerKey.length() > 0)
-            urlString += "&developerKey=" + developerKey;
+            urlString += "&developer_key=" + developerKey;
 
         URL url = new URL(THINGPEDIA_URL + urlString);
         URLConnection connection = url.openConnection();
