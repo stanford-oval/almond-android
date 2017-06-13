@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Sabrina</string>
+    <string name="app_name">Almond</string>
     <string name="action_settings">Impostazioni</string>
-    <string name="audio_permission_needed">Devi consentire a Sabrina di registrare l\'audio per potere usare i comandi vocali</string>
+    <string name="audio_permission_needed">Devi consentire ad Almond di registrare l\'audio per potere usare i comandi vocali</string>
     <string name="btn_choose_location">Scegli una località…</string>
     <string name="btn_choose_picture">Scegli…</string>
     <string name="btn_create_account_title">Aggiungi un nuovo account…</string>
@@ -21,8 +21,8 @@
     <string name="my_accounts_title">I miei account</string>
     <string name="my_devices_title">I miei dispositivi</string>
     <string name="mystuff_tab">I miei beni</string>
-    <string name="title_activity_main">Sabrina</string>
-    <string name="title_activity_web_ui">Sabrina</string>
+    <string name="title_activity_main">Almond</string>
+    <string name="title_activity_web_ui">Almond</string>
     <string name="speak_now">Parla ora…</string>
     <string name="btn_choose_contact">Scegli contatto…</string>
     <string name="myrules_tab">Le mie regole</string>
@@ -44,14 +44,14 @@
     <string name="btn_never_mind">Ricomincia</string>
     <string name="btn_share">Condividi…</string>
     <string name="content_hidden">Contenuto nascosto per la privacy</string>
-    <string name="download_permission_needed">Sabrina deve poter scrivere nella card SD per scaricare questa immagine</string>
+    <string name="download_permission_needed">Almond deve poter scrivere nella card SD per scaricare questa immagine</string>
     <string name="never_mind">Lascia stare</string>
-    <string name="sabrina_says">Sabrina dice</string>
-    <string name="sabrina_says_dotdotdot">Sabrina dice…</string>
-    <string name="sabrina_says_something">Sabrina dice qualcosa</string>
-    <string name="sabrina_sends_button">Sabrina invia un pulsante</string>
-    <string name="sabrina_sends_link">Sabrina invia un link</string>
-    <string name="sabrina_sends_picture">Sabrina invia un\'immagine</string>
+    <string name="sabrina_says">Almond dice</string>
+    <string name="sabrina_says_dotdotdot">Almond dice…</string>
+    <string name="sabrina_says_something">Almond dice qualcosa</string>
+    <string name="sabrina_sends_button">Almond invia un pulsante</string>
+    <string name="sabrina_sends_link">Almond invia un link</string>
+    <string name="sabrina_sends_picture">Almond invia un\'immagine</string>
     <string name="toast_download_failed">Errore nello scaricare l\'immagine</string>
     <string name="toast_downloaded">Salvata nella galleria</string>
     <string name="show_landing_page">Mostra sempre la pagina di benvenuto</string>
@@ -63,7 +63,7 @@
     <string name="suggestion_twitter">Twitter</string>
     <string name="example_commands">Comandi di esempio</string>
     <string name="get_started">Per iniziare</string>
-    <string name="intro_text">Cosa puoi fare con Sabrina</string>
+    <string name="intro_text">Cosa puoi fare con Almond</string>
     <string name="make_rule">Crea la tua regola</string>
     <string name="action_help">Aiuto</string>
     <string name="btn_cancel">Annulla</string>
