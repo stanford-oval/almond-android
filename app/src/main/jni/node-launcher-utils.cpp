@@ -73,4 +73,10 @@ exception_to_v8(Isolate *isolate, const std::u16string &error_msg) {
     return v8::Exception::Error(v8_message);
 }
 
+v8::Local <v8::Value>
+exception_to_v8(Isolate *isolate, const char *error_msg) {
+    Local <String> v8_message = v8::String::NewFromOneByte(isolate, (uint8_t *) error_msg);
+    return v8::Exception::Error(v8_message);
+}
+
 }

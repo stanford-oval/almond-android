@@ -26,6 +26,7 @@ std::basic_string<char16_t> v8_to_string(const v8::Local<v8::String> &s);
 
 v8::Local<v8::Value> java_exception_to_v8(v8::Isolate *isolate, JNIEnv *env, jthrowable throwable);
 v8::Local<v8::Value> exception_to_v8(v8::Isolate *isolate, const std::u16string &error_msg);
+v8::Local <v8::Value> exception_to_v8(v8::Isolate *isolate, const char *error_msg);
 
 inline v8::Local<v8::String> OneByteString(v8::Isolate *isolate,
                                            const char *data,

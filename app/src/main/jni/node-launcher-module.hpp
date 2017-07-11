@@ -12,9 +12,8 @@
 
 namespace thingengine_node_launcher {
 
-class CallQueue {
+class CallQueue : private uv_async_t {
 private:
-    uv_async_t async;
     std::list<PackagedNodeCall> calls;
     std::mutex mutex;
     std::condition_variable init_cond;
@@ -32,9 +31,8 @@ public:
     InteropValue InvokeSync(std::u16string &&function_name, std::vector<InteropValue> &&arguments);
 };
 
-class NativeCallQueue {
+class NativeCallQueue : private uv_async_t {
 private:
-    uv_async_t async;
     std::list<std::function<void()>> calls;
     std::mutex mutex;
     std::condition_variable init_cond;
@@ -50,7 +48,7 @@ public:
         std::unique_lock<std::mutex> lock(mutex);
         while (!initialized) init_cond.wait(lock);
         calls.emplace_back(std::forward<Callback>(call));
-        uv_async_send(&async);
+        uv_async_send(this);
     }
 };
 

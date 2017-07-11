@@ -84,6 +84,7 @@ private:
 
 public:
     InteropValue() : type(Type::empty) {}
+    InteropValue(std::nullptr_t) : type(Type::null) {}
 
     InteropValue(const InteropValue& v) : type(v.type)
     {

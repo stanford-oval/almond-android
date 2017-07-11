@@ -76,6 +76,8 @@
 #include "node-launcher-marshal.hpp"
 #include "node-launcher-module.hpp"
 
+#include "node-cvc4.hpp"
+
 #define log_error(tag, ...) __android_log_print(ANDROID_LOG_ERROR, tag, __VA_ARGS__)
 #define log_warn(tag, ...) __android_log_print(ANDROID_LOG_WARN, tag, __VA_ARGS__)
 #define log_info(tag, ...) __android_log_print(ANDROID_LOG_INFO, tag, __VA_ARGS__)
@@ -98,8 +100,8 @@ extern node::node_module module;
 
 namespace thingengine_node_launcher {
 
-void CallQueue::run_all_asyncs(uv_async_t *_async) {
-    CallQueue *self = (CallQueue *) (((char *) _async) - offsetof(CallQueue, async));
+void CallQueue::run_all_asyncs(uv_async_t *async) {
+    CallQueue *self = static_cast<CallQueue*>(async);
     assert (!self->receiver.IsEmpty());
 
     std::list<PackagedNodeCall> tmp;
@@ -126,7 +128,7 @@ void CallQueue::run_all_asyncs(uv_async_t *_async) {
 void CallQueue::Init(v8::Isolate *isolate)  {
     std::unique_lock<std::mutex> lock(mutex);
     this->isolate = isolate;
-    uv_async_init(uv_default_loop(), &async, run_all_asyncs);
+    uv_async_init(uv_default_loop(), this, run_all_asyncs);
 }
 
 void CallQueue::SetNodeReceiver(v8::Local<v8::Function> &fn, v8::Local<v8::Object> &this_obj) {
@@ -142,7 +144,7 @@ void CallQueue::InvokeAsync(std::u16string &&function_name,
     std::unique_lock<std::mutex> lock(mutex);
     while (!initialized) init_cond.wait(lock);
     calls.emplace_back(std::move(function_name), std::move(arguments));
-    uv_async_send(&async);
+    uv_async_send(this);
 }
 
 InteropValue CallQueue::InvokeSync(std::u16string &&function_name, std::vector<InteropValue> &&arguments)  {
@@ -153,15 +155,14 @@ InteropValue CallQueue::InvokeSync(std::u16string &&function_name, std::vector<I
         while (!initialized) init_cond.wait(lock);
         calls.emplace_back(std::move(function_name), std::move(arguments));
         future = calls.back().GetReturnValue();
-        uv_async_send(&async);
+        uv_async_send(this);
     }
 
     return future.get();
 }
 
-void NativeCallQueue::run_all_asyncs(uv_async_t *_async) {
-    NativeCallQueue *self = (NativeCallQueue *) (((char *) _async) -
-                                                 offsetof(NativeCallQueue, async));
+void NativeCallQueue::run_all_asyncs(uv_async_t *async) {
+    NativeCallQueue *self = static_cast<NativeCallQueue*>(async);
 
     std::list<std::function<void()>> tmp;
     {
@@ -177,7 +178,7 @@ void NativeCallQueue::run_all_asyncs(uv_async_t *_async) {
 
 void NativeCallQueue::Init() {
     std::unique_lock<std::mutex> lock(mutex);
-    uv_async_init(uv_default_loop(), &async, run_all_asyncs);
+    uv_async_init(uv_default_loop(), this, run_all_asyncs);
     initialized = true;
     init_cond.notify_all();
 }
@@ -418,6 +419,7 @@ start_node(JavaVM *vm, AAsset *app_code, jobject jClassLoader) {
 
     node_module_register(&launcher_module);
     node_module_register(&node_sqlite3::module);
+    node_module_register(&node_cvc4::module);
     node::Init(&argc, const_cast<const char **>(argv), &exec_argc, &exec_argv);
 
     std::unique_ptr<v8::Platform> platform(v8::platform::CreateDefaultPlatform(0));
