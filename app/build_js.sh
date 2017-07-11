@@ -9,7 +9,7 @@ projectdir=".."
 set -e
 set -x
 
-for mod in almond thingengine-core ; do
+for mod in almond thingtalk thingengine-core ; do
 	podir="$projectdir/jsapp/node_modules/$mod/po"
 	for pofile in $podir/*.po ; do
 		node $projectdir/jsapp/build_translations.js "$pofile" > "$podir/"$(basename $pofile .po)".json"
