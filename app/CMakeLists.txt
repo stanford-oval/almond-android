@@ -11,7 +11,11 @@ cmake_minimum_required(VERSION 3.4.1)
 # Gradle automatically packages shared libraries with your APK.
 
 add_library(node-launcher SHARED
-             src/main/jni/node-launcher.cpp )
+             src/main/jni/node-launcher.cpp
+             src/main/jni/node-launcher-utils.cpp
+             src/main/jni/node-launcher-marshal.cpp
+             src/main/jni/node-launcher-module.cpp
+             src/main/jni/node-cvc4.cpp )
 
 add_subdirectory(src/main/jni/sqlite)
 add_subdirectory(src/main/jni/node-sqlite3)
