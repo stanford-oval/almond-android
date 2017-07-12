@@ -17,7 +17,6 @@ using v8::HandleScope;
 using v8::Local;
 using v8::Context;
 using v8::Object;
-using v8::String;
 using v8::Value;
 using v8::SealHandleScope;
 using v8::FunctionCallbackInfo;
@@ -157,6 +156,8 @@ v8::Local<v8::Value> InteropValue::ToJavaScript(v8::Isolate *isolate) const {
             return v8::JSON::Parse(isolate, string_to_v8(isolate, string())).ToLocalChecked();
         case Type::null:
             return v8::Null(isolate);
+        default:
+            assert(false);
     }
 }
 
@@ -210,9 +211,9 @@ void PackagedNodeCall::SetReturn(v8::Isolate *isolate, v8::Local<v8::Value> valu
 
 void PackagedNodeCall::SetException(v8::Isolate *isolate, v8::Local<v8::Value> value)
 {
-    Local<String> message = value->ToDetailString(isolate->GetCurrentContext()).ToLocalChecked();
+    Local<v8::String> message = value->ToDetailString(isolate->GetCurrentContext()).ToLocalChecked();
     if (!use_return) {
-        String::Utf8Value msg(message);
+        v8::String::Utf8Value msg(message);
         log_error("nodejs", "Lost exception %s", *msg);
         return;
     }
@@ -249,9 +250,9 @@ void PackagedNodeCall::catch_promise(const v8::FunctionCallbackInfo<v8::Value> &
     Local<Value> value = info[0];
 
     std::promise<InteropValue>* promise = static_cast<std::promise<InteropValue>*>(info.Data().As<Object>()->GetAlignedPointerFromInternalField(0));
-    Local<String> message = value->ToDetailString(info.GetIsolate()->GetCurrentContext()).ToLocalChecked();
+    Local<v8::String> message = value->ToDetailString(info.GetIsolate()->GetCurrentContext()).ToLocalChecked();
     if (promise == nullptr) {
-        String::Utf8Value msg(message);
+        v8::String::Utf8Value msg(message);
         log_error("nodejs", "Lost exception %s", *msg);
         return;
     }

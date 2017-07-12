@@ -6,6 +6,10 @@
 #define THINGENGINE_PLATFORM_ANDROID_NODE_LAUNCHER_MARSHAL_H
 
 #include <future>
+#include <type_traits>
+#include <string>
+#include <cstdlib>
+
 #include "node-launcher-utils.hpp"
 
 namespace thingengine_node_launcher {
@@ -39,24 +43,23 @@ public:
 class InteropValue {
     enum class Type { empty, boolean, string, number, json, buffer, null };
 
-    typedef std::u16string String;
-
 private:
-    Type type;
-    union {
+    union Storage {
         bool b;
-        std::aligned_storage<sizeof(String), std::alignment_of<String>::value> s;
+        std::aligned_storage<sizeof(std::u16string), alignof(std::u16string)> s;
         double n;
-        std::aligned_storage<sizeof(ByteBuffer), std::alignment_of<ByteBuffer>::value> buf_space;
-    } storage;
+        std::aligned_storage<sizeof(ByteBuffer), alignof(std::u16string)> buf_space;
+    };
+    Storage storage;
+    Type type;
 
-    String& string() {
+    std::u16string& string() {
         assert (type == Type::json || type == Type::string);
-        return reinterpret_cast<String&>(storage.s);
+        return reinterpret_cast<std::u16string&>(storage.s);
     }
-    const String& string() const {
+    const std::u16string& string() const {
         assert (type == Type::json || type == Type::string);
-        return reinterpret_cast<const String&>(storage.s);
+        return reinterpret_cast<const std::u16string&>(storage.s);
     }
 
     ByteBuffer& buf() {
@@ -84,12 +87,12 @@ private:
 
 public:
     InteropValue() : type(Type::empty) {}
-    InteropValue(std::nullptr_t) : type(Type::null) {}
+    explicit InteropValue(std::nullptr_t) : type(Type::null) {}
 
     InteropValue(const InteropValue& v) : type(v.type)
     {
         if (type == Type::string || type == Type::json)
-            new (&storage.s) String(v.string());
+            new (&storage.s) std::u16string(v.string());
         else if (type == Type::buffer)
             new (&storage.buf_space) ByteBuffer(v.buf());
         else
@@ -99,7 +102,7 @@ public:
     InteropValue(InteropValue&& v) : type(v.type)
     {
         if (type == Type::string || type == Type::json)
-            new (&storage.s) String(std::move(v.string()));
+            new (&storage.s) std::u16string(std::move(v.string()));
         else if (type == Type::buffer)
             new (&storage.buf_space) ByteBuffer(std::move(v.buf()));
         else
@@ -108,8 +111,10 @@ public:
 
     ~InteropValue()
     {
+        using std::u16string;
+
         if (type == Type::string || type == Type::json)
-            string().~String();
+            string().~u16string();
         else if (type == Type::buffer)
             buf().~ByteBuffer();
     }

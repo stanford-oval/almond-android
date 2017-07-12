@@ -5,9 +5,10 @@
 #include <future>
 #include <string>
 #include <type_traits>
+#include <stdio.h>
 
 #include <node/node.h>
-#include <uv.h>
+#include <node/uv.h>
 
 #include <cvc4/cvc4.h>
 #undef As
@@ -142,7 +143,7 @@ std::string solver_call::operator()() const
         "--cpu-time",
         time_limit_opt
     };
-    std::snprintf(time_limit_opt, sizeof(time_limit_opt), "--tlimit=%u", time_limit);
+    snprintf(time_limit_opt, sizeof(time_limit_opt), "--tlimit=%u", time_limit);
 
     CVC4::Options &options(const_cast<CVC4::Options &>(expr_manager.getOptions()));
     {

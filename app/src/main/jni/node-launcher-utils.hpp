@@ -10,10 +10,10 @@
 #include <cstdlib>
 
 #include <jni.h>
-#include "node/node.h"
-#include "node/uv.h"
-#include "node/libplatform/libplatform.h"
-#include "node/node_buffer.h"
+#include <node/node.h>
+#include <node/uv.h>
+#include <node/libplatform/libplatform.h>
+#include <node/node_buffer.h>
 
 namespace thingengine_node_launcher {
 

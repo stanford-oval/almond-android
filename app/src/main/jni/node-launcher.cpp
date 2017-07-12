@@ -416,6 +416,7 @@ start_node(JavaVM *vm, AAsset *app_code, jobject jClassLoader) {
     JNIEnv *jnienv;
     vm->AttachCurrentThread(&jnienv, nullptr);
     global_state.java_invoker.Init(jnienv, jClassLoader);
+    global_state.native_queue.Init();
 
     node_module_register(&launcher_module);
     node_module_register(&node_sqlite3::module);
@@ -426,14 +427,12 @@ start_node(JavaVM *vm, AAsset *app_code, jobject jClassLoader) {
     V8::InitializePlatform(platform.get());
     V8::Initialize();
 
-    log_info("nodejs", "nodejs sleeping, waiting for debugger... %d", getpid());
-    //sleep(120);
-
     ArrayBufferAllocator array_buffer_allocator;
     Isolate::CreateParams params;
     params.array_buffer_allocator = &array_buffer_allocator;
     params.code_event_handler = nullptr;
     Isolate *isolate = Isolate::New(params);
+    global_state.queue.Init(isolate);
 
     {
         Locker locker(isolate);
@@ -453,8 +452,6 @@ start_node(JavaVM *vm, AAsset *app_code, jobject jClassLoader) {
         code_buffer = nullptr;
         node::LoadEnvironment(env);
         //assert(!global_state.launcher_module.IsEmpty());
-        global_state.queue.Init(isolate);
-        global_state.native_queue.Init();
 
         isolate->SetAbortOnUncaughtExceptionCallback(ShouldAbortOnUncaughtException);
         log_info("nodejs", "NodeJS initialized");
