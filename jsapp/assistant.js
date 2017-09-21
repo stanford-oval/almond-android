@@ -30,12 +30,15 @@ class AssistantDispatcher {
     constructor(engine) {
         this._engine = engine;
         this._conversation = null;
+
+        this._engineReady = false;
+        this._uiReady = false;
     }
 
     start() {
         AssistantJavaApi.onhandlecommand = this._onHandleCommand.bind(this);
         AssistantJavaApi.onhandleparsedcommand = this._onHandleParsedCommand.bind(this);
-        AssistantJavaApi.onready = this._onReady.bind(this);
+        AssistantJavaApi.onready = this._onUIReady.bind(this);
     }
 
     stop() {
@@ -70,8 +73,20 @@ class AssistantDispatcher {
         return this._conversation;
     }
 
-    _onReady() {
-        this._ensureConversation();
+    _onUIReady() {
+        this._uiReady = true;
+        if (this._engineReady && this._uiReady)
+            this._ensureConversation();
+    }
+
+    engineReady() {
+        this._engineReady = true;
+        if (this._engineReady && this._uiReady)
+            this._ensureConversation();
+    }
+    earlyError(error) {
+        AssistantJavaApi.send('Sorry, I failed to start: ' + error.message);
+        AssistantJavaApi.send('Please restart the app and try again');
     }
 
     _onHandleParsedCommand(error, json) {

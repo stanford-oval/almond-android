@@ -198,10 +198,15 @@ function main() {
     _waitReady = _engine.open();
     _ad.start();
     _waitReady.then(() => {
+        _ad.engineReady();
         _running = true;
         if (_stopped)
             return Q();
         return _engine.run();
+    }, (error) => {
+        console.error('Early exception: ' + error.message);
+        console.error(error.stack);
+        _ad.earlyError(error);
     }).catch((error) => {
         console.error('Uncaught exception: ' + error.message);
         console.error(error.stack);
