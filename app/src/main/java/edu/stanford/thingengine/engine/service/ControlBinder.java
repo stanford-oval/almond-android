@@ -92,4 +92,12 @@ public class ControlBinder extends IThingEngine.Stub {
     public void presentSlotFilling(String utterance, String targetJson) {
         NodeJSLauncher.invokeAsync("Control_presentSlotFilling", utterance, targetJson);
     }
+
+    public JSONObject parseCommand(String command) throws Exception {
+        return (JSONObject) NodeJSLauncher.invokeSync("Control_parseCommand", command);
+    }
+
+    public JSONObject createApp(JSONObject object) throws Exception {
+        return (JSONObject) NodeJSLauncher.invokeSync("Control_createApp", object);
+    }
 }

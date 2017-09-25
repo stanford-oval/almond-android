@@ -5,6 +5,7 @@ package edu.stanford.thingengine.engine.service;
  */
 public interface AssistantCommandHandler {
     void ready();
+    void brassauReady();
 
     void handleCommand(String command);
 

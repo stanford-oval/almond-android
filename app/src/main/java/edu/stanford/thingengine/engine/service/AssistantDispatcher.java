@@ -37,6 +37,7 @@ import edu.stanford.thingengine.engine.ui.ThingpediaClient;
  */
 public class AssistantDispatcher implements Handler.Callback {
     private static final int MSG_ASSISTANT_MESSAGE = 1;
+    private static final int MSG_BRASSAU = 2;
 
     private static final int NOTIFICATION_ID = 42;
 
@@ -51,6 +52,7 @@ public class AssistantDispatcher implements Handler.Callback {
     private final List<AssistantMessage> notificationMessages = new ArrayList<>();
     private AssistantMessage.AskSpecial asking;
     private AssistantOutput output;
+    private BrassauOutput brassau;
     private AssistantLifecycleCallbacks callbacks;
 
     public AssistantDispatcher(Context ctx, AssistantCommandHandler cmdHandler) {
@@ -74,6 +76,16 @@ public class AssistantDispatcher implements Handler.Callback {
                 output.display(asking);
         }
     }
+    public void setBrassauOutput(BrassauOutput output) {
+        this.brassau = output;
+
+        if (output != null) {
+            notificationMessages.clear();
+
+            NotificationManager mgr = (NotificationManager) ctx.getSystemService(Context.NOTIFICATION_SERVICE);
+            mgr.cancel(NOTIFICATION_ID);
+        }
+    }
 
     public void setAssistantCallbacks(AssistantLifecycleCallbacks callbacks) {
         this.callbacks = callbacks;
@@ -84,6 +96,15 @@ public class AssistantDispatcher implements Handler.Callback {
             @Override
             public void run() {
                 cmdHandler.ready();
+            }
+        });
+    }
+
+    public void brassauReady() {
+        async.execute(new Runnable() {
+            @Override
+            public void run() {
+                cmdHandler.brassauReady();
             }
         });
     }
@@ -339,17 +360,23 @@ public class AssistantDispatcher implements Handler.Callback {
 
     @Override
     public boolean handleMessage(Message m) {
-        if (m.what != MSG_ASSISTANT_MESSAGE)
+        if (m.what == MSG_ASSISTANT_MESSAGE) {
+            AssistantMessage msg = (AssistantMessage) m.obj;
+            history.add(msg);
+
+            if (msg instanceof AssistantMessage.AskSpecial)
+                asking = (AssistantMessage.AskSpecial)msg;
+
+            if (!maybeInformUI(msg))
+                maybeNotify(msg);
+        } else if (m.what == MSG_BRASSAU) {
+            JSONObject obj = (JSONObject) m.obj;
+            if (brassau != null)
+                brassau.notify(obj);
+        } else {
             return false;
+        }
 
-        AssistantMessage msg = (AssistantMessage) m.obj;
-        history.add(msg);
-
-        if (msg instanceof AssistantMessage.AskSpecial)
-            asking = (AssistantMessage.AskSpecial)msg;
-
-        if (!maybeInformUI(msg))
-            maybeNotify(msg);
 
         return true;
     }
@@ -439,7 +466,7 @@ public class AssistantDispatcher implements Handler.Callback {
             output.display(msg);
             return true;
         } else {
-            return false;
+            return brassau != null;
         }
     }
 
@@ -452,6 +479,10 @@ public class AssistantDispatcher implements Handler.Callback {
         }
         else
             assistantHandler.obtainMessage(MSG_ASSISTANT_MESSAGE, msg).sendToTarget();
+    }
+
+    public void dispatchBrassau(JSONObject obj) {
+        assistantHandler.obtainMessage(MSG_BRASSAU, obj).sendToTarget();
     }
 
     private boolean isFilter(AssistantMessage msg) {

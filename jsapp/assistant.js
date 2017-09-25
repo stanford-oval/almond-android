@@ -13,10 +13,10 @@ const Almond = require('almond');
 
 const JavaAPI = require('./java_api');
 
-const COMMANDS = ['send', 'sendPicture', 'sendChoice', 'sendLink', 'sendButton', 'sendAskSpecial'];
+const COMMANDS = ['send', 'sendPicture', 'sendChoice', 'sendLink', 'sendButton', 'sendAskSpecial', 'sendBrassau', 'sendRDL'];
 const AssistantJavaApi = JavaAPI.makeJavaAPI('Assistant', [],
-    COMMANDS.concat(['sendRDL']),
-    ['onready', 'onhandlecommand', 'onhandleparsedcommand']);
+    COMMANDS,
+    ['onready', 'onhandlecommand', 'onhandleparsedcommand', 'onbrassauready']);
 
 class LocalUser {
     constructor(platform) {
@@ -27,24 +27,29 @@ class LocalUser {
 }
 
 class AssistantDispatcher {
-    constructor(engine) {
+    constructor(engine, api) {
         this._engine = engine;
         this._conversation = null;
+        this._api = api;
+        this._api.setAssistant(this);
 
         this._engineReady = false;
         this._uiReady = false;
+        this._apiReady = false;
     }
 
     start() {
         AssistantJavaApi.onhandlecommand = this._onHandleCommand.bind(this);
         AssistantJavaApi.onhandleparsedcommand = this._onHandleParsedCommand.bind(this);
         AssistantJavaApi.onready = this._onUIReady.bind(this);
+        AssistantJavaApi.onbrassauready = this._onBrassauReady.bind(this);
     }
 
     stop() {
         AssistantJavaApi.onhandlecommand = null;
         AssistantJavaApi.onhandleparsedcommand = null;
         AssistantJavaApi.onready = null;
+        AssistantJavaApi.onbrassauready = null;
     }
 
     _ensureConversation() {
@@ -60,17 +65,26 @@ class AssistantDispatcher {
 
     notifyAll(...data) {
         this._ensureConversation();
-        return this._conversation.notify(...data);
+        this._conversation.notify(...data);
+        this._api.notify(...data);
     }
 
     notifyErrorAll(...data) {
         this._ensureConversation();
-        return this._conversation.notifyError(...data);
+        this._conversation.notifyError(...data);
+        this._api.notifyError(...data);
     }
 
-    getConversation() {
+    getConversation(id) {
+        if (id === 'api')
+            return this._api;
+
         this._ensureConversation();
         return this._conversation;
+    }
+
+    _onBrassauReady() {
+        this._apiReady = true;
     }
 
     _onUIReady() {
@@ -97,12 +111,6 @@ class AssistantDispatcher {
     _onHandleCommand(error, text) {
         this._ensureConversation();
         return this._conversation.handleCommand(text);
-    }
-
-    // sendRDL is special because we need to stringify the rdl before we
-    // call the Java API, or jxcore will marshal it weirdly
-    sendRDL(rdl, icon) {
-        return AssistantJavaApi.sendRDL(JSON.stringify(rdl), icon);
     }
 }
 COMMANDS.forEach((c) => {

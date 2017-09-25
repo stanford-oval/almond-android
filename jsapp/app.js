@@ -17,6 +17,7 @@ Q.longStackSupport = true;
 
 const ControlChannel = require('./control');
 
+var _api;
 var _engine, _ad;
 var _waitReady;
 var _running;
@@ -174,6 +175,14 @@ class AppControlChannel extends ControlChannel {
 
         return _ad.getConversation().presentSingleExample(utterance, targetJson);
     }
+
+    createApp(data) {
+        return _waitReady.then(() => _api.createApp(data));
+    }
+
+    parseCommand(command) {
+        return _waitReady.then(() => _api.parse(command, null));
+    }
 }
 
 function main() {
@@ -186,11 +195,14 @@ function main() {
     // load the bulk of the code and create the engine
     const Engine = require('thingengine-core');
     const AssistantDispatcher = require('./assistant');
+    const Api = require('./api');
 
     console.log('Creating engine...');
     _engine = new Engine(global.platform);
+    console.log('Created engine...');
 
-    _ad = new AssistantDispatcher(_engine);
+    _api = new Api(_engine);
+    _ad = new AssistantDispatcher(_engine, _api);
     global.platform.setAssistant(_ad);
 
     console.log('Opening engine...');

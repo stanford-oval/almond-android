@@ -18,6 +18,7 @@ done
 
 (cd $projectdir/jsapp ;
 npm install
-./node_modules/.bin/browserify -t [ eslintify --passthrough warnings ] --node -e app.js -o $outputdir/app.js
+#./node_modules/.bin/browserify -t [ eslintify --passthrough warnings ] --node -e app.js -o $outputdir/app.js
+./node_modules/.bin/browserify --node -e app.js -o $outputdir/app.js
 )
 node -c $outputdir/app.js

@@ -1,10 +1,6 @@
 package edu.stanford.thingengine.engine.jsapi;
 
-import android.util.Log;
-
-import org.json.JSONException;
 import org.json.JSONObject;
-import org.json.JSONTokener;
 
 import edu.stanford.thingengine.engine.service.AssistantCommandHandler;
 import edu.stanford.thingengine.engine.service.AssistantMessage;
@@ -40,11 +36,7 @@ public class AssistantAPI extends JavascriptAPI implements AssistantCommandHandl
         registerSync("sendRDL", new GenericCall() {
             @Override
             public Object run(Object... args) throws Exception {
-                try {
-                    sendRDL((JSONObject) ((new JSONTokener((String) args[0])).nextValue()), (String)args[1]);
-                } catch (ClassCastException | JSONException e) {
-                    Log.e(EngineService.LOG_TAG, "Unexpected exception marshalling sendRDL", e);
-                }
+                sendRDL((JSONObject) args[0], (String)args[1]);
                 return null;
             }
         });
@@ -80,11 +72,24 @@ public class AssistantAPI extends JavascriptAPI implements AssistantCommandHandl
                 return null;
             }
         });
+
+        registerSync("sendBrassau", new GenericCall() {
+            @Override
+            public Object run(Object... args) throws Exception {
+                sendBrassau((JSONObject)args[0]);
+                return null;
+            }
+        });
     }
 
     @Override
     public void ready() {
         invokeAsync("onready", null);
+    }
+
+    @Override
+    public void brassauReady() {
+        invokeAsync("onbrassauready", null);
     }
 
     @Override
@@ -133,5 +138,9 @@ public class AssistantAPI extends JavascriptAPI implements AssistantCommandHandl
             }
         }
         mService.getAssistant().dispatch(new AssistantMessage.AskSpecial(AssistantMessage.Direction.FROM_SABRINA, type));
+    }
+
+    private void sendBrassau(JSONObject obj) {
+        mService.getAssistant().dispatchBrassau(obj);
     }
 }
