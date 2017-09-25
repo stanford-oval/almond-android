@@ -1,4 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
-
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:tools="http://schemas.android.com/tools"
+      tools:context="edu.stanford.thingengine.engine.ui.BrassauActivity">
+    <item
+        android:id="@+id/my_stuff"
+        android:orderInCategory="2"
+        android:menuCategory="alternative"
+        android:showAsAction="ifRoom"
+        android:title="@string/mystuff_tab"
+        />
+    <item
+        android:id="@+id/cheatsheet"
+        android:orderInCategory="4"
+        android:menuCategory="alternative"
+        android:showAsAction="never"
+        android:title="@string/cheatsheet"/>
+    <item
+        android:id="@+id/action_nobrassau"
+        android:orderInCategory="4"
+        android:menuCategory="alternative"
+        android:showAsAction="never"
+        android:title="@string/action_nobrassau"/>
+    <item
+        android:id="@+id/action_settings"
+        android:orderInCategory="100"
+        android:menuCategory="secondary"
+        android:showAsAction="never"
+        android:title="@string/action_settings" />
 </menu>

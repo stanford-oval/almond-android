@@ -43,6 +43,12 @@
         android:showAsAction="never"
         android:title="@string/action_clear_chat" />
     <item
+        android:id="@+id/action_brassau"
+        android:orderInCategory="99"
+        android:menuCategory="secondary"
+        android:showAsAction="never"
+        android:title="@string/action_brassau" />
+    <item
         android:id="@+id/action_settings"
         android:orderInCategory="100"
         android:menuCategory="secondary"

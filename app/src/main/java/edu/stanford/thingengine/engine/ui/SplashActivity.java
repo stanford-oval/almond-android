@@ -25,7 +25,7 @@ public class SplashActivity extends Activity {
         if (prefs.getBoolean("first-run", true) || prefs.getBoolean("landing-page", false)) {
             intent = new Intent(this, IntroductionActivity.class);
         } else {
-            intent = new Intent(this, MainActivity.class);
+            intent = new Intent(this, BrassauActivity.class);
         }
         startActivity(intent);
 

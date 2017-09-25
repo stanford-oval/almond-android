@@ -4,7 +4,7 @@
     android:paddingRight="0dp"
     android:paddingTop="0dp"
     android:paddingBottom="0dp"
-    tools:context="edu.stanford.thingengine.engine.WebUIActivity">
+    tools:context="edu.stanford.thingengine.engine.ui.ThingpediaWebsiteActivity">
 
     <WebView
         android:layout_width="wrap_content"

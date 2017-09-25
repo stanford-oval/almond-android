@@ -28,7 +28,7 @@ android {
             }
         }
         ndk {
-            abiFilters 'x86','armeabi-v7a'//, 'x86_64', 'arm64-v8a' //select ABIs to build APKs for
+            abiFilters 'x86', 'armeabi-v7a'//, 'x86_64', 'arm64-v8a' //select ABIs to build APKs for
         }
     }
     buildTypes {
@@ -74,4 +74,5 @@ dependencies {
     compile 'com.koushikdutta.ion:ion:2.1.9'
     compile 'com.google.android:flexbox:0.2.3'
     compile 'net.hockeyapp.android:HockeySDK:4.0.1'
+    compile 'com.android.support.constraint:constraint-layout:1.0.2'
 }

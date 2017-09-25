@@ -216,7 +216,6 @@ public class MainActivity extends Activity implements AssistantOutput, Assistant
 
         mSpeechHandler.onCreate();
 
-        UpdateManager.register(this);
         if (!BuildConfig.DEBUG) {
             MetricsManager.register(this, getApplication());
         }
@@ -230,6 +229,7 @@ public class MainActivity extends Activity implements AssistantOutput, Assistant
         mReadyCallback.run();
         mSpeechHandler.onResume();
         CrashManager.register(this);
+        UpdateManager.register(this);
     }
 
     @Override
@@ -976,6 +976,12 @@ public class MainActivity extends Activity implements AssistantOutput, Assistant
             Intent intent = new Intent(this, MyRulesActivity.class);
             startActivity(intent);
             return true;
+        }
+
+        if (id == R.id.action_brassau) {
+            Intent intent = new Intent(this, BrassauActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_TASK_ON_HOME | Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
         }
 
         return super.onOptionsItemSelected(item);

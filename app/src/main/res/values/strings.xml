@@ -1,4 +1,4 @@
-<resources tools:locale="en-US" xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation" tools:locale="en-US">
     <string name="app_name">Almond</string>
     <string name="title_activity_web_ui">Almond</string>
 
@@ -70,6 +70,8 @@
     <string name="btn_cancel">Cancel</string>
     <string name="action_help">Help</string>
     <string name="input_hint">Write your command or answer here</string>
+    <string name="action_brassau">New UI</string>
+    <string name="action_nobrassau">Traditional UI</string>
 
 
     <string-array name="sabrina_highlights">
