@@ -205,7 +205,7 @@ public class BrassauActivity extends Activity implements BrassauOutput {
     }
 
     @JavascriptInterface
-    void connect() {
+    public void connect() {
         Log.i("brassau", "connect");
         final ControlBinder control = engine.getControl();
         if (control == null)
@@ -214,7 +214,7 @@ public class BrassauActivity extends Activity implements BrassauOutput {
     }
 
     @JavascriptInterface
-    void createApp(final int callbackId, final String json) {
+    public void createApp(final int callbackId, final String json) {
         final ControlBinder control = engine.getControl();
         if (control == null)
             throw new RuntimeException("The engine died unexpectedly");
@@ -234,7 +234,7 @@ public class BrassauActivity extends Activity implements BrassauOutput {
     }
 
     @JavascriptInterface
-    void deleteApp(String uniqueId) {
+    public void deleteApp(String uniqueId) {
         final ControlBinder control = engine.getControl();
         if (control == null)
             throw new RuntimeException("The engine died unexpectedly");
@@ -243,7 +243,7 @@ public class BrassauActivity extends Activity implements BrassauOutput {
     }
 
     @JavascriptInterface
-    void parseCommand(final int callbackId, final String command) {
+    public void parseCommand(final int callbackId, final String command) {
         final ControlBinder control = engine.getControl();
         if (control == null)
             throw new RuntimeException("The engine died unexpectedly");
