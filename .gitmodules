@@ -16,3 +16,6 @@
 [submodule "jsapp/node_modules/omlib"]
 	path = jsapp/node_modules/omlib
 	url = https://github.com/Stanford-Mobisocial-IoT-Lab/omclient
+[submodule "brassau"]
+	path = brassau
+	url = git@github.com:mikey100000000/brassau_code.git
