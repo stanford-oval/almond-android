@@ -8,4 +8,4 @@
 "use strict";
 
 module.exports.S3_CLOUDFRONT_HOST = 'https://d1ge76rambtuys.cloudfront.net';
-module.exports.SEMPRE_URL = 'https://pepperjack.stanford.edu';
+module.exports.SEMPRE_URL = 'https://pepperjack.stanford.edu:8443';
