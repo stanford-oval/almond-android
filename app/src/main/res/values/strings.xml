@@ -70,6 +70,7 @@
     <string name="btn_cancel">Cancel</string>
     <string name="action_help">Help</string>
     <string name="input_hint">Write your command or answer here</string>
+    <string name="mypermissions_tab">My Permissions</string>
 
 
     <string-array name="sabrina_highlights">

@@ -92,4 +92,18 @@ public class ControlBinder extends IThingEngine.Stub {
     public void presentSlotFilling(String utterance, String targetJson) {
         NodeJSLauncher.invokeAsync("Control_presentSlotFilling", utterance, targetJson);
     }
+
+    public List<PermissionInfo> getAllPermissions() throws Exception {
+        JSONArray jsonAppInfos = (JSONArray) NodeJSLauncher.invokeSync("Control_getAllPermissions");
+
+        List<PermissionInfo> appInfos = new ArrayList<>();
+        for (int i = 0; i < jsonAppInfos.length(); i++)
+            appInfos.add(new PermissionInfo(jsonAppInfos.getJSONObject(i)));
+
+        return appInfos;
+    }
+
+    public void revokePermission(String uniqueId) {
+        NodeJSLauncher.invokeAsync("Control_revokePermission", uniqueId);
+    }
 }

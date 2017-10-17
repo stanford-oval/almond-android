@@ -174,6 +174,17 @@ class AppControlChannel extends ControlChannel {
 
         return _ad.getConversation().presentSingleExample(utterance, targetJson);
     }
+
+    getAllPermissions() {
+        return _engine.permissions.getAllPermissions().map((p) => ({
+            uniqueId: p.uniqueId,
+            description: p.description
+        }));
+    }
+
+    revokePermission(uniqueId) {
+        return _engine.permissions.removePermission(uniqueId);
+    }
 }
 
 function main() {

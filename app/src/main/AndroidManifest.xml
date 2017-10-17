@@ -61,6 +61,9 @@
             android:name=".ui.MyRulesActivity"
             android:parentActivityName=".ui.MainActivity" />
         <activity
+            android:name=".ui.MyPermissionsActivity"
+            android:parentActivityName=".ui.MainActivity" />
+        <activity
             android:name=".ui.DeviceConfigureChooseKindActivity"
             android:parentActivityName=".ui.MainActivity" />
         <activity

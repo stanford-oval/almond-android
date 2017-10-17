@@ -9,6 +9,7 @@
   "devDependencies": {
     "browserify": "^14.4.0",
     "eslintify": "^3.1.0",
-    "gettext-parser": "^1.2.2"
+    "gettext-parser": "^1.2.2",
+    "sourceify": "^0.1.0"
   }
 }

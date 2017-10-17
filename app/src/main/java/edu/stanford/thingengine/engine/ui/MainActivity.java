@@ -949,31 +949,25 @@ public class MainActivity extends Activity implements AssistantOutput, Assistant
         }
 
         if (id == R.id.cheatsheet) {
-            ControlBinder control = engine.getControl();
-            if (control == null)
-                return true;
-
             Intent intent = new Intent(MainActivity.this, CheatsheetActivity.class);
             startActivity(intent);
             return true;
         }
 
         if (id == R.id.my_stuff) {
-            ControlBinder control = engine.getControl();
-            if (control == null)
-                return true;
-
             Intent intent = new Intent(this, MyStuffActivity.class);
             startActivity(intent);
             return true;
         }
 
         if (id == R.id.my_rules) {
-            ControlBinder control = engine.getControl();
-            if (control == null)
-                return true;
-
             Intent intent = new Intent(this, MyRulesActivity.class);
+            startActivity(intent);
+            return true;
+        }
+
+        if (id == R.id.my_permissions) {
+            Intent intent = new Intent(this, MyPermissionsActivity.class);
             startActivity(intent);
             return true;
         }

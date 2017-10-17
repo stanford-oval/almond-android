@@ -15,6 +15,7 @@ const Gettext = require('node-gettext');
 
 const JavaAPI = require('./java_api');
 const StreamAPI = require('./streams');
+const CVC4Solver = require('cvc4');
 
 const _platformApi = JavaAPI.makeJavaAPI('Platform', [],
     ['getFilesDir', 'getCacheDir', 'getLocale', 'getTimezone'], []);
@@ -237,6 +238,9 @@ module.exports = {
         case 'notify-api':
             return true;
 
+        case 'smt-solver':
+            return true;
+
         case 'assistant':
             return true;
 
@@ -297,6 +301,9 @@ module.exports = {
 
         case 'gettext':
             return this._gettext;
+
+        case 'smt-solver':
+            return CVC4Solver;
 
         default:
             return null;
