@@ -15,7 +15,8 @@ const Gettext = require('node-gettext');
 
 const JavaAPI = require('./java_api');
 const StreamAPI = require('./streams');
-const CVC4Solver = require('cvc4');
+//const CVC4Solver = require('cvc4');
+const HttpSmtSolver = require('./smtsolver-http');
 
 const _platformApi = JavaAPI.makeJavaAPI('Platform', [],
     ['getFilesDir', 'getCacheDir', 'getLocale', 'getTimezone'], []);
@@ -303,7 +304,9 @@ module.exports = {
             return this._gettext;
 
         case 'smt-solver':
-            return CVC4Solver;
+            // FIXME
+            // return CVC4Solver;
+            return HttpSmtSolver;
 
         default:
             return null;
