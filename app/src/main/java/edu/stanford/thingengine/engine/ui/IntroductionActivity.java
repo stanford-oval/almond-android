@@ -41,7 +41,7 @@ public class IntroductionActivity extends Activity{
                 SharedPreferences prefs = getSharedPreferences("edu.stanford.thingengine.engine", MODE_PRIVATE);
                 if (prefs.getBoolean("first-run", true))
                     prefs.edit().putBoolean("first-run", false).apply();
-                Intent intent = new Intent(IntroductionActivity.this, MainActivity.class);
+                Intent intent = new Intent(IntroductionActivity.this, BrassauActivity.class);
                 startActivity(intent);
                 finish();
             }
