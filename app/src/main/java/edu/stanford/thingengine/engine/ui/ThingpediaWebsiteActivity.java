@@ -21,7 +21,10 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import edu.stanford.thingengine.engine.CloudAuthInfo;
 import edu.stanford.thingengine.engine.R;
@@ -80,6 +83,8 @@ public class ThingpediaWebsiteActivity extends Activity {
         }
     }
 
+    private static final Set<String> ALLOWED_HOSTS = new HashSet<>(Arrays.asList("thingengine.stanford.edu", "thingpedia.stanford.edu", "almond.stanford.edu", "sabrina.stanford.edu"));
+
     private class WebViewClient extends android.webkit.WebViewClient {
         @Override
         public void onReceivedHttpAuthRequest (WebView view, @NonNull HttpAuthHandler handler, String host, String realm) {
@@ -89,7 +94,7 @@ public class ThingpediaWebsiteActivity extends Activity {
                 return;
             }
 
-            if (!"thingengine.stanford.edu".equals(host)) {
+            if (!ALLOWED_HOSTS.contains(host)) {
                 handler.cancel();
                 return;
             }
@@ -100,7 +105,7 @@ public class ThingpediaWebsiteActivity extends Activity {
         @Override
         public boolean shouldOverrideUrlLoading(WebView view, String url) {
             Uri parsed = Uri.parse(url);
-            if (parsed.getAuthority().equals("thingengine.stanford.edu"))
+            if (ALLOWED_HOSTS.contains(parsed.getAuthority()))
                 return false;
 
             Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
