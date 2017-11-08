@@ -1,22 +1,17 @@
 package edu.stanford.thingengine.engine.ui;
 
 
-import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.ContactsContract;
-import android.speech.tts.TextToSpeech;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.util.ArrayMap;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.InputType;
@@ -41,11 +36,6 @@ import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.ui.PlacePicker;
-import com.microsoft.cognitiveservices.speechrecognition.ISpeechRecognitionServerEvents;
-import com.microsoft.cognitiveservices.speechrecognition.MicrophoneRecognitionClient;
-import com.microsoft.cognitiveservices.speechrecognition.RecognitionResult;
-import com.microsoft.cognitiveservices.speechrecognition.SpeechRecognitionMode;
-import com.microsoft.cognitiveservices.speechrecognition.SpeechRecognitionServiceFactory;
 
 import net.hockeyapp.android.CrashManager;
 import net.hockeyapp.android.UpdateManager;
@@ -57,15 +47,9 @@ import org.json.JSONObject;
 import org.json.JSONTokener;
 
 import java.io.Serializable;
-import java.util.LinkedList;
 import java.util.Map;
-import java.util.Queue;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.FutureTask;
 
 import edu.stanford.thingengine.engine.BuildConfig;
-import edu.stanford.thingengine.engine.Config;
 import edu.stanford.thingengine.engine.R;
 import edu.stanford.thingengine.engine.service.AssistantDispatcher;
 import edu.stanford.thingengine.engine.service.AssistantLifecycleCallbacks;
@@ -100,7 +84,6 @@ public class MainActivity extends Activity implements AssistantOutput, Assistant
     };
 
     private AssistantHistoryAdapter mListAdapter = new AssistantHistoryAdapter(MainActivity.this);
-    private final SpeechHandler mSpeechHandler = new SpeechHandler();
     private boolean mInCommand = false;
 
     private final MainServiceConnection engine;
@@ -158,14 +141,6 @@ public class MainActivity extends Activity implements AssistantOutput, Assistant
             }
         });
 
-        View voicebtn = findViewById(R.id.btn_assistant_voice);
-        voicebtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mSpeechHandler.startRecording();
-            }
-        });
-
         View cancelbtn = findViewById(R.id.btn_cancel);
         cancelbtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -214,8 +189,6 @@ public class MainActivity extends Activity implements AssistantOutput, Assistant
 
         findViewById(R.id.assistant_progress).setVisibility(View.GONE);
 
-        mSpeechHandler.onCreate();
-
         UpdateManager.register(this);
         if (!BuildConfig.DEBUG) {
             MetricsManager.register(this, getApplication());
@@ -228,7 +201,6 @@ public class MainActivity extends Activity implements AssistantOutput, Assistant
         engine.start(this);
         engine.addEngineReadyCallback(mReadyCallback);
         mReadyCallback.run();
-        mSpeechHandler.onResume();
         CrashManager.register(this);
     }
 
@@ -242,7 +214,6 @@ public class MainActivity extends Activity implements AssistantOutput, Assistant
             assistant.setAssistantCallbacks(null);
         }
         engine.removeEngineReadyCallback(mReadyCallback);
-        mSpeechHandler.onPause();
         engine.stop(this);
         UpdateManager.unregister();
     }
@@ -252,144 +223,6 @@ public class MainActivity extends Activity implements AssistantOutput, Assistant
         super.onDestroy();
         mListAdapter.setHistory(null);
         mListAdapter.setContext(null);
-    }
-
-    private class SpeechHandler implements ISpeechRecognitionServerEvents, TextToSpeech.OnInitListener {
-        private boolean mMicrophoneOn;
-        private FutureTask<MicrophoneRecognitionClient> mMicClientCreateTask;
-        private MicrophoneRecognitionClient mMicClient = null;
-        private boolean mIsSpeechMode;
-        private TextToSpeech mtts = null;
-        private boolean mttsInitialized = false;
-        private final Queue<CharSequence> mOutputQueue = new LinkedList<>();
-
-        public void onCreate() {
-            mIsSpeechMode = false;
-            mMicrophoneOn = false;
-            mMicClientCreateTask = new FutureTask<>(new Callable<MicrophoneRecognitionClient>() {
-                @Override
-                public MicrophoneRecognitionClient call() throws Exception {
-                    return SpeechRecognitionServiceFactory.createMicrophoneClient(MainActivity.this,
-                            SpeechRecognitionMode.ShortPhrase,
-                            Config.getLanguage(),
-                            SpeechHandler.this,
-                            Config.MS_SPEECH_RECOGNITION_PRIMARY_KEY,
-                            Config.MS_SPEECH_RECOGNITION_SECONDARY_KEY);
-                }
-            });
-            AsyncTask.THREAD_POOL_EXECUTOR.execute(mMicClientCreateTask);
-        }
-
-        public void onResume() {
-            if (mIsSpeechMode && mtts == null) {
-                mtts = new TextToSpeech(MainActivity.this, this);
-                mttsInitialized = false;
-            }
-        }
-
-        public void onPause() {
-            if (mMicrophoneOn)
-                mMicClient.endMicAndRecognition();
-            mMicrophoneOn = false;
-
-            if (mtts != null) {
-                mtts.shutdown();
-                mtts = null;
-                mttsInitialized = false;
-            }
-        }
-
-        public void onInit(int success) {
-            if (success == TextToSpeech.ERROR)
-                return;
-
-            mttsInitialized = true;
-            CharSequence seq;
-            while ((seq = mOutputQueue.poll()) != null) {
-                mtts.speak(seq, TextToSpeech.QUEUE_ADD, null, null);
-            }
-        }
-
-        public void say(CharSequence what) {
-            if (!mIsSpeechMode)
-                return;
-
-            if (mttsInitialized)
-                mtts.speak(what, TextToSpeech.QUEUE_ADD, null, null);
-            else
-                mOutputQueue.offer(what);
-        }
-
-        public void startRecording() {
-            mIsSpeechMode = true;
-            if (mtts == null) {
-                mtts = new TextToSpeech(MainActivity.this, this);
-                mttsInitialized = false;
-            }
-
-            int permissionCheck = ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.RECORD_AUDIO);
-            if (permissionCheck == PackageManager.PERMISSION_GRANTED)
-                startRecordingWithPermission();
-            else
-                requestPermission();
-        }
-
-        public void switchToTextMode() {
-            mIsSpeechMode = false;
-        }
-
-        private void requestPermission() {
-            if (ActivityCompat.shouldShowRequestPermissionRationale(MainActivity.this, Manifest.permission.RECORD_AUDIO))
-                Toast.makeText(MainActivity.this, R.string.audio_permission_needed, Toast.LENGTH_LONG).show();
-
-            ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.RECORD_AUDIO}, REQUEST_AUDIO_PERMISSION);
-        }
-
-        private void startRecordingWithPermission() {
-            if (mMicClient == null) {
-                try {
-                    mMicClient = mMicClientCreateTask.get();
-                } catch (InterruptedException | ExecutionException e) {
-                    Log.e(MainActivity.LOG_TAG, "Failed to create microphone client", e);
-                    return;
-                }
-            }
-            if (mMicrophoneOn)
-                return;
-
-            mMicrophoneOn = true;
-            mMicClient.startMicAndRecognition();
-        }
-
-        @Override
-        public void onPartialResponseReceived(String text) {
-            if (!mMicrophoneOn)
-                return;
-            EditText editor = (EditText) findViewById(R.id.assistant_input);
-            editor.setText(text);
-        }
-
-        @Override
-        public void onFinalResponseReceived(RecognitionResult recognitionResult) {
-            mMicClient.endMicAndRecognition();
-            mMicrophoneOn = false;
-            onTextActivated(true);
-        }
-
-        @Override
-        public void onIntentReceived(String intent) {
-        }
-
-        @Override
-        public void onError(int code, String message) {
-            Log.w(MainActivity.LOG_TAG, "Error reported by speech recognition server: " + message);
-        }
-
-        @Override
-        public void onAudioEvent(boolean recording) {
-            if (recording)
-                Toast.makeText(MainActivity.this, R.string.speak_now, Toast.LENGTH_SHORT).show();
-        }
     }
 
     private boolean mScrollScheduled;
@@ -426,9 +259,6 @@ public class MainActivity extends Activity implements AssistantOutput, Assistant
     }
 
     public void display(AssistantMessage msg) {
-        if (msg.direction == AssistantMessage.Direction.FROM_SABRINA &&
-                msg.type == AssistantMessage.Type.TEXT)
-            mSpeechHandler.say(msg.toText());
         if (msg.type == AssistantMessage.Type.ASK_SPECIAL) {
             syncSuggestions((AssistantMessage.AskSpecial) msg);
             syncCancelButton((AssistantMessage.AskSpecial) msg);
@@ -556,9 +386,6 @@ public class MainActivity extends Activity implements AssistantOutput, Assistant
     }
 
     void onTextActivated(boolean fromVoice) {
-        if (!fromVoice)
-            mSpeechHandler.switchToTextMode();
-
         if (engine != null) {
             EditText input = (EditText) findViewById(R.id.assistant_input);
 
@@ -854,14 +681,6 @@ public class MainActivity extends Activity implements AssistantOutput, Assistant
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        Map<String, Integer> permissionMap = new ArrayMap<>();
-        for (int i = 0; i < permissions.length; i++)
-            permissionMap.put(permissions[i], grantResults[i]);
-
-        if (permissionMap.containsKey(Manifest.permission.RECORD_AUDIO) &&
-                permissionMap.get(Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED)
-            mSpeechHandler.startRecording();
-
         engine.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 

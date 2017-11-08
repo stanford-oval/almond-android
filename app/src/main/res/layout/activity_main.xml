@@ -59,16 +59,5 @@
             android:visibility="gone"
             android:layout_gravity="center"
             android:contentDescription="@string/btn_cancel" />
-
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/btn_assistant_voice"
-            android:src="@drawable/ic_mic_black"
-            android:tint="@color/almond_accent"
-            android:clickable="true"
-            android:padding="5dp"
-            android:layout_gravity="center"
-            android:contentDescription="@string/btn_assistant_voice" />
     </LinearLayout>
 </LinearLayout>

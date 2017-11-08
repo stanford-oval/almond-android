@@ -29,7 +29,4 @@ public class Config {
     public static final String LOCALE = "en-us";
 
     public static final String S3_CLOUDFRONT_HOST = "https://d1ge76rambtuys.cloudfront.net";
-
-    public static final String MS_SPEECH_RECOGNITION_PRIMARY_KEY = "14661070ff9c496398a09c939b41bd72";
-    public static final String MS_SPEECH_RECOGNITION_SECONDARY_KEY = "155d0afd2d084be48dbe18dc8844cfa8";
 }
