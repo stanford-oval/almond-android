@@ -46,9 +46,9 @@ class InteropValue {
 private:
     union Storage {
         bool b;
-        std::aligned_storage<sizeof(std::u16string), alignof(std::u16string)> s;
+        std::aligned_storage<sizeof(std::u16string), alignof(std::u16string)>::type s;
         double n;
-        std::aligned_storage<sizeof(ByteBuffer), alignof(std::u16string)> buf_space;
+        std::aligned_storage<sizeof(ByteBuffer), alignof(ByteBuffer)>::type buf_space;
     };
     Storage storage;
     Type type;
