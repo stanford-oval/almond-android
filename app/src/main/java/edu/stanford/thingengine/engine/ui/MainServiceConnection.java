@@ -122,7 +122,7 @@ public class MainServiceConnection extends EngineServiceConnection implements In
         }
 
         try {
-            status.startResolutionForResult(currentParent, 1);
+            status.startResolutionForResult(currentParent, requestCode);
         } catch (IntentSender.SendIntentException e) {
             state.complete(false);
         }
