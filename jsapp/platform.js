@@ -303,9 +303,7 @@ module.exports = {
             return this._gettext;
 
         case 'smt-solver':
-            // FIXME
-            // return CVC4Solver;
-            return HttpSmtSolver;
+            return CVC4Solver;
 
         default:
             return null;
