@@ -549,8 +549,8 @@ public class MainActivity extends Activity implements AssistantOutput, Assistant
                     title = title.replace("$__person", slotValue.trim());
                 } else {
                     //TODO: fix tokenizing in helper.js
-                    title = title.replace("$__person ' s", "my");
-                    title = title.replace("$__person", "me");
+                    title = title.replace("$__person ' s", "someone's");
+                    title = title.replace("$__person", "someone");
                 }
             }
 
