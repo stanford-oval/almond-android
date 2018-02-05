@@ -523,9 +523,9 @@ public class MainActivity extends Activity implements AssistantOutput, Assistant
             if (!value.isEmpty()) {
                 title = title.replace("____", value);
                 if (type.equals("Number"))
-                    jsonObj.getJSONObject("filter").put("value", Float.parseFloat(value));
+                    jsonObj.getJSONObject("filter").put("value", new JSONObject("{value: " + value + "}"));
                 else
-                    jsonObj.getJSONObject("filter").put("value", value);
+                    jsonObj.getJSONObject("filter").put("value", new JSONObject("{value: \"" + value + "\"}"));
             }
             display(control.getAssistant().handleButton(title, jsonObj.toString()));
         } catch (JSONException e) {
