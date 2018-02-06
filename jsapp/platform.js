@@ -389,7 +389,7 @@ module.exports = {
     // installation. This is primarily used for OAuth redirects, and
     // so must match what the upstream services accept.
     getOrigin: function() {
-        return 'http://127.0.0.1:3000';
+        return 'https://thingengine.stanford.edu';
     },
 
     getCloudId() {
