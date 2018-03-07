@@ -3,14 +3,25 @@
   "version": "1.0.0",
   "private": true,
   "dependencies": {
+    "almond": "github:Stanford-Mobisocial-IoT-Lab/almond-dialog-agent#wip/ibase",
+    "cvc4": "github:Stanford-Mobisocial-IoT-Lab/node-cvc4#android",
     "node-gettext": "^2.0.0",
     "q": "^1.5.0",
-    "smtlib": "^0.1.1"
+    "smtlib": "^0.1.1",
+    "sqlite3": "github:gcampax/node-sqlite3",
+    "thingengine-core": "github:Stanford-Mobisocial-IoT-Lab/thingengine-core#ibase",
+    "thingpedia": "github:Stanford-Mobisocial-IoT-Lab/thingpedia-api#wip/new-thingpedia",
+    "thingpedia-discovery": "github:Stanford-Mobisocial-IoT-Lab/thingpedia-discovery",
+    "thingtalk": "github:Stanford-Mobisocial-IoT-Lab/ThingTalk#wip/new-thingtalk"
   },
   "devDependencies": {
     "browserify": "^14.4.0",
     "eslintify": "^3.1.0",
     "gettext-parser": "^1.2.2",
     "sourceify": "^0.1.0"
+  },
+  "resolutions": {
+    "sqlite3": "github:gcampax/node-sqlite3",
+    "cvc4": "github:Stanford-Mobisocial-IoT-Lab/node-cvc4#android"
   }
 }
