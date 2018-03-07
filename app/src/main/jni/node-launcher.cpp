@@ -1,6 +1,6 @@
 // -*- mode: c++; indent-tabs-mode: nil; js-basic-offset: 4 -*-
 //
-// Copyright 2017 Giovanni Campagna <gcampagn@cs.stanford.edu>
+// Copyright 2017 The Board of Trustees of the Leland Stanford Junior University
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by the
@@ -15,6 +15,8 @@
 // You should have received a copy of the GNU General Public License along
 // with this program; if not, write to the Free Software Foundation,
 // Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+//
+// Author: Giovanni Campagna <gcampagn@cs.stanford.edu>
 
 // Some of the code here was copied from nodejs
 //
