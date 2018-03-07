@@ -1,9 +1,6 @@
-The overall ThingEngine is
+The overall Almond is
 
-Copyright 2015 Giovanni Campagna <gcampagn@cs.stanford.edu>
-               Zhiyang He <zhiyanghe96@gmail.com>
-               Albert Hse-Lin Chen <hselin.chen@gmail.com>
-               Jiaqi Xue <ravenchaser@sina.com>
+Copyright 2015-2018 The Board of Trustees of the Leland Stanford Junior University
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -29,11 +26,6 @@ version of the file(s), but you are not obligated to do so.  If you
 do not wish to do so, delete this exception statement from your
 version.  If you delete this exception statement from all source
 files in the program, then also delete it here.
-
-===================================================================
-
-This package uses JXcore, which is copyright Nubisa, Inc. and JXcore
-contributors. The license for JXcore is included as LICENSE.jxcore.
 
 ===================================================================
 

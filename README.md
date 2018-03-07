@@ -1,21 +1,16 @@
-# ThingEngine
+# Almond
 
-## Help the World Connect the Dots
+## End User Programmable Virtual Assistants
 
-ThingEngine is the workhorse behind ThingPedia, the open source platform for IoT rules
-that you can execute anywhere you want.
+This repository contains the Android version of Almond, the end user programmable virtual assistant.
 
-ThingEngine comes in three form:
+Almond is a research project led by prof. Monica Lam, from Stanford University. You can find more
+information at <https://almond.stanford.edu/>.
 
-- As a phone app, for Android
-- As an installable app for a home server
-- As a web service hosted at <https://thingengine.stanford.edu>
+## Installation
 
-This module contains the Android version of ThingEngine, and
-depends on a number of other modules.
+This repository is set up as an Android Studio project. You should be able to open it in Android
+Studio and launch it.
 
-ThingEngine is part of Open Thing Platform, a research project led by
-prof. Monica Lam, from Stanford University.  You can find more
-information at <http://thingengine.stanford.edu/about>. User
-documentation is available in
-[thingengine-core](https://github.com/Stanford-IoT-Lab/thingengine-core).
+Some parts of Almond are written in JavaScript. `node` (>= 6.*) and `yarn` must be installed on your machine
+to download and bundle the JavaScript dependencies.
