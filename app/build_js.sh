@@ -11,7 +11,7 @@ install_deps() {
      echo "WARNING: yarn not found, will use npm to install dependencies (this will cause buggy non-deterministic behavior)"
      npm install
   else
-     yarn install
+     yarn --frozen-lockfile
   fi
 }
 

@@ -87,7 +87,7 @@ class AssistantHistoryAdapter extends RecyclerView.Adapter<AssistantHistoryAdapt
             if (msg.icon == null)
                 sabrinaHead.setImageDrawable(getSabrinaHeadBubble(ctx));
             else
-                LoadImageTask.load(ctx, sabrinaHead, Config.S3_CLOUDFRONT_HOST + "/icons/" + msg.icon + ".png");
+                LoadImageTask.load(ctx, sabrinaHead, Config.THINGPEDIA_URL + "/api/devices/icon/" + msg.icon);
         }
 
         protected void setSideAndAlignment(View view, AssistantMessage msg) {

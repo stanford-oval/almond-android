@@ -72,7 +72,7 @@ public class MyStuffActivity extends Activity {
         }
 
         private String getIcon(DeviceInfo device) {
-            return Config.S3_CLOUDFRONT_HOST + "/icons/" + device.kind + ".png";
+            return Config.THINGPEDIA_URL + "/api/devices/icon/" + device.kind;
         }
 
         private boolean tryConvert(View convertView, DeviceInfo device) {

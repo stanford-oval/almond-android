@@ -120,7 +120,7 @@ public class MyRulesActivity extends Activity {
 
                 AppInfo app = getItem(position);
                 if (app.icon != null)
-                    LoadImageTask.load(getContext(), (ImageView)created.findViewById(R.id.app_icon), Config.S3_CLOUDFRONT_HOST + "/icons/" + app.icon + ".png");
+                    LoadImageTask.load(getContext(), (ImageView)created.findViewById(R.id.app_icon), Config.THINGPEDIA_URL + "/api/devices/icon/" + app.icon);
 
                 return created;
             }
