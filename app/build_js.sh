@@ -6,26 +6,28 @@ export PATH=/usr/local/bin:$PATH
 outputdir=`realpath "$1"`
 projectdir=".."
 
-npm_install() {
-  if npm --version 2>&1 | grep -q '^5' ; then
-     echo "WARNING: you're using npm >= 5.0.0; this is broken (see https://github.com/npm/npm/issues/18209); not installing dependencies"
-  else
+install_deps() {
+  if ! which yarn >/dev/null 2>&1 ; then
+     echo "WARNING: yarn not found, will use npm to install dependencies (this will cause buggy non-deterministic behavior)"
      npm install
+  else
+     yarn install
   fi
 }
 
 set -e
 set -x
 
+cd $projectdir/jsapp ;
+# install dependencies before we build the json (or yarn/npm will overwrite)
+install_deps
+
 for mod in almond thingtalk thingengine-core ; do
-	podir="$projectdir/jsapp/node_modules/$mod/po"
+	podir="./node_modules/$mod/po"
 	for pofile in $podir/*.po ; do
-		node $projectdir/jsapp/build_translations.js "$pofile" > "$podir/"$(basename $pofile .po)".json"
+		node ./build_translations.js "$pofile" > "$podir/"$(basename $pofile .po)".json"
 	done
 done
 
-(cd $projectdir/jsapp ;
-npm_install
 ./node_modules/.bin/browserify -t [ eslintify --passthrough warnings ] --node -e app.js -o $outputdir/app.js
-)
 node -c $outputdir/app.js
