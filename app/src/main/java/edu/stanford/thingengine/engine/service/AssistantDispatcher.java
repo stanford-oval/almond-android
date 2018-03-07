@@ -21,6 +21,7 @@ import com.google.android.gms.maps.model.LatLng;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.json.JSONTokener;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,7 +31,6 @@ import java.util.concurrent.Executors;
 import edu.stanford.thingengine.engine.BuildConfig;
 import edu.stanford.thingengine.engine.R;
 import edu.stanford.thingengine.engine.ui.MainActivity;
-import edu.stanford.thingengine.engine.ui.ThingpediaClient;
 
 /**
  * Created by gcampagn on 7/10/16.
@@ -45,7 +45,6 @@ public class AssistantDispatcher implements Handler.Callback {
     private final Context ctx;
     private final Handler assistantHandler;
     private final AssistantCommandHandler cmdHandler;
-    private final ThingpediaClient mThingpedia;
 
     private long lastNotificationTime = -1;
     private final List<AssistantMessage> notificationMessages = new ArrayList<>();
@@ -56,7 +55,6 @@ public class AssistantDispatcher implements Handler.Callback {
     public AssistantDispatcher(Context ctx, AssistantCommandHandler cmdHandler) {
         this.ctx = ctx;
         this.cmdHandler = cmdHandler;
-        this.mThingpedia = new ThingpediaClient(ctx);
         assistantHandler = new Handler(Looper.getMainLooper(), this);
     }
 
@@ -88,17 +86,18 @@ public class AssistantDispatcher implements Handler.Callback {
         });
     }
 
-    private abstract class CommandTask extends AsyncTask<String, Void, Void> {
+    private abstract class CommandTask<E> extends AsyncTask<E, Void, Void> {
         @Override
         public void onPreExecute() {
             if (callbacks != null)
                 callbacks.onBeforeCommand();
         }
 
-        protected abstract void run(String command);
+        protected abstract void run(E command);
 
         @Override
-        protected Void doInBackground(String... params) {
+        @SafeVarargs
+        protected final Void doInBackground(E... params) {
             run(params[0]);
             return null;
         }
@@ -110,16 +109,32 @@ public class AssistantDispatcher implements Handler.Callback {
         }
     }
 
+    private void handleSlashR(String line) {
+        if (line.startsWith("{")) {
+            try {
+                JSONObject json = (JSONObject) (new JSONTokener(line)).nextValue();
+                handleParsedCommand(json);
+            } catch (JSONException e) {
+                Log.e(EngineService.LOG_TAG, "Unexpected json exception while constructing location JSON", e);
+            }
+        } else {
+            handleParsedCommand(line.split("\\s+"));
+        }
+    }
+
     public AssistantMessage.Text handleCommand(String command) {
         if (BuildConfig.DEBUG) {
             if (command.startsWith("\\r ")) {
-                String json = command.substring(3);
-                handleParsedCommand(json);
+                String line = command.substring(3);
+                handleSlashR(line);
+                return null;
+            } else if (command.startsWith("\\t ")) {
+                handleThingTalk(command.substring(3));
                 return null;
             }
         }
 
-        (new CommandTask() {
+        (new CommandTask<String>() {
             @Override
             protected void run(String command) {
                 cmdHandler.handleCommand(command);
@@ -132,28 +147,91 @@ public class AssistantDispatcher implements Handler.Callback {
         return text;
     }
 
-    private void handleParsedCommand(final String json) {
-        (new CommandTask() {
+    public void presentExample(String utterance, String targetCode) {
+        collapseButtons();
+
+        (new AsyncTask<String, Void, Void>() {
             @Override
-            protected void run(String command) {
-                cmdHandler.handleParsedCommand(command);
+            public void onPreExecute() {
+                if (callbacks != null)
+                    callbacks.onBeforeCommand();
+            }
+
+            @Override
+            protected final Void doInBackground(String... params) {
+                cmdHandler.presentExample(params[0], params[1]);
+                return null;
+            }
+
+            @Override
+            public void onPostExecute(Void unused) {
+                if (callbacks != null)
+                    callbacks.onAfterCommand();
+            }
+        }).executeOnExecutor(async, utterance, targetCode);
+    }
+
+    private JSONArray arrayToJSON(Object[] array) {
+        JSONArray arr = new JSONArray();
+        for (Object el : array)
+            arr.put(el);
+        return arr;
+    }
+
+    private void handleThingTalk(final String code) {
+        (new CommandTask<String>() {
+            @Override
+            protected void run(String code) {
+                cmdHandler.handleThingTalk(code);
+            }
+        }).executeOnExecutor(async, code);
+    }
+
+    private void handleParsedCommand(final JSONObject json) {
+        (new CommandTask<JSONObject>() {
+            @Override
+            protected void run(JSONObject json) {
+                cmdHandler.handleParsedCommand(json);
             }
         }).executeOnExecutor(async, json);
+    }
+
+    private void handleParsedCommand(final String[] code, final JSONObject entities) {
+        JSONObject json = new JSONObject();
+        try {
+            json.put("code", arrayToJSON(code));
+            json.put("entities", entities);
+        } catch(JSONException e) {
+            throw new RuntimeException(e);
+        }
+
+        handleParsedCommand(json);
+    }
+    private void handleParsedCommand(final String... code) {
+        handleParsedCommand(code, new JSONObject());
     }
 
     public void collapseButtons() {
         history.removeButtons();
     }
 
-    private String specialJson(String specialType) {
-        return "{\"special\":{\"id\":\"tt:root.special." + specialType + "\"}}";
+    private String[] specialCode(String specialType) {
+        return new String[] { "bookkeeping", "special", "special:" + specialType };
     }
 
     public void handleClear() {
-        (new CommandTask() {
+        (new CommandTask<Object>() {
             @Override
-            protected void run(String command) {
-                cmdHandler.handleParsedCommand(command);
+            protected void run(Object unused) {
+                JSONObject json = new JSONObject();
+                try {
+                    json.put("code", new JSONArray(specialCode("nevermind")));
+                    json.put("entities", new JSONObject());
+                } catch(JSONException e) {
+                    throw new RuntimeException(e);
+                }
+
+                cmdHandler.handleParsedCommand(json);
             }
 
             @Override
@@ -161,31 +239,26 @@ public class AssistantDispatcher implements Handler.Callback {
                 history.clear();
                 super.onPostExecute(unused);
             }
-        }).executeOnExecutor(async, specialJson("nevermind"));
+        }).executeOnExecutor(async, new Object());
     }
 
     public void handleHelp() {
-        handleParsedCommand(specialJson("help"));
-        history.removeButtons();
-    }
-
-    public void handleHelp(String device) {
-        handleParsedCommand(String.format("{\"command\":{\"type\":\"help\",\"value\":{\"id\":\"%s\"}}}", device));
+        handleParsedCommand(specialCode("help"));
         history.removeButtons();
     }
 
     public void handleTrain() {
-        handleParsedCommand(specialJson("train"));
+        handleParsedCommand(specialCode("train"));
         history.removeButtons();
     }
 
     public void handleMakeRule() {
-        handleParsedCommand(specialJson("makerule"));
+        handleParsedCommand(specialCode("makerule"));
         history.removeButtons();
     }
 
     public AssistantMessage handleNeverMind() {
-        handleParsedCommand(specialJson("nevermind"));
+        handleParsedCommand(specialCode("nevermind"));
 
         AssistantMessage msg = new AssistantMessage.Text(AssistantMessage.Direction.FROM_USER, null, ctx.getString(R.string.never_mind));
         history.removeButtons();
@@ -194,7 +267,7 @@ public class AssistantDispatcher implements Handler.Callback {
     }
 
     public AssistantMessage handleYes() {
-        handleParsedCommand(specialJson("yes"));
+        handleParsedCommand(specialCode("yes"));
 
         AssistantMessage.Text msg = new AssistantMessage.Text(AssistantMessage.Direction.FROM_USER, null, ctx.getString(R.string.yes));
         history.removeButtons();
@@ -203,7 +276,7 @@ public class AssistantDispatcher implements Handler.Callback {
     }
 
     public AssistantMessage handleNo() {
-        handleParsedCommand(specialJson("no"));
+        handleParsedCommand(specialCode("no"));
 
         AssistantMessage.Text msg = new AssistantMessage.Text(AssistantMessage.Direction.FROM_USER, null, ctx.getString(R.string.no));
         history.removeButtons();
@@ -213,42 +286,13 @@ public class AssistantDispatcher implements Handler.Callback {
 
 
     public void handleConfigure(String kind) {
-        try {
-            JSONObject obj = new JSONObject();
-            JSONObject inner = new JSONObject();
-            obj.put("action", inner);
-            inner.put("name", "tt:builtin.configure");
-            JSONArray argArray = new JSONArray();
-            JSONObject arg = new JSONObject();
-            JSONObject argValue = new JSONObject();
-            arg.put("operator", "is");
-            arg.put("name", "tt:param.device");
-            arg.put("type", "Entity(tt:device)");
-            arg.put("value", argValue);
-            argValue.put("value", kind);
-            argArray.put(0, arg);
-            inner.put("args", argArray);
-
-            handleParsedCommand(obj.toString());
-        } catch(JSONException e) {
-            Log.e(EngineService.LOG_TAG, "Unexpected json exception while constructing choice JSON", e);
-        }
-
+        handleParsedCommand("now", "=>", "@org.thingpedia.builtin.thingengine.builtin.configure",
+                "param:device:Entity(tt:device)", "=", "device:" + kind);
         history.removeButtons();
     }
 
     public AssistantMessage handleChoice(String title, int idx) {
-        try {
-            JSONObject obj = new JSONObject();
-            JSONObject inner = new JSONObject();
-            obj.put("answer", inner);
-            inner.put("type", "Choice");
-            inner.put("value", idx);
-
-            handleParsedCommand(obj.toString());
-        } catch(JSONException e) {
-            Log.e(EngineService.LOG_TAG, "Unexpected json exception while constructing choice JSON", e);
-        }
+        handleParsedCommand("bookkeeping", "choice", Integer.toString(idx));
 
         AssistantMessage.Text msg = new AssistantMessage.Text(AssistantMessage.Direction.FROM_USER, null, title);
         history.removeButtons();
@@ -256,7 +300,7 @@ public class AssistantDispatcher implements Handler.Callback {
         return msg;
     }
 
-    public AssistantMessage handleButton(String title, String json) {
+    public AssistantMessage handleButton(String title, JSONObject json) {
         handleParsedCommand(json);
 
         AssistantMessage.Text msg = new AssistantMessage.Text(AssistantMessage.Direction.FROM_USER, null, title);
@@ -267,19 +311,17 @@ public class AssistantDispatcher implements Handler.Callback {
 
     public AssistantMessage handleLocation(Place place) {
         try {
-            JSONObject obj = new JSONObject();
-            JSONObject inner = new JSONObject();
-            obj.put("answer", inner);
-            inner.put("type", "Location");
             JSONObject location = new JSONObject();
-            inner.put("value", location);
             LatLng latLng = place.getLatLng();
             location.put("relativeTag", "absolute");
             location.put("longitude", latLng.longitude);
             location.put("latitude", latLng.latitude);
             location.put("display", place.getName());
 
-            handleParsedCommand(obj.toString());
+            JSONObject entities = new JSONObject();
+            entities.put("LOCATION_0", location);
+
+            handleParsedCommand(new String[] {"bookkeeping", "answer", "LOCATION_0"}, entities);
         } catch(JSONException e) {
             Log.e(EngineService.LOG_TAG, "Unexpected json exception while constructing location JSON", e);
         }
@@ -292,15 +334,10 @@ public class AssistantDispatcher implements Handler.Callback {
 
     public AssistantMessage handlePicture(String url) {
         try {
-            JSONObject obj = new JSONObject();
-            JSONObject inner = new JSONObject();
-            obj.put("answer", inner);
-            inner.put("type", "Picture");
-            JSONObject picture = new JSONObject();
-            inner.put("value", picture);
-            picture.put("value", url);
+            JSONObject entities = new JSONObject();
+            entities.put("PICTURE_0", url);
 
-            handleParsedCommand(obj.toString());
+            handleParsedCommand(new String[] {"bookkeeping", "answer", "PICTURE_0"}, entities);
         } catch(JSONException e) {
             Log.e(EngineService.LOG_TAG, "Unexpected json exception while constructing picture JSON", e);
         }
@@ -313,18 +350,16 @@ public class AssistantDispatcher implements Handler.Callback {
 
     public AssistantMessage handleContact(String data, String displayName, String type) {
         try {
-            JSONObject obj = new JSONObject();
-            JSONObject inner = new JSONObject();
-            obj.put("answer", inner);
-            inner.put("type", type);
-            JSONObject value = new JSONObject();
-            inner.put("value", value);
-            value.put("value", data);
-            value.put("display", displayName);
+            JSONObject contact = new JSONObject();
+            contact.put("value", data);
+            contact.put("display", displayName);
 
-            handleParsedCommand(obj.toString());
+            JSONObject entities = new JSONObject();
+            entities.put("GENERIC_ENTITY_" + type + "_0", contact);
+
+            handleParsedCommand(new String[] {"bookkeeping", "answer", "GENERIC_ENTITY_" + type + "_0"}, entities);
         } catch(JSONException e) {
-            Log.e(EngineService.LOG_TAG, "Unexpected json exception while constructing picture JSON", e);
+            Log.e(EngineService.LOG_TAG, "Unexpected json exception while constructing contact JSON", e);
         }
 
         AssistantMessage.Text contact = new AssistantMessage.Text(AssistantMessage.Direction.FROM_USER, null, displayName);
@@ -456,30 +491,26 @@ public class AssistantDispatcher implements Handler.Callback {
 
     private boolean isFilter(AssistantMessage msg) {
         if (msg.type == AssistantMessage.Type.BUTTON) {
-            try {
-                JSONObject jsonObj = new JSONObject(((AssistantMessage.Button) msg).json);
-                if (jsonObj.has("filter"))
-                    return true;
-            } catch (JSONException e) {
-                Log.e(EngineService.LOG_TAG, "Failed to parse button JSON", e);
-                assistantHandler.obtainMessage(MSG_ASSISTANT_MESSAGE, msg).sendToTarget();
-            }
+            JSONObject jsonObj = ((AssistantMessage.Button) msg).json;
+            if (jsonObj.has("filter"))
+                return true;
         }
         return false;
     }
 
     private boolean isSlotFilling(AssistantMessage msg) {
-        if (msg.type == AssistantMessage.Type.BUTTON)
-            if (((AssistantMessage.Button) msg).json.contains("\"slots\":[\""))
+        if (msg.type == AssistantMessage.Type.BUTTON) {
+            JSONObject jsonObj = ((AssistantMessage.Button) msg).json;
+            if (jsonObj.has("slots"))
                 return true;
+        }
         return false;
     }
 
     private void dispatchSlotFilling(AssistantMessage.Button msg) {
         try {
-            JSONObject obj = new JSONObject(msg.json);
             AssistantMessage slotFilling = new AssistantMessage.SlotFilling(
-                    msg.direction, msg.title, msg.json, obj.getJSONObject("slotTypes"));
+                    msg.direction, msg.title, msg.json);
             assistantHandler.obtainMessage(MSG_ASSISTANT_MESSAGE, slotFilling).sendToTarget();
         } catch (JSONException e) {
             Log.e(EngineService.LOG_TAG, "Failed to parse button JSON", e);
@@ -489,8 +520,7 @@ public class AssistantDispatcher implements Handler.Callback {
 
     private void dispatchFilters(AssistantMessage.Button msg) {
         try {
-            JSONObject obj = new JSONObject(msg.json);
-            String type = obj.getJSONObject("filter").getString("type");
+            String type = msg.json.getJSONObject("filter").getString("type");
             AssistantMessage filter = new AssistantMessage.Filter(msg.direction, msg.title, msg.json, type);
             assistantHandler.obtainMessage(MSG_ASSISTANT_MESSAGE, filter).sendToTarget();
         } catch (JSONException e) {

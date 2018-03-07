@@ -32,6 +32,7 @@ import java.util.Set;
 
 import edu.stanford.thingengine.engine.Config;
 import edu.stanford.thingengine.engine.R;
+import edu.stanford.thingengine.engine.service.AssistantDispatcher;
 import edu.stanford.thingengine.engine.service.ControlBinder;
 import edu.stanford.thingengine.engine.service.DeviceInfo;
 
@@ -337,40 +338,23 @@ public class DeviceDetailsActivity extends Activity {
         }
     }
 
-    private void onButtonClicked(final String utterance, final String targetJson) {
-        final ControlBinder control = mEngine.getControl();
+    private boolean hasSlots(JSONObject target) {
+        if (!target.has("slots"))
+            return false;
+
+        JSONObject obj = target.optJSONObject("slots");
+        return obj.length() > 0;
+    }
+
+    private void onButtonClicked(final String utterance, final String targetCode) {
+        ControlBinder control = mEngine.getControl();
         if (control == null)
             return;
-        control.getAssistant().collapseButtons();
-        // if we have slots, make an assistant button that will be converted to slot
-        // filling
-        // the user will still have to click the button to activate the action
-        // if we don't have slots, don't make a button just to be clicked, let the
-        // action through and wait for sabrina to ask questions
-        if (targetJson.contains("\"slots\":[\"") && !targetJson.contains("\"slots\":[]")) {
-            AsyncTask.THREAD_POOL_EXECUTOR.execute(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        control.presentSlotFilling(utterance, targetJson);
-                    } catch(Exception e) {
-                        Log.e(MainActivity.LOG_TAG, "Failed to prepare slot filling button", e);
-                        // fall back to slot filling questions
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                control.getAssistant().handleButton(utterance, targetJson);
-                            }
-                        });
-                    }
-                }
-            });
-
-        } else {
-            control.getAssistant().handleButton(utterance, targetJson);
-        }
         Intent intent = new Intent(DeviceDetailsActivity.this, MainActivity.class);
         startActivity(intent);
+
+        AssistantDispatcher dispatcher = control.getAssistant();
+        dispatcher.presentExample(utterance, targetCode);
     }
 
     public void refresh() {

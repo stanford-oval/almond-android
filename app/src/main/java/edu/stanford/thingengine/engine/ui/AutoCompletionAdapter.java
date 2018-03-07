@@ -16,131 +16,63 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Set;
 
 /**
  * Created by gcampagn on 10/17/16.
  */
 public class AutoCompletionAdapter extends BaseAdapter implements Filterable {
-    // this is the same list of stop words SEMPRE uses
-    private static final Set<String> STOP_WORDS = new HashSet<>();
-
-    static {
-        Collections.addAll(STOP_WORDS, "in", "on", "a", "to", "with", "and",
-                "\'", "\"", "``", "`", "\'\'", "a", "an", "the", "that", "which",
-                ".", "what", "?", "is", "are", "am", "be", "of");
-    }
-
     public static class Item {
         public final String display;
         public final String utterance;
-        public final String targetJson;
+        public final String targetCode;
+        public final boolean hasSlots;
 
-        public Item(String display, String utterance, String targetJson) {
+        public Item(String display, String utterance, String targetCode, boolean hasSlots) {
             this.display = display;
             this.utterance = utterance;
-            this.targetJson = targetJson;
+            this.targetCode = targetCode;
+            this.hasSlots = hasSlots;
         }
     }
 
+    private static boolean hasSlots(String[] tokens) {
+        for (String tok : tokens) {
+            if (tok.startsWith("$") && !"$".equals(tok))
+                return true;
+        }
+        return true;
+    }
+
     private class CompletionFilter extends Filter {
-        private List<String> tokenize(String string) {
-            String[] tokens = string.split("(\\s+|[,\\.\"\'])");
-            List<String> filtered = new ArrayList<>();
-
-            for (String token : tokens) {
-                if (token.trim().isEmpty())
-                    continue;
-
-                filtered.add(token.toLowerCase());
-            }
-            return filtered;
-        }
-
         private class Example {
-            public String utterance;
-            public List<String> tokens;
-            public String targetJson;
-            public String kind;
-            public double score;
-        }
-
-        private void scoreExample(Example example, Set<String> keyTokens) {
-           example.tokens = tokenize(example.utterance);
-
-            // score is 2 for finding the right device kind,
-            // 1 for each matched word and 0.5 for each matched
-            // argument name
-
-            double score = keyTokens.contains(example.kind) ? 2 : 0;
-
-            for (String t : example.tokens) {
-                if (t.startsWith("$")) {
-                    if (keyTokens.contains(t.substring(1)))
-                        score += 0.5;
-                } else {
-                    if (keyTokens.contains(t))
-                        score += 1;
-                }
-            }
-
-            example.score = score;
-        }
-
-        private List<Example> sortAndFilterExamples(String raw, List<Example> examples) {
-            ListIterator<Example> li = examples.listIterator();
-
-            Set<String> jsons = new HashSet<>();
-            while (li.hasNext()) {
-                Example ex = li.next();
-                if (jsons.contains(ex.targetJson)) {
-                    li.remove();
-                } else {
-                    jsons.add(ex.targetJson);
-                }
-            }
-
-            Set<String> keyTokens = new HashSet<>(tokenize(raw));
-            for (Example ex : examples) {
-                scoreExample(ex, keyTokens);
-            }
-
-            // find max score, then find all examples with max score
-            // this lets us use the most words in what the user said,
-            // and increases the opportunity for a "did you mean foo?"
-            // question
-            double maxScore = Double.NEGATIVE_INFINITY;
-            for (Example ex : examples)
-                maxScore = Math.max(ex.score, maxScore);
-
-            List<Example> filtered = new ArrayList<>();
-            for (Example ex : examples) {
-                if (ex.score == maxScore)
-                    filtered.add(ex);
-                if (filtered.size() >= 5)
-                    break;
-            }
-            return filtered;
+            String utterance;
+            String targetCode;
+            String[] tokens;
+            boolean hasSlots;
         }
 
         private List<Example> jsonToExamples(JSONArray json) throws JSONException {
-            List<Example> list = new LinkedList<>();
+            List<Example> list = new ArrayList<>();
 
+            Set<String> programs = new HashSet<>();
             for (int i = 0; i < json.length(); i++) {
                 JSONObject obj = json.getJSONObject(i);
                 Example ex = new Example();
+                ex.targetCode = obj.getString("target_code");
+                if (programs.contains(ex.targetCode))
+                    continue;
+                programs.add(ex.targetCode);
+
                 ex.utterance = obj.getString("utterance");
-                ex.targetJson = obj.getString("target_json");
-                ex.kind = obj.getString("kind");
+                ex.tokens = ex.utterance.split("\\s+");
+                ex.hasSlots = hasSlots(ex.tokens);
                 list.add(ex);
             }
 
-            return list;
+            return list.subList(0, Math.min(5, list.size()));
         }
 
         @Override
@@ -149,7 +81,7 @@ public class AutoCompletionAdapter extends BaseAdapter implements Filterable {
                 if (constraint == null)
                     return new FilterResults();
                 String key = constraint.toString();
-                List<Example> examples = sortAndFilterExamples(key, jsonToExamples(tp.getExamplesByKey(key)));
+                List<Example> examples = jsonToExamples(tp.getExamplesByKey(key));
 
                 FilterResults results = new FilterResults();
                 results.count = examples.size();
@@ -161,7 +93,7 @@ public class AutoCompletionAdapter extends BaseAdapter implements Filterable {
             }
         }
 
-        private String presentExample(List<String> tokens) {
+        private String presentExample(String[] tokens) {
             StringBuilder builder = new StringBuilder();
 
             boolean first = true;
@@ -190,7 +122,7 @@ public class AutoCompletionAdapter extends BaseAdapter implements Filterable {
             List<?> list = (List<?>) results.values;
             for (Object o : list) {
                 Example ex = (Example)o;
-                Item item = new Item(presentExample(ex.tokens), ex.utterance, ex.targetJson);
+                Item item = new Item(presentExample(ex.tokens), ex.utterance, ex.targetCode, ex.hasSlots);
                 store.add(item);
             }
 

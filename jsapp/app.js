@@ -16,6 +16,7 @@ const Q = require('q');
 Q.longStackSupport = true;
 
 const ControlChannel = require('./control');
+const Config = require('./config');
 
 var _engine, _ad;
 var _waitReady;
@@ -168,13 +169,6 @@ class AppControlChannel extends ControlChannel {
         return true;
     }
 
-    presentSlotFilling(utterance, targetJson) {
-        if (!_ad)
-            throw new Error('Assistant not ready');
-
-        return _ad.getConversation().presentSingleExample(utterance, targetJson);
-    }
-
     getAllPermissions() {
         return _engine.permissions.getAllPermissions().map((p) => ({
             uniqueId: p.uniqueId,
@@ -199,7 +193,7 @@ function main() {
     const AssistantDispatcher = require('./assistant');
 
     console.log('Creating engine...');
-    _engine = new Engine(global.platform);
+    _engine = new Engine(global.platform, { thingpediaUrl: Config.THINGPEDIA_URL });
 
     _ad = new AssistantDispatcher(_engine);
     global.platform.setAssistant(_ad);

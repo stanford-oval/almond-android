@@ -1,10 +1,7 @@
 package edu.stanford.thingengine.engine.jsapi;
 
-import android.util.Log;
-
-import org.json.JSONException;
+import org.json.JSONArray;
 import org.json.JSONObject;
-import org.json.JSONTokener;
 
 import edu.stanford.thingengine.engine.service.AssistantCommandHandler;
 import edu.stanford.thingengine.engine.service.AssistantMessage;
@@ -40,11 +37,7 @@ public class AssistantAPI extends JavascriptAPI implements AssistantCommandHandl
         registerSync("sendRDL", new GenericCall() {
             @Override
             public Object run(Object... args) throws Exception {
-                try {
-                    sendRDL((JSONObject) ((new JSONTokener((String) args[0])).nextValue()), (String)args[1]);
-                } catch (ClassCastException | JSONException e) {
-                    Log.e(EngineService.LOG_TAG, "Unexpected exception marshalling sendRDL", e);
-                }
+                sendRDL((JSONObject) args[0], (String)args[1]);
                 return null;
             }
         });
@@ -68,7 +61,7 @@ public class AssistantAPI extends JavascriptAPI implements AssistantCommandHandl
         registerSync("sendButton", new GenericCall() {
             @Override
             public Object run(Object... args) throws Exception {
-                sendButton((String)args[0], (String)args[1]);
+                sendButton((String)args[0], (JSONObject) args[1]);
                 return null;
             }
         });
@@ -93,8 +86,25 @@ public class AssistantAPI extends JavascriptAPI implements AssistantCommandHandl
     }
 
     @Override
-    public void handleParsedCommand(String json) {
+    public void handleParsedCommand(JSONObject json) {
         invokeAsync("onhandleparsedcommand", json);
+    }
+
+    @Override
+    public void handleThingTalk(String code) {
+        invokeAsync("onhandlethingtalk", code);
+    }
+
+    private JSONArray arrayToJSONArray(Object... what) {
+        JSONArray arr = new JSONArray();
+        for (Object o : what)
+            arr.put(o);
+        return arr;
+    }
+
+    @Override
+    public void presentExample(String utterance, String targetCode) {
+        invokeAsync("onpresentexample", arrayToJSONArray(utterance, targetCode));
     }
 
     private void send(String text, String icon) {
@@ -117,7 +127,7 @@ public class AssistantAPI extends JavascriptAPI implements AssistantCommandHandl
         mService.getAssistant().dispatch(new AssistantMessage.Link(AssistantMessage.Direction.FROM_SABRINA, title, url));
     }
 
-    private void sendButton(String title, String button) {
+    private void sendButton(String title, JSONObject button) {
         mService.getAssistant().dispatch(new AssistantMessage.Button(AssistantMessage.Direction.FROM_SABRINA, title, button));
     }
 

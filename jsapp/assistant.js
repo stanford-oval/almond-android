@@ -13,10 +13,10 @@ const Almond = require('almond');
 
 const JavaAPI = require('./java_api');
 
-const COMMANDS = ['send', 'sendPicture', 'sendChoice', 'sendLink', 'sendButton', 'sendAskSpecial'];
+const COMMANDS = ['send', 'sendPicture', 'sendChoice', 'sendLink', 'sendButton', 'sendAskSpecial', 'sendRDL'];
 const AssistantJavaApi = JavaAPI.makeJavaAPI('Assistant', [],
-    COMMANDS.concat(['sendRDL']),
-    ['onready', 'onhandlecommand', 'onhandleparsedcommand']);
+    COMMANDS,
+    ['onready', 'onhandlecommand', 'onhandleparsedcommand', 'onhandlethingtalk', 'onpresentexample']);
 
 class LocalUser {
     constructor(platform) {
@@ -38,12 +38,16 @@ class AssistantDispatcher {
     start() {
         AssistantJavaApi.onhandlecommand = this._onHandleCommand.bind(this);
         AssistantJavaApi.onhandleparsedcommand = this._onHandleParsedCommand.bind(this);
+        AssistantJavaApi.onhandlethingtalk = this._onHandleThingTalk.bind(this);
+        AssistantJavaApi.onpresentexample = this._onPresentExample.bind(this);
         AssistantJavaApi.onready = this._onUIReady.bind(this);
     }
 
     stop() {
         AssistantJavaApi.onhandlecommand = null;
         AssistantJavaApi.onhandleparsedcommand = null;
+        AssistantJavaApi.onhandlethingtalk = null;
+        AssistantJavaApi.onpresentexample = null;
         AssistantJavaApi.onready = null;
     }
 
@@ -99,10 +103,14 @@ class AssistantDispatcher {
         return this._conversation.handleCommand(text);
     }
 
-    // sendRDL is special because we need to stringify the rdl before we
-    // call the Java API, or jxcore will marshal it weirdly
-    sendRDL(rdl, icon) {
-        return AssistantJavaApi.sendRDL(JSON.stringify(rdl), icon);
+    _onHandleThingTalk(error, code) {
+        this._ensureConversation();
+        return this._conversation.handleThingTalk(code);
+    }
+
+    _onPresentExample(error, [utterance, targetCode]) {
+        this._ensureConversation();
+        return this._conversation.presentExample(utterance, targetCode);
     }
 }
 COMMANDS.forEach((c) => {

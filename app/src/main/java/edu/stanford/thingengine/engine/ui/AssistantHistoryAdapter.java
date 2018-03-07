@@ -3,6 +3,7 @@ package edu.stanford.thingengine.engine.ui;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
+import android.support.annotation.NonNull;
 import android.support.percent.PercentRelativeLayout;
 import android.support.v7.widget.RecyclerView;
 import android.text.InputType;
@@ -419,19 +420,11 @@ class AssistantHistoryAdapter extends RecyclerView.Adapter<AssistantHistoryAdapt
                     slotFilling.setJustifyContent(FlexboxLayout.JUSTIFY_CONTENT_CENTER);
                 }
 
-                String[] words = msg.title.split(" ");
+                String[] words = msg.title.split("\\s+");
                 int idx = 0;
                 int lastEditable = -1;
                 for (String word : words) {
-                    if (word.startsWith("$__person")) {
-                        View slot = slotByType("String");
-                        lastEditable = idx;
-                        slots.put("__person", slot);
-                        slotFilling.addView(slot);
-                        if (word.equals("$__person's")) {
-                            slotFilling.addView(btnStyleText("'s"));
-                        }
-                    } else if (word.startsWith("$")) {
+                    if (word.startsWith("$") && !word.equals("$")) {
                         String slotName = word.substring(1);
                         String slotType = msg.slotTypes.optString(slotName, "UNKNOWN");
                         View slot = slotByType(slotType);
@@ -467,7 +460,7 @@ class AssistantHistoryAdapter extends RecyclerView.Adapter<AssistantHistoryAdapt
                             else
                                 values.put(e.getKey(), "");
                         }
-                        owner.onSlotFillingActivated(msg.title, msg.json, msg.slotTypes, values);
+                        owner.onSlotFillingActivated(msg.title, msg.json, msg.slots, msg.slotTypes, values);
                     }
                 });
                 applyBubbleStyle(slotFilling, AssistantMessage.Direction.FROM_USER);
@@ -475,9 +468,8 @@ class AssistantHistoryAdapter extends RecyclerView.Adapter<AssistantHistoryAdapt
                 setIcon(msg);
             }
 
-            private View slotByType(String type) {
+            private View slotByType(@NonNull String type) {
                 EditText et = new EditText(ctx);
-                if (type == null) type = "UNKNOWN";
                 switch(type) {
                     case "Number":
                         et.setInputType(InputType.TYPE_CLASS_NUMBER);
@@ -499,9 +491,6 @@ class AssistantHistoryAdapter extends RecyclerView.Adapter<AssistantHistoryAdapt
                     case "Time":
                     // the following types are not supposed to appear here
                     case "Entity(tt:picture)":
-                    case "Contact":
-                    case "Choice":
-                    case "List":
                     case "UNKNOWN":
                         et.setFocusable(false);
                         et.setOnClickListener(new View.OnClickListener() {

@@ -2,6 +2,7 @@ package edu.stanford.thingengine.engine.service;
 
 import android.support.annotation.Nullable;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -165,9 +166,9 @@ public abstract class AssistantMessage implements Serializable {
         private static final long serialVersionUID = 1L;
 
         public final String title;
-        public final String json;
+        public final JSONObject json;
 
-        public Button(Direction dir, String title, String json) {
+        public Button(Direction dir, String title, JSONObject json) {
             super(dir, Type.BUTTON, null);
             this.title = title;
             this.json = json;
@@ -204,14 +205,16 @@ public abstract class AssistantMessage implements Serializable {
         private static final long serialVersionUID = 1L;
 
         public final String title;
-        public final String json;
+        public final JSONObject json;
+        public final JSONArray slots;
         public final JSONObject slotTypes;
 
-        public SlotFilling(Direction dir, String title, String json, JSONObject slotTypes) {
+        public SlotFilling(Direction dir, String title, JSONObject json) throws JSONException {
             super(dir, Type.SLOT_FILLING, null);
             this.title = title;
             this.json = json;
-            this.slotTypes = slotTypes;
+            this.slots = json.getJSONArray("slots");
+            this.slotTypes = json.getJSONObject("slotTypes");
         }
 
         @Override
@@ -224,10 +227,10 @@ public abstract class AssistantMessage implements Serializable {
         private static final long serialVersionUID = 1L;
 
         public final String title;
-        public final String json;
+        public final JSONObject json;
         public final String type;
 
-        public Filter(Direction dir, String title, String json, String type) {
+        public Filter(Direction dir, String title, JSONObject json, String type) {
             super(dir, Type.FILTER, null);
             this.title = title;
             this.json = json;

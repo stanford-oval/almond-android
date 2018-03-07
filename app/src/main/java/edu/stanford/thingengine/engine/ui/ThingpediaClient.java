@@ -19,7 +19,7 @@ import java.util.Locale;
  * Created by gcampagn on 6/27/16.
  */
 public class ThingpediaClient {
-    private static final String THINGPEDIA_URL = "https://thingengine.stanford.edu/thingpedia";
+    private static final String THINGPEDIA_URL = "https://crowdie.stanford.edu/thingpedia";
 
     private final Context ctx;
 
@@ -77,11 +77,11 @@ public class ThingpediaClient {
     public JSONArray getExamplesByKey(String key) throws IOException, JSONException {
         String locale = Locale.getDefault().toString();
         JSONArray examples = (JSONArray)runSimpleRequest("/api/examples/?key=" + URLEncoder.encode(key, "UTF-8") +
-                "&locale=" + locale + "&base=1");
+                "&locale=" + locale);
         // in case that no example is translated, return the english examples
         if (examples.length() == 0 && !locale.startsWith("en")) {
             examples = (JSONArray) runSimpleRequest("/api/examples/by-kinds/" + URLEncoder.encode(key, "UTF-8") +
-                    "?locale=en-US&base=1");
+                    "?locale=en-US");
         }
         return examples;
     }

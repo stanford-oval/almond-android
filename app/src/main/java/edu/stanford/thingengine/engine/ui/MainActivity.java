@@ -324,32 +324,11 @@ public class MainActivity extends Activity implements AssistantOutput, Assistant
         // if we don't have slots, don't make a button just to be clicked, let the
         // action through and wait for sabrina to ask questions
 
-        final ControlBinder control = engine.getControl();
+        ControlBinder control = engine.getControl();
         if (control == null)
             return;
-        control.getAssistant().collapseButtons();
-
-        if (item.targetJson.contains("\"slots\":[\"") && !item.targetJson.contains("\"slots\":[]")) {
-            AsyncTask.THREAD_POOL_EXECUTOR.execute(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        control.presentSlotFilling(item.utterance, item.targetJson);
-                    } catch (Exception e) {
-                        Log.e(MainActivity.LOG_TAG, "Failed to prepare slot filling button", e);
-                        // fall back to slot filling questions
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                onButtonActivated(item.utterance, item.targetJson);
-                            }
-                        });
-                    }
-                }
-            });
-        } else {
-            onButtonActivated(item.utterance, item.targetJson);
-        }
+        AssistantDispatcher assistant = control.getAssistant();
+        assistant.presentExample(item.utterance, item.targetCode);
     }
 
 
@@ -481,7 +460,7 @@ public class MainActivity extends Activity implements AssistantOutput, Assistant
         startActivity(intent);
     }
 
-    void onButtonActivated(String title, String json) {
+    void onButtonActivated(String title, JSONObject json) {
         ControlBinder control = engine.getControl();
         if (control == null)
             return;
@@ -513,87 +492,54 @@ public class MainActivity extends Activity implements AssistantOutput, Assistant
         display(control.getAssistant().handleChoice(title, idx));
     }
 
-    void onFilterActivated(String title, String json, String type, String value) {
+    void onFilterActivated(String title, JSONObject json, String type, String value) {
         ControlBinder control = engine.getControl();
         if (control == null)
             return;
 
         try {
-            JSONObject jsonObj = new JSONObject(json);
             if (!value.isEmpty()) {
                 title = title.replace("____", value);
                 if (type.equals("Number"))
-                    jsonObj.getJSONObject("filter").put("value", new JSONObject("{value: " + value + "}"));
+                    json.getJSONObject("filter").put("value", new JSONObject("{value: " + value + "}"));
                 else
-                    jsonObj.getJSONObject("filter").put("value", new JSONObject("{value: \"" + value + "\"}"));
+                    json.getJSONObject("filter").put("value", new JSONObject("{value: \"" + value + "\"}"));
             }
-            display(control.getAssistant().handleButton(title, jsonObj.toString()));
+            // FIXME
+            display(control.getAssistant().handleButton(title, json));
         } catch (JSONException e) {
             e.printStackTrace();
         }
     }
 
-    void onSlotFillingActivated(String title, String json, JSONObject slotTypes, Map<String, String> values) {
+    void onSlotFillingActivated(String title, JSONObject json, JSONArray slots, JSONObject slotTypes, Map<String, String> values) {
         ControlBinder control = engine.getControl();
         if (control == null)
             return;
 
         try {
-            JSONObject jsonObj = new JSONObject(json);
-            String cmdType = jsonObj.keys().next();
-            JSONObject cmd = jsonObj.getJSONObject(cmdType);
-            if (values.containsKey("__person")) {
-                String slotValue = values.get("__person");
-                if (!slotValue.isEmpty()) {
-                    cmd.put("person", slotValue);
-                    title = title.replace("$__person", slotValue.trim());
-                } else {
-                    //TODO: fix tokenizing in helper.js
-                    title = title.replace("$__person ' s", "someone's");
-                    title = title.replace("$__person", "someone");
-                }
+            JSONObject entities = json.optJSONObject("entities");
+            if (entities == null) {
+                entities = new JSONObject();
+                json.put("entities", entities);
             }
 
-            if (!cmd.has("slots") || cmd.getJSONArray("slots").length() == 0)
-                display(control.getAssistant().handleButton(title, json));
-            else {
-                JSONArray slots = cmd.getJSONArray("slots");
-                JSONArray args = new JSONArray();
+            for (int i = 0; i < slots.length(); i++) {
+                String slotName = slots.getString(i);
 
-                for (int i = slots.length() - 1; i >= 0; i--) {
-                    String slotName = slots.getString(i);
-                    if (slotName.equals("__person"))
-                        continue;
-
-                    String slotValue = values.get(slotName);
-                    if (slotValue.length() == 0) {
-                        title = title.replace("$" + slotName, "____");
-                        continue;
-                    }
-
-                    String slotType = slotTypes.getString(slotName);
-
-                    JSONObject argJson = new JSONObject();
-                    // set argument name
-                    JSONObject argName = new JSONObject();
-                    argName.put("id", "tt:param." + slotName);
-                    argJson.put("name", argName);
-                    // set argument type
-                    argJson.put("type", getArgType(slotType));
-                    // set argument value
-                    JSONObject argValue = new JSONObject();
-                    argValue.put("value", getArgValue(slotValue, slotType));
-                    argJson.put("value", argValue);
-                    // set operator
-                    argJson.put("operator", "is");
-                    // add argument
-                    args.put(argJson);
-                    // replace slot (underscore) by the argument value
-                    title = title.replace("$" + slotName, slotValue.trim());
+                String slotValue = values.get(slotName);
+                if (slotValue.length() == 0) {
+                    title = title.replace("$" + slotName, "____");
+                    continue;
                 }
-                cmd.put("args", args);
-                display(control.getAssistant().handleButton(title, jsonObj.toString()));
+
+                title = title.replace("$" + slotName, slotValue);
+                String slotType = slotTypes.getString(slotName);
+                String slotId = "SLOT_" + i;
+
+                entities.put(slotId, getArgValue(slotValue, slotType));
             }
+            display(control.getAssistant().handleButton(title, json));
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -602,24 +548,14 @@ public class MainActivity extends Activity implements AssistantOutput, Assistant
     private Object getArgValue(String value, String type) {
         switch (type) {
             case "Number":
-                return Integer.valueOf(value);
+            case "Measure":
+            case "Currency":
+                return Double.valueOf(value);
             case "Boolean":
-                if (value.equals("on"))
-                    return true;
-                else
-                    return false;
+                return value.equals("on");
             default:
                 return value;
         }
-    }
-
-    private String getArgType(String type) {
-        if (type.startsWith("Enum("))
-            return "Enum";
-        else if (type.equals("Boolean"))
-            return "Bool";
-        else
-            return type;
     }
 
     private void onLocationSelected(Place place) {
