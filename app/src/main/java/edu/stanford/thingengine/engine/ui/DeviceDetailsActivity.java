@@ -30,7 +30,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import edu.stanford.thingengine.engine.Config;
+import edu.stanford.thingengine.engine.BuildConfig;
 import edu.stanford.thingengine.engine.R;
 import edu.stanford.thingengine.engine.service.AssistantDispatcher;
 import edu.stanford.thingengine.engine.service.ControlBinder;
@@ -234,7 +234,7 @@ public class DeviceDetailsActivity extends Activity {
         setTitle(mDeviceInfo.name);
 
         ImageView icon = (ImageView) findViewById(R.id.device_icon);
-        LoadImageTask.load(this, icon, Config.THINGPEDIA_URL + "/api/devices/icon/" + mDeviceInfo.kind);
+        LoadImageTask.load(this, icon, BuildConfig.THINGPEDIA_URL + "/api/devices/icon/" + mDeviceInfo.kind);
 
         TextView description = (TextView) findViewById(R.id.device_description);
         description.setText(mDeviceInfo.description);

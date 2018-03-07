@@ -23,7 +23,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import edu.stanford.thingengine.engine.Config;
+import edu.stanford.thingengine.engine.BuildConfig;
 import edu.stanford.thingengine.engine.R;
 import edu.stanford.thingengine.engine.service.ControlBinder;
 import edu.stanford.thingengine.engine.service.DeviceInfo;
@@ -72,7 +72,7 @@ public class MyStuffActivity extends Activity {
         }
 
         private String getIcon(DeviceInfo device) {
-            return Config.THINGPEDIA_URL + "/api/devices/icon/" + device.kind;
+            return BuildConfig.THINGPEDIA_URL + "/api/devices/icon/" + device.kind;
         }
 
         private boolean tryConvert(View convertView, DeviceInfo device) {

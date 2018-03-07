@@ -17,7 +17,7 @@ import android.widget.ListView;
 import java.util.Collections;
 import java.util.List;
 
-import edu.stanford.thingengine.engine.Config;
+import edu.stanford.thingengine.engine.BuildConfig;
 import edu.stanford.thingengine.engine.R;
 import edu.stanford.thingengine.engine.service.AppInfo;
 import edu.stanford.thingengine.engine.service.ControlBinder;
@@ -120,7 +120,7 @@ public class MyRulesActivity extends Activity {
 
                 AppInfo app = getItem(position);
                 if (app.icon != null)
-                    LoadImageTask.load(getContext(), (ImageView)created.findViewById(R.id.app_icon), Config.THINGPEDIA_URL + "/api/devices/icon/" + app.icon);
+                    LoadImageTask.load(getContext(), (ImageView)created.findViewById(R.id.app_icon), BuildConfig.THINGPEDIA_URL + "/api/devices/icon/" + app.icon);
 
                 return created;
             }

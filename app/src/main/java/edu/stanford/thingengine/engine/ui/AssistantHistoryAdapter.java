@@ -33,7 +33,6 @@ import java.util.List;
 import java.util.Map;
 
 import edu.stanford.thingengine.engine.BuildConfig;
-import edu.stanford.thingengine.engine.Config;
 import edu.stanford.thingengine.engine.R;
 import edu.stanford.thingengine.engine.service.AssistantHistoryModel;
 import edu.stanford.thingengine.engine.service.AssistantMessage;
@@ -87,7 +86,7 @@ class AssistantHistoryAdapter extends RecyclerView.Adapter<AssistantHistoryAdapt
             if (msg.icon == null)
                 sabrinaHead.setImageDrawable(getSabrinaHeadBubble(ctx));
             else
-                LoadImageTask.load(ctx, sabrinaHead, Config.THINGPEDIA_URL + "/api/devices/icon/" + msg.icon);
+                LoadImageTask.load(ctx, sabrinaHead, BuildConfig.THINGPEDIA_URL + "/api/devices/icon/" + msg.icon);
         }
 
         protected void setSideAndAlignment(View view, AssistantMessage msg) {
