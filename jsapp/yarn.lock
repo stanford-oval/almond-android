@@ -31,8 +31,8 @@ acorn@^4.0.3:
   resolved "https://registry.yarnpkg.com/acorn/-/acorn-4.0.13.tgz#105495ae5361d697bd195c825192e1ad7f253787"
 
 acorn@^5.2.1, acorn@^5.4.1, acorn@^5.5.0:
-  version "5.5.1"
-  resolved "https://registry.yarnpkg.com/acorn/-/acorn-5.5.1.tgz#84e05a9ea0acbe131227da50301e62464dc9c1d8"
+  version "5.5.3"
+  resolved "https://registry.yarnpkg.com/acorn/-/acorn-5.5.3.tgz#f473dd47e0277a08e28e9bec5aeeb04751f0b8c9"
 
 adt@^0.7.2, adt@~0.7.2:
   version "0.7.2"
@@ -58,12 +58,13 @@ ajv@^5.1.0:
     fast-json-stable-stringify "^2.0.0"
     json-schema-traverse "^0.3.0"
 
-"almond@github:Stanford-Mobisocial-IoT-Lab/almond-dialog-agent#wip/ibase":
+"almond@github:Stanford-Mobisocial-IoT-Lab/almond-dialog-agent":
   version "1.0.0"
-  resolved "https://codeload.github.com/Stanford-Mobisocial-IoT-Lab/almond-dialog-agent/tar.gz/efff43f6dccf8f08dfb7894059f5e15fbfa5e715"
+  resolved "https://codeload.github.com/Stanford-Mobisocial-IoT-Lab/almond-dialog-agent/tar.gz/c0a4e063355265797ffd88a19db0ff86fc6ce7e1"
   dependencies:
     adt "~0.7.2"
-    q "~1.4.1"
+    thingpedia "github:Stanford-Mobisocial-IoT-Lab/thingpedia-api"
+    thingtalk "github:Stanford-Mobisocial-IoT-Lab/ThingTalk"
     uuid "^3.1.0"
 
 another-json@^0.2.0:
@@ -591,7 +592,7 @@ crypto-browserify@^3.0.0:
     randombytes "^2.0.0"
     randomfill "^1.0.3"
 
-"cvc4@github:Stanford-Mobisocial-IoT-Lab/node-cvc4#android":
+cvc4@^0.1.1, "cvc4@github:Stanford-Mobisocial-IoT-Lab/node-cvc4#android":
   version "0.1.1"
   resolved "https://codeload.github.com/Stanford-Mobisocial-IoT-Lab/node-cvc4/tar.gz/82b987fa73d1643f527c4a85d3213577a13fdd04"
   dependencies:
@@ -719,8 +720,8 @@ encoding@^0.1.12:
     iconv-lite "~0.4.13"
 
 es5-ext@^0.10.14, es5-ext@^0.10.35, es5-ext@^0.10.9, es5-ext@~0.10.14:
-  version "0.10.39"
-  resolved "https://registry.yarnpkg.com/es5-ext/-/es5-ext-0.10.39.tgz#fca21b67559277ca4ac1a1ed7048b107b6f76d87"
+  version "0.10.40"
+  resolved "https://registry.yarnpkg.com/es5-ext/-/es5-ext-0.10.40.tgz#ab3d2179b943008c5e9ef241beb25ef41424c774"
   dependencies:
     es6-iterator "~2.0.3"
     es6-symbol "~3.1.1"
@@ -2218,7 +2219,7 @@ sprintf-js@~1.0.2:
   version "1.0.3"
   resolved "https://registry.yarnpkg.com/sprintf-js/-/sprintf-js-1.0.3.tgz#04e6926f662895354f3dd015203633b857297e2c"
 
-sqlite3@^3.1.1, "sqlite3@github:gcampax/node-sqlite3":
+sqlite3@^3.1.1, sqlite3@^3.1.13, "sqlite3@github:gcampax/node-sqlite3":
   version "3.1.13"
   resolved "https://codeload.github.com/gcampax/node-sqlite3/tar.gz/5d7f6f7dc696ad0bc4a346a63cc5eb273577a5b2"
 
@@ -2347,9 +2348,9 @@ text-table@^0.2.0, text-table@~0.2.0:
   version "0.2.0"
   resolved "https://registry.yarnpkg.com/text-table/-/text-table-0.2.0.tgz#7f5ee823ae805207c00af2df4a84ec3fcfa570b4"
 
-"thingengine-core@github:Stanford-Mobisocial-IoT-Lab/thingengine-core#ibase":
+"thingengine-core@github:Stanford-Mobisocial-IoT-Lab/thingengine-core":
   version "1.0.0"
-  resolved "https://codeload.github.com/Stanford-Mobisocial-IoT-Lab/thingengine-core/tar.gz/b88e807bb98795f6f9ece453d60169bfc300a354"
+  resolved "https://codeload.github.com/Stanford-Mobisocial-IoT-Lab/thingengine-core/tar.gz/fb8cdc1b21627b682be17bbe264371548ae2d188"
   dependencies:
     adt "^0.7.2"
     babel-runtime "^6.26.0"
@@ -2361,6 +2362,7 @@ text-table@^0.2.0, text-table@~0.2.0:
     pouchdb-adapter-node-websql "^6.3.4"
     pouchdb-find "^6.3.4"
     q "^1.5.0"
+    sqlite3 "^3.1.13"
     tmp "0.0.31"
     uuid "^3.1.0"
     websql "^0.4.4"
@@ -2374,9 +2376,9 @@ text-table@^0.2.0, text-table@~0.2.0:
     oauth "~0.9.14"
     q "~1.4.1"
 
-"thingpedia@github:Stanford-Mobisocial-IoT-Lab/thingpedia-api#wip/new-thingpedia":
+"thingpedia@github:Stanford-Mobisocial-IoT-Lab/thingpedia-api":
   version "1.0.0"
-  resolved "https://codeload.github.com/Stanford-Mobisocial-IoT-Lab/thingpedia-api/tar.gz/462c231b3e1504c3ea3cb1c89c797c3e9065c538"
+  resolved "https://codeload.github.com/Stanford-Mobisocial-IoT-Lab/thingpedia-api/tar.gz/ffddd5ec25607f03c56038a6fb7e337c96cfa961"
   dependencies:
     ip "~1.1.0"
     oauth "~0.9.14"
@@ -2384,14 +2386,16 @@ text-table@^0.2.0, text-table@~0.2.0:
     tmp "0.0.31"
     xml2js "^0.4.17"
 
-"thingtalk@github:Stanford-Mobisocial-IoT-Lab/ThingTalk#wip/new-thingtalk":
+"thingtalk@github:Stanford-Mobisocial-IoT-Lab/ThingTalk":
   version "1.0.0"
-  resolved "https://codeload.github.com/Stanford-Mobisocial-IoT-Lab/ThingTalk/tar.gz/cc469605a6208c4f5c1eb5d09a19fcd1bc50a81d"
+  resolved "https://codeload.github.com/Stanford-Mobisocial-IoT-Lab/ThingTalk/tar.gz/36ac6d18935b0e5d607d855ebddb69da73085970"
   dependencies:
     adt "~0.7.2"
     byline "^5.0.0"
     q "~1.4.1"
     smtlib "^0.1.1"
+  optionalDependencies:
+    cvc4 "^0.1.1"
 
 through2@^2.0.0:
   version "2.0.3"
