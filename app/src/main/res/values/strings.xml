@@ -71,6 +71,10 @@
     <string name="action_help">Help</string>
     <string name="input_hint">Write your command or answer here</string>
     <string name="mypermissions_tab">My Permissions</string>
+    <string name="no_commands">This device has no example commands.</string>
+    <string name="device_up_to_date">Already up to date</string>
+    <string name="device_update_ok">Update succeed</string>
+    <string name="are_you_sure">Are you sure?</string>
 
 
     <string-array name="sabrina_highlights">

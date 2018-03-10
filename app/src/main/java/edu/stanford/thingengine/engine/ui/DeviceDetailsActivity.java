@@ -12,6 +12,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.NavUtils;
 import android.util.Log;
 import android.view.MenuItem;
@@ -49,7 +50,6 @@ public class DeviceDetailsActivity extends Activity {
     private final ThingpediaClient mThingpedia;
     private DeviceInfo mDeviceInfo;
     private String mUniqueId;
-    private String mClass;
     private boolean mCheckingAvailable;
 
     public DeviceDetailsActivity() {
@@ -90,7 +90,7 @@ public class DeviceDetailsActivity extends Activity {
     }
 
     private void maybeDeleteDevice() {
-        DialogUtils.showConfirmDialog(this, "Are you sure?", new DialogInterface.OnClickListener() {
+        DialogUtils.showConfirmDialog(this, getString(R.string.are_you_sure), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 new DeleteDeviceTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, mUniqueId);
@@ -186,9 +186,9 @@ public class DeviceDetailsActivity extends Activity {
         mDeviceInfo = (DeviceInfo) intent.getSerializableExtra("extra.INFO");
         mUniqueId = mDeviceInfo.uniqueId;
 
-        mClass = intent.getStringExtra("extra.CLASS");
+        String _class = intent.getStringExtra("extra.CLASS");
         Button deleteBtn = (Button) findViewById(R.id.btn_delete_device);
-        switch (mClass) {
+        switch (_class) {
             case "online":
                 deleteBtn.setText(R.string.btn_delete_account);
                 break;
@@ -227,11 +227,11 @@ public class DeviceDetailsActivity extends Activity {
                 return;
 
             if (mDeviceInfo.isSame(info)) {
-                Toast.makeText(DeviceDetailsActivity.this, "Already up to date", Toast.LENGTH_SHORT).show();
+                Toast.makeText(DeviceDetailsActivity.this, R.string.device_up_to_date, Toast.LENGTH_SHORT).show();
             } else {
                 mDeviceInfo = info;
                 fillView();
-                Toast.makeText(DeviceDetailsActivity.this, "Update succeed", Toast.LENGTH_SHORT).show();
+                Toast.makeText(DeviceDetailsActivity.this, R.string.device_update_ok, Toast.LENGTH_SHORT).show();
             }
         }
     }
@@ -267,9 +267,9 @@ public class DeviceDetailsActivity extends Activity {
     }
 
     private class Example {
-        public String display;
-        public String utterance;
-        public String targetJson;
+        String display;
+        String utterance;
+        String targetCode;
     }
 
     private class GetExamplesTask extends AsyncTask<String, Void, List<Example>> {
@@ -280,13 +280,13 @@ public class DeviceDetailsActivity extends Activity {
                 JSONObject json = examples.getJSONObject(i);
                 String utterance = json.getString("utterance");
                 String display = utterance.replaceAll("[$][a-zA-Z0-9_]*", "___");
-                String target_json = json.getString("target_json");
-                if (!added.contains(target_json)) {
-                    added.add(target_json);
+                String target_code = json.getString("target_code");
+                if (!added.contains(target_code)) {
+                    added.add(target_code);
                     Example ex = new Example();
                     ex.utterance = utterance;
                     ex.display = display;
-                    ex.targetJson = target_json;
+                    ex.targetCode = target_code;
                     example_cmds.add(ex);
                 }
             }
@@ -310,7 +310,7 @@ public class DeviceDetailsActivity extends Activity {
                 text.setVisibility(View.VISIBLE);
                 addAdapter(example_cmds);
             } else {
-                text.setText("This device has no example commands.");
+                text.setText(R.string.no_commands);
                 text.setVisibility(View.VISIBLE);
             }
 
@@ -329,27 +329,22 @@ public class DeviceDetailsActivity extends Activity {
         }
 
         @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
+        @NonNull
+        public View getView(int position, View convertView, @NonNull ViewGroup parent) {
             final Example example_cmd = getItem(position);
+            if (example_cmd == null)
+                throw new AssertionError();
             Button btn = new Button(DeviceDetailsActivity.this);
             btn.setText(example_cmd.display);
             btn.setTransformationMethod(null);
             btn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    onButtonClicked(example_cmd.utterance, example_cmd.targetJson);
+                    onButtonClicked(example_cmd.utterance, example_cmd.targetCode);
                 }
             });
             return btn;
         }
-    }
-
-    private boolean hasSlots(JSONObject target) {
-        if (!target.has("slots"))
-            return false;
-
-        JSONObject obj = target.optJSONObject("slots");
-        return obj.length() > 0;
     }
 
     private void onButtonClicked(final String utterance, final String targetCode) {
