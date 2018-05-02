@@ -8,7 +8,7 @@ export CXX_host=${CXX:-g++}
 export LINK_host=${LINK:-g++}
 export AR_host=${AR:-ar}
 
-ANDROID_NDK_ROOT=${ANDROID_NDK_ROOT:-~/Android/android-ndk-r15b}
+ANDROID_NDK_ROOT=${ANDROID_NDK_ROOT:-~/Android/android-ndk-r16b}
 export CFLAGS="-g -O2 -fPIC -fexceptions"
 export CXXFLAGS="-g -O2 -fPIC -std=c++14 -fexceptions"
 base_PATH=$PATH
@@ -37,7 +37,7 @@ make distclean
 autoreconf -fvi )
 
 test -d ${download}/node || git clone https://github.com/Stanford-Mobisocial-IoT-Lab/node.git ${download}/node
-(cd ${download}/node ; git checkout 4201d13b5fc0dc5bd339195eda5f783b2e1f1da9 )
+(cd ${download}/node ; git checkout 74941eb33c983b2a1a4d6bfc3311bcfb44958357 )
 
 }
 
