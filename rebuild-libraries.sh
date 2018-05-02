@@ -85,7 +85,7 @@ rm -fr ${this_dir}/build-$arch/toolchain/bin/python* ${this_dir}/build-$arch/too
 export ANTLR=`pwd`/download/cvc4-1.5/antlr-3.4/bin/antlr3
 export PATH=`pwd`/build-$arch/toolchain/bin:${prefix}/bin:${base_PATH}
 export CPATH="${prefix}/include"
-export LDFLAGS="-L${prefix}/lib"
+export LDFLAGS="-L${prefix}/lib -Wl,--build-id=sha1"
 
 # Step 2: boost
 ( cd ${download}/boost_1_65_1 ;
@@ -129,7 +129,7 @@ make -j8 -C ${build}/node/out CC.host=${CC_host} CXX.host=${CXX_host} LINK.host=
 
 # Step 7: copy the libraries in the right place
 cp ${prefix}/lib/libcvc4.so ${prefix}/lib/libcvc4parser.so ${build}/node/out/Release/lib.target/libnode.so ${OUT}/${android_arch}/
-${STRIP} ${OUT}/${android_arch}/libcvc4.so ${OUT}/${android_arch}/libcvc4parser.so ${OUT}/${android_arch}/libnode.so 
+#${STRIP} ${OUT}/${android_arch}/libcvc4.so ${OUT}/${android_arch}/libcvc4parser.so ${OUT}/${android_arch}/libnode.so 
 
 }
 
