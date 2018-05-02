@@ -613,7 +613,7 @@ public class MainActivity extends Activity implements AssistantOutput, Assistant
             if (control == null)
                 return;
 
-            display(control.getAssistant().handleContact(result.first, result.second, requestCode == REQUEST_PHONE_NUMBER ? "PhoneNumber" : "EmailAddress"));
+            display(control.getAssistant().handleContact(result.first, result.second, requestCode == REQUEST_PHONE_NUMBER ? "tt:phone_number" : "tt:email_address"));
         }
     }
 
