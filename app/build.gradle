@@ -28,7 +28,7 @@ android {
 
         externalNativeBuild {
             cmake {
-                cppFlags "-std=c++14"
+                cppFlags "-std=c++14 -fno-rtti"
                 arguments "-DANDROID_STL=c++_shared", "-DANDROID_CPP_FEATURES=exceptions"
             }
         }

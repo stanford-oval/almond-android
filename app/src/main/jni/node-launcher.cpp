@@ -65,10 +65,10 @@
 #include <sys/resource.h>
 
 #include <jni.h>
-#include "node/node.h"
-#include "node/uv.h"
-#include "node/libplatform/libplatform.h"
-#include "node/node_buffer.h"
+#include <node.h>
+#include <uv.h>
+#include <libplatform/libplatform.h>
+#include <node_buffer.h>
 
 #include <android/log.h>
 #include <android/asset_manager.h>
@@ -98,6 +98,19 @@ using v8::FunctionCallbackInfo;
 
 namespace node_sqlite3 {
 extern node::node_module module;
+}
+
+// HACK
+namespace node {
+namespace tracing {
+
+class TraceEventHelper {
+public:
+    static v8::TracingController* GetTracingController();
+    static void SetTracingController(v8::TracingController* controller);
+};
+
+}
 }
 
 namespace thingengine_node_launcher {
@@ -379,6 +392,8 @@ class ArrayBufferAllocator : public v8::ArrayBuffer::Allocator {
 public:
     ArrayBufferAllocator() {}
 
+    inline uint32_t* zero_fill_field() { return &zero_fill_field_; }
+
     virtual void *Allocate(size_t size) {
         return calloc(size, 1);
     }
@@ -390,6 +405,9 @@ public:
     virtual void Free(void *data, size_t) {
         free(data);
     }
+
+private:
+    uint32_t zero_fill_field_ = 1;  // Boolean but exposed as uint32 to JS land.
 };
 
 static std::unique_ptr<char[]>
@@ -408,6 +426,14 @@ read_full_asset(AAsset *asset) {
     return buffer;
 }
 
+template<typename T, void (*fn)(T*)>
+class free_func {
+public:
+    void operator()(T* obj) {
+        fn(obj);
+    }
+};
+
 static void
 start_node(JavaVM *vm, AAsset *app_code, jobject jClassLoader) {
     static const char *argv[] = {"node", nullptr};
@@ -425,13 +451,14 @@ start_node(JavaVM *vm, AAsset *app_code, jobject jClassLoader) {
     node_module_register(&node_cvc4::module);
     node::Init(&argc, const_cast<const char **>(argv), &exec_argc, &exec_argv);
 
-    std::unique_ptr<v8::Platform> platform(v8::platform::CreateDefaultPlatform(0));
+    std::unique_ptr<v8::Platform> platform(v8::platform::CreateDefaultPlatform());
     V8::InitializePlatform(platform.get());
+    node::tracing::TraceEventHelper::SetTracingController(new v8::TracingController());
     V8::Initialize();
 
-    ArrayBufferAllocator array_buffer_allocator;
+    std::unique_ptr<ArrayBufferAllocator> array_buffer_allocator(new ArrayBufferAllocator());
     Isolate::CreateParams params;
-    params.array_buffer_allocator = &array_buffer_allocator;
+    params.array_buffer_allocator = array_buffer_allocator.get();
     params.code_event_handler = nullptr;
     Isolate *isolate = Isolate::New(params);
     global_state.queue.Init(isolate);
@@ -440,11 +467,14 @@ start_node(JavaVM *vm, AAsset *app_code, jobject jClassLoader) {
         Locker locker(isolate);
         Isolate::Scope isolate_scope(isolate);
         HandleScope handle_scope(isolate);
+        std::unique_ptr<node::IsolateData, free_func<node::IsolateData, node::FreeIsolateData>>
+                isolate_data(node::CreateIsolateData(isolate, uv_default_loop()));
+
         Local<Context> context = Context::New(isolate);
 
         // where the magic happens!
         Context::Scope context_scope(context);
-        node::Environment *env = node::CreateEnvironment(isolate, uv_default_loop(), context,
+        node::Environment *env = node::CreateEnvironment(isolate_data.get(), context,
                                                          argc, argv, exec_argc, exec_argv);
         Local<Object> process = node::GetProcessObject(env);
         std::unique_ptr<char[]> code_buffer = read_full_asset(app_code);

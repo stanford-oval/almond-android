@@ -10,13 +10,16 @@ cmake_minimum_required(VERSION 3.4.1)
 # You can define multiple libraries, and CMake builds them for you.
 # Gradle automatically packages shared libraries with your APK.
 
-include_directories(src/main/jni)
+include_directories(src/main/jni src/main/jni/node)
+add_library(node-cvc4 STATIC
+            src/main/jni/node-cvc4.cpp)
+target_compile_options(node-cvc4 PRIVATE -frtti)
+
 add_library(node-launcher SHARED
              src/main/jni/node-launcher.cpp
              src/main/jni/node-launcher-utils.cpp
              src/main/jni/node-launcher-marshal.cpp
-             src/main/jni/node-launcher-module.cpp
-             src/main/jni/node-cvc4.cpp )
+             src/main/jni/node-launcher-module.cpp)
 
 add_subdirectory(src/main/jni/sqlite)
 add_subdirectory(src/main/jni/node-sqlite3)
@@ -25,6 +28,7 @@ find_library(log-lib log)
 find_library(android-lib android)
 target_link_libraries(node-launcher
                       node-sqlite3 sqlite
+                      node-cvc4
                       ${CMAKE_CURRENT_SOURCE_DIR}/src/main/jniLibs/${ANDROID_ABI}/libnode.so
                       ${CMAKE_CURRENT_SOURCE_DIR}/src/main/jniLibs/${ANDROID_ABI}/libcvc4.so
                       ${CMAKE_CURRENT_SOURCE_DIR}/src/main/jniLibs/${ANDROID_ABI}/libcvc4parser.so
