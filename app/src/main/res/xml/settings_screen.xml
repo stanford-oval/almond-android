@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
-    <EditTextPreference
-        android:key="pref_username"
-        android:title="@string/pref_username_title"
-        android:inputType="text"
-        android:singleLine="true" />
+    <SwitchPreference android:key="pref_store_log"
+                android:title="@string/pref_store_log_title"
+                android:defaultValue="false">
+    </SwitchPreference>
 
     <SwitchPreference
         android:key="pref_landing_page"

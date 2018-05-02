@@ -23,7 +23,6 @@ import org.json.JSONTokener;
 
 import edu.stanford.thingengine.engine.CloudAuthInfo;
 import edu.stanford.thingengine.engine.R;
-import edu.stanford.thingengine.engine.service.ControlBinder;
 
 public class SettingsActivity extends Activity {
     private final EngineServiceConnection mEngine = new EngineServiceConnection();
@@ -66,26 +65,22 @@ public class SettingsActivity extends Activity {
 
         mFragment.findPreference("pref_cloud_sync").setIntent(new Intent(this, ThingpediaWebsiteActivity.class));
 
-        final Preference pref_username = mFragment.findPreference("pref_username");
-        pref_username.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
-            @Override
-            public boolean onPreferenceChange(Preference preference, Object newValue) {
-
-                ControlBinder control = mEngine.getControl();
-                if (control == null)
-                    return true;
-
-                pref_username.setSummary(newValue.toString());
-                return true;
-            }
-        });
-
         final Preference pref_landing_page = mFragment.findPreference("pref_landing_page");
         pref_landing_page.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
             @Override
             public boolean onPreferenceChange(Preference preference, Object o) {
                 SharedPreferences sharedPrefs = getSharedPreferences("edu.stanford.thingengine.engine", MODE_PRIVATE);
                 sharedPrefs.edit().putBoolean("landing-page", (Boolean) o).apply();
+                return true;
+            }
+        });
+
+        final Preference pref_store_log = mFragment.findPreference("pref_store_log");
+        pref_store_log.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+            @Override
+            public boolean onPreferenceChange(Preference preference, Object o) {
+                SharedPreferences sharedPrefs = getSharedPreferences("thingengine", MODE_PRIVATE);
+                sharedPrefs.edit().putString("sabrina-store-log", ((Boolean) o) ? "\"yes\"" : "\"no\"").apply();
                 return true;
             }
         });
@@ -137,11 +132,10 @@ public class SettingsActivity extends Activity {
         else
             pref.setSummary(R.string.no_developer_key);
 
-        pref = mFragment.findPreference("pref_username");
-        SharedPreferences sharedPrefs = getSharedPreferences("thingengine", Context.MODE_PRIVATE);
-        String name = readStringPref(sharedPrefs, "sabrina-name");
-        pref.setSummary(name);
+        SharedPreferences prefs = getSharedPreferences("thingengine", Context.MODE_PRIVATE);
+        SharedPreferences appPrefs = mFragment.getPreferenceManager().getSharedPreferences();
 
+        appPrefs.edit().putBoolean("pref_store_log", "yes".equals(readStringPref(prefs, "sabrina-store-log"))).apply();
     }
 
     @Override
