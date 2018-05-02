@@ -31,25 +31,38 @@
     # Don't bake anything extra into the snapshot.
     'v8_use_external_startup_data%': 0,
 
+    # Some STL containers (e.g. std::vector) do not preserve ABI compatibility
+    # between debug and non-debug mode.
+    'disable_glibcxx_debug': 1,
+
+    # Don't use ICU data file (icudtl.dat) from V8, we use our own.
+    'icu_use_data_file_flag%': 0,
+
     'conditions': [
+      ['GENERATOR=="ninja"', {
+        'OBJ_DIR': '<(PRODUCT_DIR)/obj',
+        'V8_BASE': '<(PRODUCT_DIR)/obj/deps/v8/src/libv8_base.a',
+       }, {
+         'OBJ_DIR%': '<(PRODUCT_DIR)/obj.target',
+         'V8_BASE%': '<(PRODUCT_DIR)/obj.target/deps/v8/src/libv8_base.a',
+      }],
       ['OS == "win"', {
         'os_posix': 0,
         'v8_postmortem_support%': 'false',
+        'OBJ_DIR': '<(PRODUCT_DIR)/obj',
+        'V8_BASE': '<(PRODUCT_DIR)/lib/v8_libbase.lib',
       }, {
         'os_posix': 1,
         'v8_postmortem_support%': 'true',
       }],
-      ['GENERATOR == "ninja" or OS== "mac"', {
-        'OBJ_DIR': '<(PRODUCT_DIR)/obj',
+      ['OS== "mac"', {
+        'OBJ_DIR%': '<(PRODUCT_DIR)/obj.target',
         'V8_BASE': '<(PRODUCT_DIR)/libv8_base.a',
-      }, {
-        'OBJ_DIR': '<(PRODUCT_DIR)/obj.target',
-        'V8_BASE': '<(PRODUCT_DIR)/obj.target/deps/v8/tools/gyp/libv8_base.a',
       }],
       ['openssl_fips != ""', {
-        'OPENSSL_PRODUCT': 'libcrypto.a',
+        'OPENSSL_PRODUCT': '<(STATIC_LIB_PREFIX)crypto<(STATIC_LIB_SUFFIX)',
       }, {
-        'OPENSSL_PRODUCT': 'libopenssl.a',
+        'OPENSSL_PRODUCT': '<(STATIC_LIB_PREFIX)openssl<(STATIC_LIB_SUFFIX)',
       }],
       ['OS=="mac"', {
         'clang%': 1,
@@ -66,7 +79,7 @@
         'variables': {
           'v8_enable_handle_zapping': 1,
         },
-        'defines': [ 'DEBUG', '_DEBUG' ],
+        'defines': [ 'DEBUG', '_DEBUG', 'V8_ENABLE_CHECKS' ],
         'cflags': [ '-g', '-O0' ],
         'conditions': [
           ['target_arch=="x64"', {
@@ -101,6 +114,10 @@
             'MinimalRebuild': 'false',
             'OmitFramePointers': 'false',
             'BasicRuntimeChecks': 3, # /RTC1
+            'AdditionalOptions': [
+              '/bigobj', # prevent error C1128 in VS2015
+              '/MP', # compile across multiple CPUs
+            ],
           },
           'VCLinkerTool': {
             'LinkIncremental': 2, # enable incremental linking
@@ -190,8 +207,6 @@
         # and their sheer number drowns out other, more legitimate warnings.
         'DisableSpecificWarnings': ['4267'],
         'WarnAsError': 'false',
-      },
-      'VCLibrarianTool': {
       },
       'VCLinkerTool': {
         'conditions': [
@@ -305,12 +320,12 @@
 	    'ldflags': [ '-m64' ],
 	   }],
           [ 'target_arch=="s390"', {
-            'cflags': [ '-m31' ],
-            'ldflags': [ '-m31' ],
+            'cflags': [ '-m31', '-march=z196' ],
+            'ldflags': [ '-m31', '-march=z196' ],
           }],
           [ 'target_arch=="s390x"', {
-            'cflags': [ '-m64' ],
-            'ldflags': [ '-m64' ],
+            'cflags': [ '-m64', '-march=z196' ],
+            'ldflags': [ '-m64', '-march=z196' ],
           }],
           [ 'OS=="solaris"', {
             'cflags': [ '-pthreads' ],
@@ -389,6 +404,7 @@
             'xcode_settings': {
               'GCC_VERSION': 'com.apple.compilers.llvm.clang.1_0',
               'CLANG_CXX_LANGUAGE_STANDARD': 'gnu++0x',  # -std=gnu++0x
+              'CLANG_CXX_LIBRARY': 'libc++',
             },
           }],
         ],
@@ -397,6 +413,15 @@
         'libraries': [ '-lelf' ],
       }],
       ['OS=="freebsd"', {
+        'conditions': [
+          ['"0" < llvm_version < "4.0"', {
+            # Use this flag because on FreeBSD std::pairs copy constructor is non-trivial.
+            # Doesn't apply to llvm 4.0 (FreeBSD 11.1) or later.
+            # Refs: https://lists.freebsd.org/pipermail/freebsd-toolchain/2016-March/002094.html
+            # Refs: https://svnweb.freebsd.org/ports/head/www/node/Makefile?revision=444555&view=markup
+            'cflags': [ '-D_LIBCPP_TRIVIAL_PAIR_COPY_CTOR=1' ],
+          }],
+        ],
         'ldflags': [
           '-Wl,--export-dynamic',
         ],
