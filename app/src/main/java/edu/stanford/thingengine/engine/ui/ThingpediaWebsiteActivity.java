@@ -155,7 +155,7 @@ public class ThingpediaWebsiteActivity extends Activity {
         view.getSettings().setJavaScriptEnabled(true);
         view.setWebChromeClient(new WebChromeClient());
         view.setWebViewClient(new WebViewClient());
-        view.loadUrl("https://thingengine.stanford.edu/user/login?auth=app");
+        view.loadUrl("https://almond.stanford.edu/user/login?auth=app");
     }
 
     private void showConfirmDialog(boolean success) {

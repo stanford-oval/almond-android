@@ -151,7 +151,7 @@ class AppControlChannel extends ControlChannel {
         // spurious device database writes)
         // instead we set the platform state and reopen the connection
         this._platform.getSharedPreferences().set('cloud-id', cloudId);
-        _engine.tiers.reopenOne('cloud').done();
+        _engine._tiers.reopenOne('cloud');
         return true;
     }
 
@@ -167,7 +167,7 @@ class AppControlChannel extends ControlChannel {
                                         tier: 'server',
                                         host: serverHost,
                                         port: serverPort,
-                                        own: true }, true).done();
+                                        own: true }, true);
         return true;
     }
 
@@ -202,7 +202,7 @@ function main() {
 
     console.log('Opening engine...');
 
-    _waitReady = _engine.open();
+    _waitReady = Q(_engine.open());
     _ad.start();
     _waitReady.then(() => {
         _ad.engineReady();

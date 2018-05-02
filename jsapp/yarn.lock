@@ -2300,7 +2300,7 @@ text-table@^0.2.0, text-table@~0.2.0:
 
 "thingengine-core@github:Stanford-Mobisocial-IoT-Lab/thingengine-core":
   version "1.0.0"
-  resolved "https://codeload.github.com/Stanford-Mobisocial-IoT-Lab/thingengine-core/tar.gz/1ddbd436cf6d8c307c7aa56e6df560b8da7dab2a"
+  resolved "https://codeload.github.com/Stanford-Mobisocial-IoT-Lab/thingengine-core/tar.gz/bf3e1b31fcc0714e5c55a494c7fe1fd4a22ca26f"
   dependencies:
     adt "^0.7.2"
     babel-runtime "^6.26.0"
