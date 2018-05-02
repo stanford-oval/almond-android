@@ -21,5 +21,5 @@ android:
     - sys-img-armeabi-v7a-android-26
     - sys-img-armeabi-v7a-android-21
 
-install: ./rebuild-libraries.sh > deps.log 2>&1
+install: travis_wait 60 /bin/sh -c "./rebuild-libraries.sh > deps.log 2>&1"
 
