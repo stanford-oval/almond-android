@@ -59,8 +59,8 @@ public class DeviceConfigureChooseKindActivity extends Activity {
             for (int i = 0; i < devices.length(); i++) {
                 JSONObject device = devices.getJSONObject(i);
                 JSONObject jsonFactory = device.getJSONObject("factory");
-                String kind = device.getString("primary_kind");
-                String name = device.getString("name");
+                String kind = jsonFactory.getString("kind");
+                String name = jsonFactory.getString("text");
 
                 DeviceFactory factory;
 
@@ -79,6 +79,10 @@ public class DeviceConfigureChooseKindActivity extends Activity {
 
                     case "discovery":
                         factory = new DeviceFactory.Discovery(name, kind, _class);
+                        break;
+
+                    case "interactive":
+                        factory = new DeviceFactory.Interactive(name, kind, _class);
                         break;
 
                     default:

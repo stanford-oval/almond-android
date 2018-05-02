@@ -144,4 +144,24 @@ public abstract class DeviceFactory {
             activity.startActivity(intent);
         }
     }
+
+    public static class Interactive extends DeviceFactory {
+        public Interactive(String name, String kind, String _class) {
+            super(name, kind, _class);
+        }
+
+        @Override
+        public void activate(Activity activity, EngineServiceConnection engine) {
+            ControlBinder control = engine.getControl();
+            if (control == null)
+                return;
+
+            control.getAssistant().handleConfigure(kind);
+
+            Intent intent = new Intent(activity, MainActivity.class);
+            intent.setAction(Intent.ACTION_MAIN);
+            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            activity.startActivity(intent);
+        }
+    }
 }
