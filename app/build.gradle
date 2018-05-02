@@ -14,7 +14,7 @@ android {
     compileSdkVersion 25
     buildToolsVersion "25.0.3"
 
-    String THINGPEDIA_URL = "https://crowdie.stanford.edu/thingpedia"
+    String THINGPEDIA_URL = "https://thingpedia.stanford.edu/thingpedia"
     String SEMPRE_URL = "https://almond-nl.stanford.edu"
     defaultConfig {
         applicationId "edu.stanford.thingengine.engine"
