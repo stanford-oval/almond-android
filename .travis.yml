@@ -24,5 +24,6 @@ android:
 #install: travis_wait 60 /bin/sh -c "./rebuild-libraries.sh > deps.log 2>&1"
 install:
   - ./download-ndk.sh
+  - export ANDROID_NDK_HOME=~/Android/android-ndk-r16b
   - ( cd app ; ./download-prebuilt-binaries.sh )
 
