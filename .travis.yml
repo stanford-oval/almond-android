@@ -1,4 +1,8 @@
 language: android
+addons:
+  apt:
+    packages:
+    - realpath
 android:
   components:
   - tools
