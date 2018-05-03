@@ -60,7 +60,7 @@ ajv@^5.1.0:
 
 "almond@github:Stanford-Mobisocial-IoT-Lab/almond-dialog-agent":
   version "1.0.0"
-  resolved "https://codeload.github.com/Stanford-Mobisocial-IoT-Lab/almond-dialog-agent/tar.gz/ee4a1977857df487b9bac73b25d3f4c9c48dd7b3"
+  resolved "https://codeload.github.com/Stanford-Mobisocial-IoT-Lab/almond-dialog-agent/tar.gz/a7e6248948eaa0d9a43b2c6db2b1dc6b4851d8ac"
   dependencies:
     adt "~0.7.2"
     consumer-queue "^1.0.0"
@@ -2367,7 +2367,8 @@ sprintf-js@~1.0.2:
   resolved "https://registry.yarnpkg.com/sprintf-js/-/sprintf-js-1.0.3.tgz#04e6926f662895354f3dd015203633b857297e2c"
 
 sqlite3@^3.1.1, sqlite3@^3.1.13, "sqlite3@github:gcampax/node-sqlite3":
-  version "3.1.13"
+  version "3.1.13+android"
+  uid "5d7f6f7dc696ad0bc4a346a63cc5eb273577a5b2"
   resolved "https://codeload.github.com/gcampax/node-sqlite3/tar.gz/5d7f6f7dc696ad0bc4a346a63cc5eb273577a5b2"
 
 sshpk@^1.7.0:
@@ -2524,7 +2525,7 @@ text-table@^0.2.0, text-table@~0.2.0:
 
 "thingengine-core@github:Stanford-Mobisocial-IoT-Lab/thingengine-core":
   version "1.0.0"
-  resolved "https://codeload.github.com/Stanford-Mobisocial-IoT-Lab/thingengine-core/tar.gz/bf3e1b31fcc0714e5c55a494c7fe1fd4a22ca26f"
+  resolved "https://codeload.github.com/Stanford-Mobisocial-IoT-Lab/thingengine-core/tar.gz/df00acb0a574526d4d221fd19afa3c8b9cb78efd"
   dependencies:
     adt "^0.7.2"
     babel-runtime "^6.26.0"
