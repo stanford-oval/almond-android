@@ -131,6 +131,7 @@ test -f ./config.gypi || ./configure --shared --dest-cpu=${nodejs_cpu} --dest-os
 make -j8 -C ${build}/node/out CC.host=${CC_host} CXX.host=${CXX_host} LINK.host=${LINK_host} AR.host=${AR_host}
 
 # Step 7: copy the libraries in the right place
+mkdir -p ${OUT}/${android_arch}
 cp ${prefix}/lib/libcvc4.so ${prefix}/lib/libcvc4parser.so ${build}/node/out/Release/lib.target/libnode.so ${OUT}/${android_arch}/
 #${STRIP} ${OUT}/${android_arch}/libcvc4.so ${OUT}/${android_arch}/libcvc4parser.so ${OUT}/${android_arch}/libnode.so 
 

@@ -4,6 +4,7 @@
   "private": true,
   "dependencies": {
     "almond": "github:Stanford-Mobisocial-IoT-Lab/almond-dialog-agent",
+    "bufferutil": "^3.0.4",
     "cvc4": "github:Stanford-Mobisocial-IoT-Lab/node-cvc4#android",
     "node-gettext": "^2.0.0",
     "q": "^1.5.0",
@@ -12,7 +13,8 @@
     "thingengine-core": "github:Stanford-Mobisocial-IoT-Lab/thingengine-core",
     "thingpedia": "github:Stanford-Mobisocial-IoT-Lab/thingpedia-api",
     "thingpedia-discovery": "github:Stanford-Mobisocial-IoT-Lab/thingpedia-discovery",
-    "thingtalk": "github:Stanford-Mobisocial-IoT-Lab/ThingTalk"
+    "thingtalk": "github:Stanford-Mobisocial-IoT-Lab/ThingTalk",
+    "utf-8-validate": "^4.0.1"
   },
   "devDependencies": {
     "browserify": "^14.4.0",
