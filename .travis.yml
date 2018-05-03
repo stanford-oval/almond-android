@@ -13,9 +13,8 @@ android:
   - sys-img-armeabi-v7a-android-21
 before_install:
 - openssl aes-256-cbc -K $encrypted_62fe32c2c100_key -iv $encrypted_62fe32c2c100_iv
-  -in travis/keystore.properties.enc -out keystore.properties -d
-- openssl aes-256-cbc -K $encrypted_62fe32c2c100_key -iv $encrypted_62fe32c2c100_iv
   -in travis/keystore.jks.enc -out keystore.jks -d
+- "cat <<<EOF\nkeyAlias=ThingEngineKey\nkeyPassword=${KEYSTORE_PASSWORD}\nstorePassword=${KEYSTORE_PASSWORD}\nstoreFile=./keystore.jks\nEOF > keystore.properties"
 install:
 - "./download-ndk.sh"
 - export ANDROID_NDK_HOME=~/Android/android-ndk-r16b
