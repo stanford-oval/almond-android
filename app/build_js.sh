@@ -3,6 +3,7 @@
 # OSX specific hack
 export PATH=/usr/local/bin:$PATH
 
+mkdir -p "$1"
 outputdir=`realpath "$1"`
 projectdir=".."
 
