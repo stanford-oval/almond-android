@@ -1,4 +1,7 @@
-language: android
+language:
+  - android
+  - node_js
+node_js: 8
 android:
   components:
   - tools
