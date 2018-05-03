@@ -14,7 +14,7 @@ android:
 before_install:
 - openssl aes-256-cbc -K $encrypted_62fe32c2c100_key -iv $encrypted_62fe32c2c100_iv
   -in travis/keystore.jks.enc -out keystore.jks -d
-- "cat <<<EOF\nkeyAlias=ThingEngineKey\nkeyPassword=${KEYSTORE_PASSWORD}\nstorePassword=${KEYSTORE_PASSWORD}\nstoreFile=./keystore.jks\nEOF > keystore.properties"
+- "echo -e \"keyAlias=ThingEngineKey\nkeyPassword=${KEYSTORE_PASSWORD}\nstorePassword=${KEYSTORE_PASSWORD}\nstoreFile=./keystore.jks\" > keystore.properties"
 install:
 - "./download-ndk.sh"
 - export ANDROID_NDK_HOME=~/Android/android-ndk-r16b
