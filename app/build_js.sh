@@ -3,7 +3,7 @@
 # OSX specific hack
 export PATH=/usr/local/bin:$PATH
 
-outputdir=`realpath "$1"`
+outputdir="$1"
 projectdir=".."
 
 thingpedia_url="$2"
