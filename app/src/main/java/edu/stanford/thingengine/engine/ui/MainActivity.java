@@ -554,12 +554,12 @@ public class MainActivity extends Activity implements AssistantOutput, Assistant
     private Object getArgValue(String value, String type) {
         switch (type) {
             case "Number":
-            case "Measure":
-            case "Currency":
                 return Double.valueOf(value);
             case "Boolean":
                 return value.equals("on");
             default:
+                if (type.startsWith("Measure") || type.startsWith("Currency"))
+                    return Double.valueOf(value);
                 return value;
         }
     }

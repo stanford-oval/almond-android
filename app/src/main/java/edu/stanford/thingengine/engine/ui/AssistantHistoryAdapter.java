@@ -437,6 +437,10 @@ class AssistantHistoryAdapter extends RecyclerView.Adapter<AssistantHistoryAdapt
                             lastEditable = idx;
                         slots.put(slotName, slot);
                         slotFilling.addView(slot);
+                        if (slotType.startsWith("Measure")) {
+                            String unit = slotType.substring("Measure(".length(), slotType.length() - 1);
+                            slotFilling.addView(btnStyleText(unit));
+                        }
                     } else {
                         slotFilling.addView(btnStyleText(word));
                     }
@@ -452,6 +456,7 @@ class AssistantHistoryAdapter extends RecyclerView.Adapter<AssistantHistoryAdapt
                         }
                     });
                 }
+
                 slotFilling.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -459,7 +464,7 @@ class AssistantHistoryAdapter extends RecyclerView.Adapter<AssistantHistoryAdapt
                         for (Map.Entry<String, View> e : slots.entrySet()) {
                             View slot = e.getValue();
                             if (slot instanceof EditText)
-                                values.put(e.getKey(), ((EditText)slot).getText().toString());
+                                values.put(e.getKey(), ((EditText) slot).getText().toString());
                             else if (slot instanceof Spinner)
                                 values.put(e.getKey(), ((Spinner)slot).getSelectedItem().toString());
                             else
@@ -491,7 +496,6 @@ class AssistantHistoryAdapter extends RecyclerView.Adapter<AssistantHistoryAdapt
                     case "Boolean":
                         return enumSpinner("Enum(on,off)");
                     case "Location":
-                    case "Measure":
                     case "Date":
                     case "Time":
                     // the following types are not supposed to appear here
@@ -508,7 +512,11 @@ class AssistantHistoryAdapter extends RecyclerView.Adapter<AssistantHistoryAdapt
                     default:
                         if (type.startsWith("Enum"))
                             return enumSpinner(type);
-                        et.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_AUTO_CORRECT);
+                        if (type.startsWith("Measure") || type.startsWith("Currency")) {
+                            et.setInputType(InputType.TYPE_CLASS_NUMBER);
+                        } else {
+                            et.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_AUTO_CORRECT);
+                        }
                         break;
                 }
                 int wrapContent = LinearLayout.LayoutParams.WRAP_CONTENT;
