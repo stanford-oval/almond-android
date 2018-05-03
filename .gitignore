@@ -3,6 +3,7 @@
 *.iml
 /local.properties
 /keystore.properties
+/keystore.jks
 /.idea
 .DS_Store
 /build
