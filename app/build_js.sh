@@ -34,5 +34,5 @@ done
 
 printf '"use strict";\nmodule.exports.SEMPRE_URL = "%s";\nmodule.exports.THINGPEDIA_URL = "%s";\n' "${sempre_url}" "${thingpedia_url}" > ./config.js
 
-./node_modules/.bin/browserify -t [ eslintify --passthrough warnings ] --node -e app.js -o ../app/$outputdir/app.js
-node -c ../app/$outputdir/app.js
+./node_modules/.bin/browserify -t [ eslintify --passthrough warnings ] --node -e app.js -o $outputdir/app.js
+node -c $outputdir/app.js
