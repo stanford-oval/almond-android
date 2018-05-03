@@ -22,5 +22,7 @@ android:
     - sys-img-armeabi-v7a-android-21
 
 #install: travis_wait 60 /bin/sh -c "./rebuild-libraries.sh > deps.log 2>&1"
-install: cd app ; ./download-prebuilt-binaries.sh
+install:
+  - ./download-ndk.sh
+  - ( cd app ; ./download-prebuilt-binaries.sh )
 
