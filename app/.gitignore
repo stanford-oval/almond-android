@@ -1,4 +1,5 @@
 /build
 .externalNativeBuild
 src/main/assets/app.js
+src/main/jniLibs
 
