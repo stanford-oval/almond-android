@@ -28,4 +28,7 @@ install:
 - export PATH=./node_modules/.bin:$PATH
 - nvm install 8
 script: ./gradlew assemble
-after_success: "curl -F \"status=2\" -F \"notify=1\" -F \"notes=$( git log -1 --pretty='format:%s' )\" -F \"notes_type=0\" -F \"ipa=@app/build/outputs/apk/app-release.apk\" -H \"X-HockeyAppToken: $HOCKEYAPP_TOKEN\" https://rink.hockeyapp.net/api/2/apps/upload"
+after_success:
+- "ls -al app/build/outputs"
+- "ls -al app/build/outputs/apk"
+- "curl -F \"status=2\" -F \"notify=1\" -F \"notes=$( git log -1 --pretty='format:%s' )\" -F \"notes_type=0\" -F \"ipa=@app/build/outputs/apk/app-release.apk\" -H \"X-HockeyAppToken: $HOCKEYAPP_TOKEN\" https://rink.hockeyapp.net/api/2/apps/upload"
