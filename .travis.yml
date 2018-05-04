@@ -27,3 +27,4 @@ install:
 - echo y | sdkmanager 'lldb;3.0'
 - export PATH=./node_modules/.bin:$PATH
 - nvm install 8
+script: ./gradlew assemble
