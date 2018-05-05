@@ -17,7 +17,8 @@ const Gettext = require('node-gettext');
 
 const JavaAPI = require('./java_api');
 const StreamAPI = require('./streams');
-const CVC4Solver = require('cvc4');
+//const CVC4Solver = require('cvc4');
+const CVC4Solver = require('./smtsolver-http');
 
 const _platformApi = JavaAPI.makeJavaAPI('Platform', [],
     ['getFilesDir', 'getCacheDir', 'getLocale', 'getTimezone'], []);
