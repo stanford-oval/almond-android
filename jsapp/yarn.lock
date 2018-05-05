@@ -60,7 +60,7 @@ ajv@^5.1.0:
 
 "almond@github:Stanford-Mobisocial-IoT-Lab/almond-dialog-agent":
   version "1.0.0"
-  resolved "https://codeload.github.com/Stanford-Mobisocial-IoT-Lab/almond-dialog-agent/tar.gz/61111347cbda75a5148b78be14930637f1a80ea5"
+  resolved "https://codeload.github.com/Stanford-Mobisocial-IoT-Lab/almond-dialog-agent/tar.gz/6ced93fc0c618548970a424ff7242c26a4c3f9be"
   dependencies:
     adt "~0.7.2"
     consumer-queue "^1.0.0"
@@ -2525,7 +2525,7 @@ text-table@^0.2.0, text-table@~0.2.0:
 
 "thingengine-core@github:Stanford-Mobisocial-IoT-Lab/thingengine-core":
   version "1.0.0"
-  resolved "https://codeload.github.com/Stanford-Mobisocial-IoT-Lab/thingengine-core/tar.gz/df00acb0a574526d4d221fd19afa3c8b9cb78efd"
+  resolved "https://codeload.github.com/Stanford-Mobisocial-IoT-Lab/thingengine-core/tar.gz/e0c871b5cf664588562550e342ecb8dbeceaa727"
   dependencies:
     adt "^0.7.2"
     babel-runtime "^6.26.0"
