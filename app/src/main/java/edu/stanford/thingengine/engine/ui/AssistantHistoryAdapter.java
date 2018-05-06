@@ -440,11 +440,12 @@ class AssistantHistoryAdapter extends RecyclerView.Adapter<AssistantHistoryAdapt
                         if (slotType.startsWith("Measure")) {
                             String unit = slotType.substring("Measure(".length(), slotType.length() - 1);
                             slotFilling.addView(btnStyleText(unit));
+                            idx ++;
                         }
                     } else {
                         slotFilling.addView(btnStyleText(word));
                     }
-                    idx += 1;
+                    idx ++;
                 }
                 if (lastEditable != -1) {
                     EditText view = (EditText) slotFilling.getChildAt(lastEditable);
