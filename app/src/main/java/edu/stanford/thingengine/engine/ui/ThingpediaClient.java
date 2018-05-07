@@ -21,11 +21,13 @@ import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.util.Locale;
 
+import edu.stanford.thingengine.engine.BuildConfig;
+
 /**
  * Created by gcampagn on 6/27/16.
  */
 public class ThingpediaClient {
-    private static final String THINGPEDIA_URL = "https://crowdie.stanford.edu/thingpedia";
+    private static final String THINGPEDIA_URL = BuildConfig.THINGPEDIA_URL;
 
     private final Context ctx;
 
