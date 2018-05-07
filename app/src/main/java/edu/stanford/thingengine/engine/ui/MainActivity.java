@@ -74,6 +74,8 @@ public class MainActivity extends Activity implements AssistantOutput, Assistant
     static final int REQUEST_EMAIL = 7;
     static final int REQUEST_PHONE_NUMBER = 8;
 
+    private static final boolean ENABLE_AUTOCOMPLETION = false;
+
     private final Runnable mReadyCallback = new Runnable() {
         @Override
         public void run() {
@@ -124,28 +126,30 @@ public class MainActivity extends Activity implements AssistantOutput, Assistant
         });
         input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_AUTO_CORRECT);
         input.setThreshold(1);
-        input.setAdapter(new AutoCompletionAdapter(new ThingpediaClient(this), this));
-        input.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                AutoCompletionAdapter adapter = (AutoCompletionAdapter) parent.getAdapter();
-                onAutoCompletionClicked(adapter.getItem(position));
-                input.setText("");
-            }
+        if (ENABLE_AUTOCOMPLETION) {
+            input.setAdapter(new AutoCompletionAdapter(new ThingpediaClient(this), this));
+            input.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                @Override
+                public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                    AutoCompletionAdapter adapter = (AutoCompletionAdapter) parent.getAdapter();
+                    onAutoCompletionClicked(adapter.getItem(position));
+                    input.setText("");
+                }
 
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
+                @Override
+                public void onNothingSelected(AdapterView<?> parent) {
 
-            }
-        });
-        input.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                AutoCompletionAdapter adapter = (AutoCompletionAdapter) parent.getAdapter();
-                onAutoCompletionClicked(adapter.getItem(position));
-                input.setText("");
-            }
-        });
+                }
+            });
+            input.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    AutoCompletionAdapter adapter = (AutoCompletionAdapter) parent.getAdapter();
+                    onAutoCompletionClicked(adapter.getItem(position));
+                    input.setText("");
+                }
+            });
+        }
 
         View cancelbtn = findViewById(R.id.btn_cancel);
         cancelbtn.setOnClickListener(new View.OnClickListener() {
