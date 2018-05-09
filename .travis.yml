@@ -18,7 +18,11 @@ android:
 before_install:
 - openssl aes-256-cbc -K $encrypted_62fe32c2c100_key -iv $encrypted_62fe32c2c100_iv
   -in travis/keystore.jks.enc -out keystore.jks -d
-- "echo -e \"keyAlias=ThingEngineKey\nkeyPassword=${KEYSTORE_PASSWORD}\nstorePassword=${KEYSTORE_PASSWORD}\nstoreFile=./keystore.jks\" > keystore.properties"
+- |-
+  echo -e "keyAlias=ThingEngineKey
+  keyPassword=${KEYSTORE_PASSWORD}
+  storePassword=${KEYSTORE_PASSWORD}
+  storeFile=./keystore.jks" > keystore.properties
 install:
 - "./download-ndk.sh"
 - export ANDROID_NDK_HOME=~/Android/android-ndk-r16b
@@ -27,6 +31,11 @@ install:
 - echo y | sdkmanager 'lldb;3.0'
 - export PATH=./node_modules/.bin:$PATH
 - nvm install 8
-script: ./gradlew assemble
+script: "./gradlew assemble"
 after_success:
-- "curl -F \"status=2\" -F \"notify=1\" -F \"notes=$( git log -1 --pretty='format:%s' )\" -F \"notes_type=0\" -F \"ipa=@app/build/outputs/apk/release/app-release.apk\" -H \"X-HockeyAppToken: $HOCKEYAPP_TOKEN\" https://rink.hockeyapp.net/api/2/apps/upload"
+- 'curl -F "status=2" -F "notify=1" -F "notes=$( git log -1 --pretty=''format:%s''
+  )" -F "notes_type=0" -F "ipa=@app/build/outputs/apk/release/app-release.apk" -H
+  "X-HockeyAppToken: $HOCKEYAPP_TOKEN" https://rink.hockeyapp.net/api/2/apps/upload'
+notifications:
+  slack:
+    secure: F2H25W0OQX5GlPif9M1FmJGWtoqHNZTqwSCk/PUleBpgxfPk3qLkyjI2Q7xRtWmFC+iOQXPa/7WHy6/cm2a17co3efzbClnV/+rrKlYYGKhdQ6NBpmqjA2c6zEVyjTtLrSaYrrpKQsPIqEiX0kNcUfs3/wjOrhoMUp9MZ6YjiYte/8V7/zuuh+zhVMe3VuI4qJ1/dXNnAnYmqZC3BBE0sLzF2lGpfNADi98Z1azIBwOK+WRDoqM0laX7hyOrdYFB27sDGOElNyyjTr6sbkwzR+GnNZvKNIzdIrYVGTyFBq9SGTy6eQ6SNZz3gre1nxjfWYwWiobFVYqgYyVta5D9s0AfafOlRhQsA9xDgUB0PSoRPrmhDNsm3cDGYruN8WB9cHLM5WTYB8cTNg2S0c6s8GArAswxjluorVaNeYCGmNcryD6KV/Dv8JldbTVCBkH52uEOyg8mBveSajCC+FWgEwb8NixHHSeM/NzQZCiGSPc/LaQXTCT+laHkqT6a1nhe0rqGzAusxOkrurC/oSd1Wr8XuQLCp89hGjl5PmJCEkWv2bzE/eiLIBTRON5pz0ooHarynbc6aNw1KbA5L+xVcQ0T9oYCEkM1h7rhA2ikoXLD8H1bHBoYGtb6cQPt63iBB6rZPO9GeoVtvW/pOJRoXqvY0UEth0T7OaaFSXdJl18=
