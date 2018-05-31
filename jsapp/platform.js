@@ -122,23 +122,19 @@ var oldModuleLoad = Module._load;
 Module._load = function(request, parent, isMain) {
     if (request === 'thingpedia')
         return require('thingpedia');
-    if (request === 'thingtalk')
-        return require('thingtalk');
-    // for compat with twitter...
-    if (request === 'thingpedia/lib/ref_counted')
-        return require('thingpedia/lib/ref_counted');
     return oldModuleLoad.apply(this, arguments);
 };
 
 // "preload" locales
 var _locales = {
     zh_CN: {
-        almond: require('almond/po/zh'),
+        'almond': require('almond-dialog-agent/po/zh'),
         'thingengine-core': require('thingengine-core/po/zh_CN'),
     },
     it: {
-        almond: require('almond/po/it'),
-        'thingengine-core': require('thingengine-core/po/it')
+        'almond': require('almond-dialog-agent/po/it'),
+        'thingengine-core': require('thingengine-core/po/it'),
+        'thingtalk': require('thingtalk/po/it')
     }
 };
 

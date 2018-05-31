@@ -11,7 +11,7 @@
 
 const Config = require('./config');
 
-const Almond = require('almond');
+const Almond = require('almond-dialog-agent');
 
 const JavaAPI = require('./java_api');
 

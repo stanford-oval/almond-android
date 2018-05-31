@@ -26,7 +26,7 @@ cd $projectdir/jsapp ;
 # install dependencies before we build the json (or yarn/npm will overwrite)
 install_deps
 
-for mod in almond thingtalk thingengine-core ; do
+for mod in almond-dialog-agent thingtalk thingengine-core ; do
 	podir="./node_modules/$mod/po"
 	for pofile in $podir/*.po ; do
 		node ./build_translations.js "$pofile" > "$podir/"$(basename $pofile .po)".json"
