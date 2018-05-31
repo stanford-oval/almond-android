@@ -315,6 +315,38 @@ public class AssistantDispatcher implements Handler.Callback {
         return msg;
     }
 
+    // flip to true when a new almond-dialog-agent is released
+    private static final boolean USE_PREPARSED_FOR_PASSWORD = false;
+
+    public AssistantMessage handlePassword(String password) {
+        if (USE_PREPARSED_FOR_PASSWORD) {
+            // use a parsed command, even though a regular command would suffice,
+            // to make sure that even if there are bugs in the dialog agent, the
+            // password is never sent to the NL server!
+
+            try {
+                JSONObject entities = new JSONObject();
+                entities.put("QUOTED_STRING_0", password);
+
+                handleParsedCommand(new String[]{"bookkeeping", "answer", "QUOTED_STRING_0"}, entities);
+            } catch (JSONException e) {
+                Log.e(EngineService.LOG_TAG, "Unexpected json exception while constructing password JSON", e);
+            }
+        } else {
+            (new CommandTask<String>() {
+                @Override
+                protected void run(String command) {
+                    cmdHandler.handleCommand(command);
+                }
+            }).executeOnExecutor(async, password);
+        }
+
+        AssistantMessage.Text msg = new AssistantMessage.Text(AssistantMessage.Direction.FROM_USER, null, "••••••••");
+        history.removeButtons();
+        history.add(msg);
+        return msg;
+    }
+
     public AssistantMessage handleLocation(Place place) {
         try {
             JSONObject location = new JSONObject();

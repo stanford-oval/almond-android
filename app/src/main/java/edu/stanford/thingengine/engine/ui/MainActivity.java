@@ -93,6 +93,7 @@ public class MainActivity extends Activity implements AssistantOutput, Assistant
 
     private AssistantHistoryAdapter mListAdapter = new AssistantHistoryAdapter(MainActivity.this);
     private boolean mInCommand = false;
+    private boolean mIsPassword = false;
 
     private final MainServiceConnection engine;
 
@@ -261,11 +262,15 @@ public class MainActivity extends Activity implements AssistantOutput, Assistant
             case PHONE_NUMBER:
                 type = InputType.TYPE_CLASS_PHONE;
                 break;
+            case PASSWORD:
+                type = InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD;
+                break;
             default:
                 type = InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_AUTO_CORRECT;
                 break;
         }
         ((TextView) findViewById(R.id.assistant_input)).setInputType(type);
+        mIsPassword = msg.what == AssistantMessage.AskSpecialType.PASSWORD;
     }
 
     public void display(AssistantMessage msg) {
@@ -384,7 +389,11 @@ public class MainActivity extends Activity implements AssistantOutput, Assistant
                 if (control == null)
                     return;
 
-                AssistantMessage msg = control.getAssistant().handleCommand(command);
+                AssistantMessage msg;
+                if (mIsPassword)
+                    msg = control.getAssistant().handlePassword(command);
+                else
+                    msg = control.getAssistant().handleCommand(command);
                 if (msg != null)
                     display(msg);
 

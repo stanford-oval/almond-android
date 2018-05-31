@@ -45,13 +45,14 @@ public abstract class AssistantMessage implements Serializable {
         }
     };
     public enum AskSpecialType {
-        YESNO, LOCATION, PICTURE, PHONE_NUMBER, EMAIL_ADDRESS, NUMBER, DATE, TIME, GENERIC, RAW_STRING, CHOICE, NULL, UNKNOWN;
+        YESNO, LOCATION, PICTURE, PHONE_NUMBER, EMAIL_ADDRESS, NUMBER, DATE, TIME, GENERIC, PASSWORD, RAW_STRING, CHOICE, NULL, UNKNOWN;
 
         public boolean isChooser() {
             switch (this) {
                 case NUMBER:
                 case DATE:
                 case TIME:
+                case PASSWORD:
                 case RAW_STRING:
                 case CHOICE:
                 case GENERIC:
