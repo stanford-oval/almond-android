@@ -198,6 +198,7 @@ module.exports = {
     hasFeature: function(feature) {
         switch(feature) {
         case 'graphdb':
+        case 'permissions':
             return false;
 
         default:
