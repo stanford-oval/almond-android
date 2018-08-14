@@ -13,7 +13,7 @@
     "thingengine-core": "^1.0.0",
     "thingpedia": "^2.2.1",
     "thingpedia-discovery": "^1.0.0",
-    "thingtalk": "^1.0.0",
+    "thingtalk": "^1.1.1",
     "utf-8-validate": "^4.0.1"
   },
   "devDependencies": {
