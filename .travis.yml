@@ -33,6 +33,7 @@ install:
 - nvm install 8
 script: "./gradlew assemble"
 deploy:
+  skip_cleanup: true
   provider: script
   script: 'curl -F "status=2" -F "notify=1" -F "notes=$( git log -1 --pretty=''format:%s''
   )" -F "notes_type=0" -F "ipa=@app/build/outputs/apk/release/app-release.apk" -H
