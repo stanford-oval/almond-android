@@ -79,18 +79,18 @@
 
 
     <string-array name="sabrina_highlights">
-        <item>Try: search \"someone like you\" on youtube and play on my tv</item>
-        <item>Try: notify me if I get a gmail with subject containing \"deadline\"</item>
-        <item>Try: if I post a picture on instagram then post it on twitter </item>
-        <item>Try: if the weather is colder than 18 C then set my thermostat to 22 C</item>
+        <item>Try: Wake me up every morning at 8 am with my playlist my favorite</item>
+        <item>Try: search someone like you on youtube and play on my tv</item>
+        <item>Try: notify me if I get a Gmail with subject containing deadline</item>
+        <item>Try: if I post a picture on Instagram then post it on Twitter </item>
         <item>Click the \"help\" button on the top and let us help you</item>
     </string-array>
 
     <string-array name="sabrina_highlights_description">
+        <item>Tired of the same alarm every morning?</item>
         <item>Tired of typing on TV?</item>
         <item>Too much notification?</item>
         <item>Too many social accounts?</item>
-        <item>Want a smarter home?</item>
         <item>Still don\'t know what to do?</item>
     </string-array>
 </resources>
