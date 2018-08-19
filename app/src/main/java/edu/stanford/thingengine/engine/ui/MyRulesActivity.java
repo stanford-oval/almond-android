@@ -142,22 +142,6 @@ public class MyRulesActivity extends Activity {
                 return true;
             }
         });
-
-        Button btn = (Button) findViewById(R.id.btn_create_rule);
-
-        btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                ControlBinder control = mEngine.getControl();
-                if (control == null)
-                    return;
-
-                control.getAssistant().handleMakeRule();
-                Intent intent = new Intent(MyRulesActivity.this, MainActivity.class);
-                startActivity(intent);
-                return;
-            }
-        });
     }
 
     private void processApps(List<AppInfo> apps) {
