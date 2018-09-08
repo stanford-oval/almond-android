@@ -15,6 +15,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Handler;
 import android.os.ParcelUuid;
+import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
@@ -24,6 +25,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -67,10 +69,11 @@ public class BluetoothAPI extends JavascriptAPI {
                 case BluetoothDevice.ACTION_BOND_STATE_CHANGED:
                 case BluetoothDevice.ACTION_NAME_CHANGED:
                     onDeviceChanged((BluetoothDevice)intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE));
+                    break;
 
                 case BluetoothDevice.ACTION_UUID:
                     onUUIDProbed((BluetoothDevice)intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE),
-                            (ParcelUuid)intent.getParcelableExtra(BluetoothDevice.EXTRA_UUID));
+                            (Parcelable[])intent.getParcelableArrayExtra(BluetoothDevice.EXTRA_UUID));
                     return;
             }
         }
@@ -142,6 +145,7 @@ public class BluetoothAPI extends JavascriptAPI {
         filter.addAction(BluetoothDevice.ACTION_BOND_STATE_CHANGED);
         filter.addAction(BluetoothDevice.ACTION_NAME_CHANGED);
         filter.addAction(BluetoothDevice.ACTION_CLASS_CHANGED);
+        filter.addAction(BluetoothDevice.ACTION_UUID);
         ctx.registerReceiver(receiver, filter, null, handler);
 
         if (adapter != null) {
@@ -231,18 +235,19 @@ public class BluetoothAPI extends JavascriptAPI {
         }
     }
 
-    private void onUUIDProbed(BluetoothDevice device, ParcelUuid uuid) {
-        if (uuid == null)
+    private void onUUIDProbed(BluetoothDevice device, Parcelable[] uuids) {
+        if (uuids == null || uuids.length == 0)
             return;
 
         synchronized (this) {
             String hwAddress = device.getAddress().toLowerCase();
-            ArrayList<ParcelUuid> uuids = fetchedUUIDs.get(hwAddress);
-            if (uuids == null) {
-                uuids = new ArrayList<>();
-                fetchedUUIDs.put(hwAddress, uuids);
+            ArrayList<ParcelUuid> uuidList = fetchedUUIDs.get(hwAddress);
+            if (uuidList == null) {
+                uuidList = new ArrayList<>();
+                fetchedUUIDs.put(hwAddress, uuidList);
             }
-            uuids.add(uuid);
+            for (Parcelable uuid : uuids)
+                uuidList.add((ParcelUuid)uuid);
         }
     }
 
@@ -311,7 +316,7 @@ public class BluetoothAPI extends JavascriptAPI {
         }
     }
 
-    private static final long FETCH_UUID_TIMEOUT = 5000;
+    private static final long FETCH_UUID_TIMEOUT = 20000;
 
     private JSONArray getFetchedUUIDorTimeout(String hwAddress) throws InterruptedException {
         ArrayList<ParcelUuid> uuids = fetchedUUIDs.get(hwAddress);
