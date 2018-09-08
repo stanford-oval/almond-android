@@ -35,25 +35,28 @@ public class AudioRouterAPI extends JavascriptAPI {
     private AtomicInteger refCount = new AtomicInteger(0);
 
     private BluetoothA2dp ad2p;
+    private synchronized void onProxyAcquired(BluetoothA2dp proxy) {
+        ad2p = proxy;
+        notifyAll();
+    }
+    private synchronized void onProxyLost() {
+        ad2p = null;
+        notifyAll();
+    }
+
     private final BluetoothProfile.ServiceListener ad2pServiceListener = new BluetoothProfile.ServiceListener() {
         @Override
         public void onServiceConnected(int profile, BluetoothProfile proxy) {
             if (profile != BluetoothProfile.A2DP)
                 return;
-            synchronized (this) {
-                ad2p = (BluetoothA2dp) proxy;
-                notifyAll();
-            }
+            onProxyAcquired((BluetoothA2dp)proxy);
         }
 
         @Override
         public void onServiceDisconnected(int profile) {
             if (profile != BluetoothProfile.A2DP)
                 return;
-            synchronized (this) {
-                ad2p = null;
-                notifyAll();
-            }
+            onProxyLost();
         }
     };
 
@@ -106,7 +109,7 @@ public class AudioRouterAPI extends JavascriptAPI {
             return;
 
         BluetoothA2dp oldA2dp;
-        synchronized (ad2pServiceListener) {
+        synchronized (this) {
             oldA2dp = ad2p;
             ad2p = null;
             notifyAll();
@@ -120,26 +123,31 @@ public class AudioRouterAPI extends JavascriptAPI {
 
         BluetoothDevice btDevice = btAdapter.getRemoteDevice(address.toUpperCase());
 
-        BluetoothA2dp currentAd2p;
-        synchronized (ad2pServiceListener) {
-            currentAd2p = ad2p;
-            while (currentAd2p == null) {
-                wait(5000); // wait at most 5 seconds
-                currentAd2p = ad2p;
-            }
-        }
-
+        start();
         try {
-            Method connect = BluetoothA2dp.class.getMethod("connect", BluetoothDevice.class);
-            connect.invoke(currentAd2p, btDevice);
-        } catch(NoSuchMethodException|IllegalAccessException e) {
-            throw new RuntimeException("Unable to switch AD2P profile to given device, Android SDK changed incompatibly", e);
-        } catch(InvocationTargetException e) {
-            throw new RuntimeException(e.getCause());
-        }
+            BluetoothA2dp currentAd2p;
+            synchronized (this) {
+                currentAd2p = ad2p;
+                while (currentAd2p == null) {
+                    wait(5000); // wait at most 5 seconds
+                    currentAd2p = ad2p;
+                }
+            }
 
-        audioManager.setSpeakerphoneOn(true);
-        audioManager.setBluetoothA2dpOn(true);
+            try {
+                Method connect = BluetoothA2dp.class.getMethod("connect", BluetoothDevice.class);
+                connect.invoke(currentAd2p, btDevice);
+            } catch (NoSuchMethodException | IllegalAccessException e) {
+                throw new RuntimeException("Unable to switch AD2P profile to given device, Android SDK changed incompatibly", e);
+            } catch (InvocationTargetException e) {
+                throw new RuntimeException(e.getCause());
+            }
+
+            audioManager.setSpeakerphoneOn(true);
+            audioManager.setBluetoothA2dpOn(true);
+        } finally {
+            stop();
+        }
     }
 
     private boolean isAudioRouteBluetooth(String address) throws InterruptedException {
@@ -149,21 +157,26 @@ public class AudioRouterAPI extends JavascriptAPI {
             return false;
 
         BluetoothDevice btDevice = btAdapter.getRemoteDevice(address.toUpperCase());
-        BluetoothA2dp currentAd2p;
-        synchronized (ad2pServiceListener) {
-            currentAd2p = ad2p;
-            while (currentAd2p == null) {
-                wait(5000); // wait at most 5 seconds
-                currentAd2p = ad2p;
-            }
-        }
+        start();
         try {
-            boolean ret = currentAd2p.isA2dpPlaying(btDevice);
-            Log.i(EngineService.LOG_TAG, "AudioRouter.isAudioRouteBluetooth returned " + ret);
-            return ret;
-        } catch(Throwable t) {
-            Log.e(EngineService.LOG_TAG, "Unexpected error in isA2dpPlaying", t);
-            return false;
+            BluetoothA2dp currentAd2p;
+            synchronized (this) {
+                currentAd2p = ad2p;
+                while (currentAd2p == null) {
+                    wait(5000); // wait at most 5 seconds
+                    currentAd2p = ad2p;
+                }
+            }
+            try {
+                boolean ret = currentAd2p.isA2dpPlaying(btDevice);
+                Log.i(EngineService.LOG_TAG, "AudioRouter.isAudioRouteBluetooth returned " + ret);
+                return ret;
+            } catch (Throwable t) {
+                Log.e(EngineService.LOG_TAG, "Unexpected error in isA2dpPlaying", t);
+                return false;
+            }
+        } finally {
+            stop();
         }
     }
 }
