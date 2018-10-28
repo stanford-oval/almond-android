@@ -30,13 +30,6 @@
         android:title="@string/myrules_tab"
         />
     <item
-        android:id="@+id/my_permissions"
-        android:orderInCategory="3"
-        android:menuCategory="alternative"
-        android:showAsAction="ifRoom"
-        android:title="@string/mypermissions_tab"
-        />
-    <item
         android:id="@+id/cheatsheet"
         android:orderInCategory="4"
         android:menuCategory="alternative"
