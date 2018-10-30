@@ -279,8 +279,12 @@ public class DeviceDetailsActivity extends Activity {
             for (int i = 0; i < examples.length(); i++) {
                 JSONObject json = examples.getJSONObject(i);
                 String utterance = json.getString("utterance");
-                String display = utterance.replaceAll("[$][a-zA-Z0-9_]*", "___");
+                String display = utterance.replaceAll("[$][{]?[a-zA-Z0-9_:]*[}]?", "___");
                 String target_code = json.getString("target_code");
+                if (target_code.startsWith("let table"))
+                    display = "get " + display;
+                if (target_code.startsWith("let stream"))
+                    display = display + " notify me";
                 if (!added.contains(target_code)) {
                     added.add(target_code);
                     Example ex = new Example();
