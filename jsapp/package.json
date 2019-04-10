@@ -5,7 +5,7 @@
   "dependencies": {
     "almond-dialog-agent": "^1.0.1",
     "bufferutil": "^3.0.4",
-    "cvc4": "github:Stanford-Mobisocial-IoT-Lab/node-cvc4#android",
+    "cvc4": "github:stanford-oval/node-cvc4#android",
     "node-gettext": "^2.0.0",
     "q": "^1.5.0",
     "smtlib": "^0.1.1",
@@ -24,6 +24,6 @@
   },
   "resolutions": {
     "sqlite3": "github:gcampax/node-sqlite3",
-    "cvc4": "github:Stanford-Mobisocial-IoT-Lab/node-cvc4#android"
+    "cvc4": "github:stanford-oval/node-cvc4#android"
   }
 }

@@ -584,9 +584,9 @@ crypto-browserify@^3.0.0:
     randombytes "^2.0.0"
     randomfill "^1.0.3"
 
-"cvc4@github:Stanford-Mobisocial-IoT-Lab/node-cvc4#android":
+"cvc4@github:stanford-oval/node-cvc4#android":
   version "0.1.1"
-  resolved "https://codeload.github.com/Stanford-Mobisocial-IoT-Lab/node-cvc4/tar.gz/82b987fa73d1643f527c4a85d3213577a13fdd04"
+  resolved "https://codeload.github.com/stanford-oval/node-cvc4/tar.gz/82b987fa73d1643f527c4a85d3213577a13fdd04"
   dependencies:
     smtlib "^0.1.1"
 

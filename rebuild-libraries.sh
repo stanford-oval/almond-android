@@ -38,7 +38,7 @@ cd antlr-3.4/src/libantlr3c-3.4 ;
 make distclean
 autoreconf -fvi )
 
-test -d ${download}/node || git clone https://github.com/Stanford-Mobisocial-IoT-Lab/node.git ${download}/node
+test -d ${download}/node || git clone https://github.com/stanford-oval/node.git ${download}/node
 (cd ${download}/node ; git checkout 74941eb33c983b2a1a4d6bfc3311bcfb44958357 )
 
 }
