@@ -78,8 +78,6 @@
 #include "node-launcher-marshal.hpp"
 #include "node-launcher-module.hpp"
 
-#include "node-cvc4.hpp"
-
 #define log_error(tag, ...) __android_log_print(ANDROID_LOG_ERROR, tag, __VA_ARGS__)
 #define log_warn(tag, ...) __android_log_print(ANDROID_LOG_WARN, tag, __VA_ARGS__)
 #define log_info(tag, ...) __android_log_print(ANDROID_LOG_INFO, tag, __VA_ARGS__)
@@ -448,7 +446,6 @@ start_node(JavaVM *vm, AAsset *app_code, jobject jClassLoader) {
 
     node_module_register(&launcher_module);
     node_module_register(&node_sqlite3::module);
-    node_module_register(&node_cvc4::module);
     node::Init(&argc, const_cast<const char **>(argv), &exec_argc, &exec_argv);
 
     std::unique_ptr<v8::Platform> platform(v8::platform::CreateDefaultPlatform());
