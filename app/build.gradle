@@ -2,15 +2,17 @@ apply plugin: 'com.android.application'
 
 android {
     def keystoreProperties = new Properties()
-    keystoreProperties.load(new FileInputStream(rootProject.file("keystore.properties")))
-    signingConfigs {
-        release {
-            keyAlias keystoreProperties['keyAlias']
-            keyPassword keystoreProperties['keyPassword']
-            storeFile rootProject.file(keystoreProperties['storeFile'])
-            storePassword keystoreProperties['storePassword']
+    try {
+        keystoreProperties.load(new FileInputStream(rootProject.file("keystore.properties")))
+        signingConfigs {
+            release {
+                keyAlias keystoreProperties['keyAlias']
+                keyPassword keystoreProperties['keyPassword']
+                storeFile rootProject.file(keystoreProperties['storeFile'])
+                storePassword keystoreProperties['storePassword']
+            }
         }
-    }
+    } catch(FileNotFoundException e) {}
     compileSdkVersion 25
     buildToolsVersion '27.0.3'
 
