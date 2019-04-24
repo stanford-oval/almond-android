@@ -183,50 +183,53 @@ class AppControlChannel extends ControlChannel {
     }
 }
 
-function main() {
-    global.platform = require('./platform');
-    global.platform.init();
-    new AppControlChannel(global.platform);
+async function main() {
+    try {
+        global.platform = require('./platform');
+        global.platform.init();
+        new AppControlChannel(global.platform);
 
-    console.log('Android platform initialized');
+        console.log('Android platform initialized');
 
-    // load the bulk of the code and create the engine
-    const Engine = require('thingengine-core');
-    const AssistantDispatcher = require('./assistant');
+        // load the bulk of the code and create the engine
+        const Engine = require('thingengine-core');
+        const AssistantDispatcher = require('./assistant');
 
-    console.log('Creating engine...');
-    _engine = new Engine(global.platform, { thingpediaUrl: Config.THINGPEDIA_URL });
+        console.log('Creating engine...');
+        _engine = new Engine(global.platform, { thingpediaUrl: Config.THINGPEDIA_URL });
 
-    _ad = new AssistantDispatcher(_engine);
-    global.platform.setAssistant(_ad);
+        _ad = new AssistantDispatcher(_engine);
+        global.platform.setAssistant(_ad);
 
-    console.log('Opening engine...');
+        console.log('Opening engine...');
 
-    _waitReady = Q(_engine.open());
-    _ad.start();
-    _waitReady.then(() => {
-        _ad.engineReady();
-        _running = true;
-        if (_stopped)
-            return Q();
-        return _engine.run();
-    }, (error) => {
-        console.error('Early exception: ' + error.message);
-        console.error(error.stack);
-        _ad.earlyError(error);
-    }).catch((error) => {
+        try {
+            _waitReady = _engine.open();
+            _ad.start();
+            
+            try {
+                await _waitReady;
+                _ad.engineReady();
+            } catch(error) {
+                console.error('Early exception: ' + error.message);
+                console.error(error.stack);
+                _ad.earlyError(error);
+            }
+            if (!_stopped) {
+                _running = true;
+                await _engine.run();
+            }
+        } finally {
+            _ad.stop();
+            await _engine.close();
+        }
+    } catch (error) {
         console.error('Uncaught exception: ' + error.message);
         console.error(error.stack);
-    }).finally(() => {
-        _ad.stop();
-        return _engine.close();
-    }).catch((error) => {
-        console.error('Exception during stop: ' + error.message);
-        console.error(error.stack);
-    }).finally(() => {
+    } finally {
         console.log('Cleaning up');
         //platform.exit();
-    }).done();
+    }
 }
 
 main();
