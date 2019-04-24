@@ -199,6 +199,7 @@ module.exports = {
         switch(feature) {
         case 'graphdb':
         case 'permissions':
+        case 'remote':
             return false;
 
         default:
