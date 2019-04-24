@@ -681,12 +681,6 @@ crypto-browserify@^3.0.0:
     randombytes "^2.0.0"
     randomfill "^1.0.3"
 
-"cvc4@github:stanford-oval/node-cvc4#android":
-  version "0.1.1"
-  resolved "https://codeload.github.com/stanford-oval/node-cvc4/tar.gz/82b987fa73d1643f527c4a85d3213577a13fdd04"
-  dependencies:
-    smtlib "^0.1.1"
-
 d@1:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/d/-/d-1.0.0.tgz#754bb5bfe55451da69a58b94d45f4c5b0462d58f"
