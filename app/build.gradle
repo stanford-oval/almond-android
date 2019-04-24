@@ -13,15 +13,15 @@ android {
             }
         }
     } catch(FileNotFoundException e) {}
-    compileSdkVersion 25
-    buildToolsVersion '27.0.3'
+    compileSdkVersion 28
+    buildToolsVersion '28.0.3'
 
     String THINGPEDIA_URL = "https://thingpedia.stanford.edu/thingpedia"
     String SEMPRE_URL = "https://almond-nl.stanford.edu"
     defaultConfig {
         applicationId "edu.stanford.thingengine.engine"
         minSdkVersion 21
-        targetSdkVersion 25
+        targetSdkVersion 28
         versionCode 191
         versionName '1.9.1'
         manifestPlaceholders = [HOCKEYAPP_APP_ID: "d6e09574c0f9434e8e20e8d8f2234285"]
@@ -71,17 +71,17 @@ android {
 }
 
 dependencies {
-    compile fileTree(include: ['*.jar'], dir: 'libs')
-    compile 'com.android.support:appcompat-v7:25.3.1'
-    compile 'com.google.android.gms:play-services-location:11.0.4'
-    compile 'com.google.android.gms:play-services-maps:11.0.4'
-    compile 'com.google.android.gms:play-services-places:11.0.4'
-    compile 'com.google.android.gms:play-services-auth:11.0.4'
-    compile 'com.android.support:support-v13:25.3.1'
-    compile 'com.android.support:support-v4:25.3.1'
-    compile 'com.android.support:recyclerview-v7:25.3.1'
-    compile 'com.android.support:percent:25.3.1'
-    compile 'com.koushikdutta.ion:ion:2.2.1'
-    compile 'com.google.android:flexbox:0.2.3'
-    compile 'net.hockeyapp.android:HockeySDK:4.0.1'
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    implementation 'com.android.support:appcompat-v7:28.0.0'
+    implementation 'com.google.android.gms:play-services-location:11.0.4'
+    implementation 'com.google.android.gms:play-services-maps:11.0.4'
+    implementation 'com.google.android.gms:play-services-places:11.0.4'
+    implementation 'com.google.android.gms:play-services-auth:11.0.4'
+    implementation 'com.android.support:support-v13:28.0.0'
+    implementation 'com.android.support:support-v4:28.0.0'
+    implementation 'com.android.support:recyclerview-v7:28.0.0'
+    implementation 'com.android.support:percent:28.0.0'
+    implementation 'com.koushikdutta.ion:ion:2.2.1'
+    implementation 'com.google.android:flexbox:0.2.3'
+    implementation 'net.hockeyapp.android:HockeySDK:4.0.1'
 }
