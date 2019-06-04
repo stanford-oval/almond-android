@@ -3,17 +3,17 @@
   "version": "1.0.0",
   "private": true,
   "dependencies": {
-    "almond-dialog-agent": "^1.0.1",
+    "almond-dialog-agent": "~1.4.0",
     "bufferutil": "^3.0.4",
     "cvc4": "github:Stanford-Mobisocial-IoT-Lab/node-cvc4#android",
     "node-gettext": "^2.0.0",
     "q": "^1.5.0",
     "smtlib": "^0.1.1",
     "sqlite3": "github:gcampax/node-sqlite3",
-    "thingengine-core": "^1.0.0",
+    "thingengine-core": "~1.5.0",
     "thingpedia": "^2.2.1",
     "thingpedia-discovery": "^1.0.0",
-    "thingtalk": "^1.0.0",
+    "thingtalk": "~1.7.2",
     "utf-8-validate": "^4.0.1"
   },
   "devDependencies": {
