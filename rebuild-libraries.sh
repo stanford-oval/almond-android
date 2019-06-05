@@ -8,7 +8,7 @@ export CXX_host=${CXX:-g++}
 export LINK_host=${LINK:-g++}
 export AR_host=${AR:-ar}
 
-ANDROID_NDK_ROOT=${ANDROID_NDK_ROOT:-~/Android/android-ndk-r16b}
+ANDROID_NDK_ROOT=${ANDROID_NDK_ROOT:-~/Android/android-ndk-r19c}
 ./download-ndk.sh
 
 export CFLAGS="-g -O2 -fPIC -fexceptions"

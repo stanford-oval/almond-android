@@ -1,6 +1,6 @@
 #!/bin/sh
 
-SHA256SUM="9c59827a99901423d62d1fa83078393bc73f3e10229ec127cfc04836a4e930dd"
+SHA256SUM="08dc5a2275703ff8704fc5030c87cb6226b97f37a4e69f950b50b0b2630c8b9b"
 set -x
 
 test -d ./src/main/jniLibs && exit
