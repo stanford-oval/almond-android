@@ -44,9 +44,12 @@ module.exports = class ThingEnginePhoneDevice extends Tp.BaseDevice {
 
     // FIXME sms
     get_sms() {
+        throw new Error(`Receiving SMS is not supported in this version of Almond.`);
         return [];
     }
     subscribe_sms() {
+        throw new Error(`Receiving SMS is not supported in this version of Almond.`);
+        
         let sms = this.engine.platform.getCapability('sms');
 
         let smsstream = new stream.Readable({ objectMode: true, read() {} });
@@ -78,6 +81,8 @@ module.exports = class ThingEnginePhoneDevice extends Tp.BaseDevice {
         return audio.setRingerMode(args.mode);
     }
     do_send_sms(args) {
+        throw new Error(`Sending SMS is not supported in this version of Almond.`);
+
         const sms = this.engine.platform.getCapability('sms');
         return sms.sendMessage(String(args.to), args.body);
     }
