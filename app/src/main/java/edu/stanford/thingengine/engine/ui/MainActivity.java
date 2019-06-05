@@ -740,6 +740,12 @@ public class MainActivity extends Activity implements AssistantOutput, Assistant
             return true;
         }
 
+        if (id == R.id.my_permissions) {
+            Intent intent = new Intent(this, MyPermissionsActivity.class);
+            startActivity(intent);
+            return true;
+        }
+
         return super.onOptionsItemSelected(item);
     }
 }
