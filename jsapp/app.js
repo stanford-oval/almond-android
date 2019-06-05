@@ -184,6 +184,14 @@ class AppControlChannel extends ControlChannel {
 }
 
 async function main() {
+    // HACK: run a timer during initialization to keep the mainloop running
+    let counter = 0;
+    let timer = setInterval(() => {
+        if (counter >= 600)
+            clearInterval(timer);
+        counter++;
+    }, 100);
+
     try {
         global.platform = require('./platform');
         global.platform.init();
