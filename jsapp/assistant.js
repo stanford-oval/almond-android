@@ -114,6 +114,10 @@ class AssistantDispatcher {
         this._ensureConversation();
         return this._conversation.presentExample(utterance, targetCode);
     }
+
+    sendResult(message, icon) { // FIXME
+        return this.send(message.toLocaleString(), icon);
+    }
 }
 COMMANDS.forEach((c) => {
     AssistantDispatcher.prototype[c] = AssistantJavaApi[c];
