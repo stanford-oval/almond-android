@@ -10,7 +10,7 @@ cmake_minimum_required(VERSION 3.4.1)
 # You can define multiple libraries, and CMake builds them for you.
 # Gradle automatically packages shared libraries with your APK.
 
-include_directories(src/main/jni src/main/jni/node)
+include_directories(src/main/jni src/main/jni/node src/main/jni/node/deps/cares/include)
 
 add_library(node-launcher SHARED
              src/main/jni/node-launcher.cpp

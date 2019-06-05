@@ -65,6 +65,7 @@
 #include <sys/resource.h>
 
 #include <jni.h>
+#define NODE_WANT_INTERNALS 1
 #include <node.h>
 #include <uv.h>
 #include <libplatform/libplatform.h>
@@ -77,6 +78,9 @@
 #include "node-launcher-utils.hpp"
 #include "node-launcher-marshal.hpp"
 #include "node-launcher-module.hpp"
+
+#include <node_platform.h>
+#include <node_internals.h>
 
 #define log_error(tag, ...) __android_log_print(ANDROID_LOG_ERROR, tag, __VA_ARGS__)
 #define log_warn(tag, ...) __android_log_print(ANDROID_LOG_WARN, tag, __VA_ARGS__)
@@ -98,19 +102,6 @@ namespace node_sqlite3 {
 extern node::node_module module;
 }
 
-// HACK
-namespace node {
-namespace tracing {
-
-class TraceEventHelper {
-public:
-    static v8::TracingController* GetTracingController();
-    static void SetTracingController(v8::TracingController* controller);
-};
-
-}
-}
-
 namespace thingengine_node_launcher {
 
 void CallQueue::run_all_asyncs(uv_async_t *async) {
@@ -129,12 +120,16 @@ void CallQueue::run_all_asyncs(uv_async_t *async) {
     {
         HandleScope scope(isolate);
         for (PackagedNodeCall &call : tmp) {
-            call.Invoke(isolate, self->receiver.Get(isolate), self->this_obj.Get(isolate));
+            //call.Invoke(isolate, self->receiver.Get(isolate), self->this_obj.Get(isolate));
+
+            v8::Local<Value> argv[] = { };
+            node::MakeCallback(isolate, self->this_obj.Get(isolate), self->receiver.Get(isolate),
+                    0, argv);
         }
 
         // run all microtasks before we hit the loop again
         // this will ensure that promises are resolved properly
-        isolate->RunMicrotasks();
+        //isolate->RunMicrotasks();
     }
 }
 
@@ -352,23 +347,25 @@ static bool ShouldAbortOnUncaughtException(Isolate *isolate) {
 }
 
 static int
-loop(node::Environment *env, Isolate *isolate, uv_loop_t *event_loop, v8::Platform *platform) {
+loop(node::Environment *env, Isolate *isolate, uv_loop_t *event_loop, node::NodePlatform *platform) {
     SealHandleScope seal(isolate);
-    bool more;
+    int more;
     do {
-        v8::platform::PumpMessageLoop(platform, isolate);
-        more = (bool) uv_run(event_loop, UV_RUN_ONCE);
+        uv_run(event_loop, UV_RUN_DEFAULT);
 
-        if (!more) {
-            v8::platform::PumpMessageLoop(platform, isolate);
-            EmitBeforeExit(env);
+        platform->DrainBackgroundTasks();
 
-            // Emit `beforeExit` if the loop became alive either after emitting
-            // event, or after running some callbacks.
-            more = (bool) uv_loop_alive(event_loop);
-            if (uv_run(event_loop, UV_RUN_NOWAIT) != 0)
-                more = true;
-        }
+        more = uv_loop_alive(event_loop);
+        if (more)
+            continue;
+
+        EmitBeforeExit(env);
+
+        // Emit `beforeExit` if the loop became alive either after emitting
+        // event, or after running some callbacks.
+        more = (bool) uv_loop_alive(event_loop);
+        if (uv_run(event_loop, UV_RUN_NOWAIT) != 0)
+            more = true;
     } while (more && !global_state.terminate);
 
     global_state.launcher_module.Reset();
@@ -448,9 +445,9 @@ start_node(JavaVM *vm, AAsset *app_code, jobject jClassLoader) {
     node_module_register(&node_sqlite3::module);
     node::Init(&argc, const_cast<const char **>(argv), &exec_argc, &exec_argv);
 
-    std::unique_ptr<v8::Platform> platform(v8::platform::CreateDefaultPlatform());
+    std::unique_ptr<node::NodePlatform> platform(new node::NodePlatform(3, uv_default_loop(), nullptr));
     V8::InitializePlatform(platform.get());
-    node::tracing::TraceEventHelper::SetTracingController(new v8::TracingController());
+    node::tracing::TraceEventHelper::SetTracingController(platform->GetTracingController());
     V8::Initialize();
 
     std::unique_ptr<ArrayBufferAllocator> array_buffer_allocator(new ArrayBufferAllocator());
@@ -459,36 +456,44 @@ start_node(JavaVM *vm, AAsset *app_code, jobject jClassLoader) {
     params.code_event_handler = nullptr;
     Isolate *isolate = Isolate::New(params);
     global_state.queue.Init(isolate);
+    isolate->SetAbortOnUncaughtExceptionCallback(ShouldAbortOnUncaughtException);
+    isolate->SetAutorunMicrotasks(false);
 
     {
         Locker locker(isolate);
         Isolate::Scope isolate_scope(isolate);
-        HandleScope handle_scope(isolate);
-        std::unique_ptr<node::IsolateData, free_func<node::IsolateData, node::FreeIsolateData>>
-                isolate_data(node::CreateIsolateData(isolate, uv_default_loop()));
+        node::IsolateData isolate_data(isolate, uv_default_loop());
 
-        Local<Context> context = Context::New(isolate);
+        {
+            HandleScope handle_scope(isolate);
+            Local<Context> context = Context::New(isolate);
+            Context::Scope context_scope(context);
 
-        // where the magic happens!
-        Context::Scope context_scope(context);
-        node::Environment *env = node::CreateEnvironment(isolate_data.get(), context,
-                                                         argc, argv, exec_argc, exec_argv);
-        Local<Object> process = node::GetProcessObject(env);
-        std::unique_ptr<char[]> code_buffer = read_full_asset(app_code);
-        process->DefineOwnProperty(context, OneByteString(isolate, "_eval"),
-                                   String::NewFromUtf8(isolate, code_buffer.get()),
-                                   v8::PropertyAttribute::None).FromJust();
-        code_buffer = nullptr;
-        node::LoadEnvironment(env);
-        //assert(!global_state.launcher_module.IsEmpty());
+            node::Environment env(&isolate_data, context);
+            env.Start(argc, argv, exec_argc, exec_argv, false);
 
-        isolate->SetAbortOnUncaughtExceptionCallback(ShouldAbortOnUncaughtException);
-        log_info("nodejs", "NodeJS initialized");
+            Local<Object> process = node::GetProcessObject(&env);
+            std::unique_ptr<char[]> code_buffer = read_full_asset(app_code);
+            process->DefineOwnProperty(context, OneByteString(isolate, "_eval"),
+                                       String::NewFromUtf8(isolate, code_buffer.get()),
+                                       v8::PropertyAttribute::None).FromJust();
+            code_buffer = nullptr;
 
-        int exit_code = loop(env, isolate, uv_default_loop(), platform.get());
-        log_info("nodejs", "NodeJS code exited with code %d", exit_code);
+            env.set_abort_on_uncaught_exception(false);
 
-        FreeEnvironment(env);
+            {
+                node::Environment::AsyncCallbackScope callback_scope(&env);
+                env.async_hooks()->push_async_ids(1, 0);
+                node::LoadEnvironment(&env);
+                env.async_hooks()->pop_async_id(1);
+            }
+            //assert(!global_state.launcher_module.IsEmpty());
+
+            log_info("nodejs", "NodeJS initialized");
+
+            int exit_code = loop(&env, isolate, uv_default_loop(), platform.get());
+            log_info("nodejs", "NodeJS code exited with code %d", exit_code);
+        }
     }
 
     isolate->Dispose();
