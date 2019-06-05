@@ -9,7 +9,7 @@
 // See COPYING for details
 "use strict";
 
-const stream = require('stream');
+//const stream = require('stream');
 const Tp = require('thingpedia');
 
 // The phone running this instance of ThingEngine, and its
@@ -45,11 +45,11 @@ module.exports = class ThingEnginePhoneDevice extends Tp.BaseDevice {
     // FIXME sms
     get_sms() {
         throw new Error(`Receiving SMS is not supported in this version of Almond.`);
-        return [];
+        //return [];
     }
     subscribe_sms() {
         throw new Error(`Receiving SMS is not supported in this version of Almond.`);
-        
+        /*
         let sms = this.engine.platform.getCapability('sms');
 
         let smsstream = new stream.Readable({ objectMode: true, read() {} });
@@ -61,7 +61,7 @@ module.exports = class ThingEnginePhoneDevice extends Tp.BaseDevice {
         };
         smsstream.destroy = () => sms.stop();
         sms.start();
-        return smsstream;
+        return smsstream;*/
     }
 
     do_call(args) {
@@ -83,7 +83,7 @@ module.exports = class ThingEnginePhoneDevice extends Tp.BaseDevice {
     do_send_sms(args) {
         throw new Error(`Sending SMS is not supported in this version of Almond.`);
 
-        const sms = this.engine.platform.getCapability('sms');
-        return sms.sendMessage(String(args.to), args.body);
+        //const sms = this.engine.platform.getCapability('sms');
+        //return sms.sendMessage(String(args.to), args.body);
     }
 };
