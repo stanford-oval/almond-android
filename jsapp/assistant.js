@@ -54,6 +54,14 @@ class AssistantDispatcher {
     }
 
     _ensureConversation() {
+        // HACK: run a timer during initialization to keep the mainloop running
+        let counter = 0;
+        let timer = setInterval(() => {
+            if (counter >= 300)
+                clearInterval(timer);
+            counter++;
+        }, 100);
+    
         if (this._conversation)
             return;
         this._conversation = new Almond(this._engine, 'native-android', new LocalUser(this._engine.platform), this, {
