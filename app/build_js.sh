@@ -33,6 +33,8 @@ for mod in almond-dialog-agent thingtalk thingengine-core ; do
 	done
 done
 
+node -e "console.log(JSON.stringify(fs.readFileSync(process.argv[1]).toString()))" ./data/thingengine.phone.tt > data/thingengine.phone.tt.json
+
 printf '"use strict";\nmodule.exports.SEMPRE_URL = "%s";\nmodule.exports.THINGPEDIA_URL = "%s";\n' "${sempre_url}" "${thingpedia_url}" > ./config.js
 
 ./node_modules/.bin/browserify -t [ eslintify --passthrough warnings ] --node -e app.js -o $outputdir/app.js

@@ -20,6 +20,9 @@ const StreamAPI = require('./streams');
 //const CVC4Solver = require('cvc4');
 const CVC4Solver = require('./smtsolver-http');
 
+// FIXME
+const Builtins = require('thingengine-core/lib/devices/builtins');
+
 const _platformApi = JavaAPI.makeJavaAPI('Platform', [],
     ['getFilesDir', 'getCacheDir', 'getLocale', 'getTimezone'], []);
 const _unzipApi = JavaAPI.makeJavaAPI('Unzip', ['unzip'],
@@ -162,15 +165,27 @@ module.exports = {
             locale.pop();
             attempt = locale.join('_');
         }
-        if (locale.length === 0)
-            return;
-        locale = _locales[attempt];
-        for (var domain in locale)
-            this._gettext.addTranslations(this._locale, domain, locale[domain]);
+        if (locale.length !== 0) {
+            locale = _locales[attempt];
+            for (var domain in locale)
+                this._gettext.addTranslations(this._locale, domain, locale[domain]);
+        }
         // free the memory associated with the locales we don't need
         _locales = null;
 
         this._gettext.setLocale(this._locale);
+        
+        this._phoneDev = {
+            kind: 'org.thingpedia.builtin.thingengine.phone',
+            class: require('./data/thingengine.phone.tt.json'),
+            module: require('./thingengine.phone')
+        };
+
+        // HACK: thingengine-core will try to load thingengine-own-desktop from the db
+        // before PairedEngineManager calls getPlatformDevice(), which can result in loading
+        // the device as unsupported (and that would be bad)
+        // to avoid that, we inject it eagerly here
+        Builtins[this._phoneDev.kind] = this._phoneDev;
     },
 
     setAssistant(ad) {
@@ -192,8 +207,7 @@ module.exports = {
     },
 
     getPlatformDevice() {
-        // FIXME
-        return null;
+        return this._phoneDev;
     },
 
     // Check if we need to load and run the given thingengine-module on
