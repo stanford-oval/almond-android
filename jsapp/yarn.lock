@@ -86,9 +86,9 @@ ajv@^6.5.5:
     uri-js "^4.2.2"
 
 almond-dialog-agent@~1.4.0:
-  version "1.4.0"
-  resolved "https://registry.yarnpkg.com/almond-dialog-agent/-/almond-dialog-agent-1.4.0.tgz#5fa2a713e045a5dfd05378fff2835a7459758105"
-  integrity sha512-+9AxswQlH/eVwhxiwSndAww2RYLoZtz/0jrXgadNW0KLiGlkNdD0DABUD2vODzAcVIjrfXIQMrD6HdH3Mqu1Dw==
+  version "1.4.1"
+  resolved "https://registry.yarnpkg.com/almond-dialog-agent/-/almond-dialog-agent-1.4.1.tgz#4bc3a42ab908855e151990d7665883c601573794"
+  integrity sha512-ulpKrbM9VKWVKi9ed6Cin528qWR5xUUXGLxAJ+y7Tdz5vQofn/faqMzy/Kv5gJKYSm4R8BlMYPaQHQ2ONjJ5Hw==
   dependencies:
     adt "~0.7.2"
     consumer-queue "^1.0.0"
