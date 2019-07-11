@@ -13,7 +13,7 @@
 const smt = require('smtlib');
 const Tp = require('thingpedia');
 
-const URL = 'https://parmesan.stanford.edu/cvc4/solve';
+const URL = 'https://cvc4.almond.stanford.edu/solve';
 
 module.exports = class Solver extends smt.BaseSolver {
     constructor(logic) {
