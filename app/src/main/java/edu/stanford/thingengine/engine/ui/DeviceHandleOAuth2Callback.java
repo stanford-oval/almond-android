@@ -44,23 +44,19 @@ public class DeviceHandleOAuth2Callback extends AsyncTask<Uri, Void, Exception> 
 
     @Override
     protected Exception doInBackground(Uri... params) {
-        try {
-            Uri url = params[0];
-            String kind = url.getLastPathSegment();
+        Uri url = params[0];
+        String kind = url.getLastPathSegment();
 
-            ControlBinder control = engine.getControl();
-            if (control != null) {
-                try {
-                    control.handleOAuth2Callback(kind, url.toString(), mapToJson(session));
-                    return null;
-                } catch (Exception e) {
-                    return e;
-                }
-            } else {
+        ControlBinder control = engine.getControl();
+        if (control != null) {
+            try {
+                control.handleOAuth2Callback(kind, url.toString(), mapToJson(session));
                 return null;
+            } catch (Exception e) {
+                return e;
             }
-        } catch(JSONException e) {
-            return e;
+        } else {
+            return null;
         }
     }
 }

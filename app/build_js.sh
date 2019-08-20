@@ -3,6 +3,16 @@
 # OSX specific hack
 export PATH=/usr/local/bin:$PATH
 
+# if building inside a flatpak, set a few things
+if test -d /run/host ; then
+  yarn () {
+    flatpak-spawn --host yarn "$@"
+  }
+  node () {
+    flatpak-spawn --host node "$@"
+  }
+fi
+
 mkdir -p "$1"
 outputdir=`realpath "$1"`
 projectdir=".."
@@ -11,12 +21,7 @@ thingpedia_url="$2"
 sempre_url="$3"
 
 install_deps() {
-  if ! which yarn >/dev/null 2>&1 ; then
-     echo "WARNING: yarn not found, will use npm to install dependencies (this will cause buggy non-deterministic behavior)"
-     npm install
-  else
-     yarn --frozen-lockfile
-  fi
+  yarn --frozen-lockfile
 }
 
 set -e
@@ -37,5 +42,5 @@ node -e "console.log(JSON.stringify(fs.readFileSync(process.argv[1]).toString())
 
 printf '"use strict";\nmodule.exports.SEMPRE_URL = "%s";\nmodule.exports.THINGPEDIA_URL = "%s";\n' "${sempre_url}" "${thingpedia_url}" > ./config.js
 
-./node_modules/.bin/browserify -t [ eslintify --passthrough warnings ] --node -e app.js -o $outputdir/app.js
+node ./node_modules/.bin/browserify -t [ eslintify --passthrough warnings ] --node -e app.js -o $outputdir/app.js
 node -c $outputdir/app.js
