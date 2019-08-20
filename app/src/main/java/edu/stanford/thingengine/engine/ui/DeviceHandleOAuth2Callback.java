@@ -42,49 +42,16 @@ public class DeviceHandleOAuth2Callback extends AsyncTask<Uri, Void, Exception> 
         return o;
     }
 
-    private static JSONObject queryToJson(Uri uri) throws JSONException {
-        Collection<String> names = uri.getQueryParameterNames();
-        JSONObject o = new JSONObject();
-
-        for (String name : names) {
-            List<String> values = uri.getQueryParameters(name);
-
-            if (values.size() == 1) {
-                o.put(name, values.get(0));
-            } else {
-                JSONArray a = new JSONArray();
-                for (String value : values)
-                    a.put(value);
-                o.put(name, a);
-            }
-        }
-
-        return o;
-    }
-
     @Override
     protected Exception doInBackground(Uri... params) {
         try {
             Uri url = params[0];
             String kind = url.getLastPathSegment();
 
-            JSONObject req = new JSONObject();
-            // there is no actual http request going on, so the values are fake
-            // oauth modules should not rely on these anyway
-            req.put("httpVersion", "1.0");
-            req.put("headers", new JSONArray());
-            req.put("rawHeaders", new JSONArray());
-
-            req.put("method", "GET");
-            req.put("url", url.toString());
-            // body is always empty for a GET request!
-            req.put("query", queryToJson(url));
-            req.put("session", mapToJson(session));
-
             ControlBinder control = engine.getControl();
             if (control != null) {
                 try {
-                    control.handleOAuth2Callback(kind, req);
+                    control.handleOAuth2Callback(kind, url.toString(), mapToJson(session));
                     return null;
                 } catch (Exception e) {
                     return e;

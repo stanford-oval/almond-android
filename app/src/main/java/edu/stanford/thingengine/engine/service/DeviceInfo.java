@@ -38,9 +38,11 @@ public class DeviceInfo implements Serializable {
         ownerTier = Tier.valueOf(json.getString("ownerTier").toUpperCase());
         version = json.getInt("version");
         isTransient = json.getBoolean("isTransient");
-        isOnlineAccount = json.getBoolean("isOnlineAccount");
-        isDataSource = json.getBoolean("isDataSource");
-        isThingEngine = json.getBoolean("isThingEngine");
+
+        String _class = json.getString("class");
+        isOnlineAccount = "online".equals(_class);
+        isDataSource = "data".equals(_class);
+        isThingEngine = "system".equals(_class);
     }
 
     public boolean isSame(DeviceInfo info) {

@@ -40,146 +40,70 @@ class AppControlChannel extends ControlChannel {
     }
 
     startOAuth2(kind) {
-        return _engine.devices.factory.runOAuth2(kind, null);
+        return _engine.startOAuth(kind);
     }
 
-    handleOAuth2Callback(kind, req) {
-        return _engine.devices.factory.runOAuth2(kind, req).then(() => true);
+    handleOAuth2Callback(kind, requestUri, session) {
+        return _engine.completeOAuth(kind, requestUri, session).then(() => true);
     }
 
     createDevice(state) {
-        return _engine.devices.loadOneDevice(state, true).then(() => true);
+        return _engine.createDevice(state).then(() => true);
     }
 
     deleteDevice(uniqueId) {
-        var device = _engine.devices.getDevice(uniqueId);
-        if (device === undefined)
-            return false;
-
-        _engine.devices.removeDevice(device);
-        return true;
+        return _engine.deleteDevice(uniqueId);
     }
 
     upgradeDevice(kind) {
         console.log('upgradeDevice', kind);
-        return _engine.devices.updateDevicesOfKind(kind).then(() => true);
+        return _engine.upgradeDevice(kind).then(() => true);
     }
 
     getDeviceInfos() {
         return _waitReady.then(() => {
-            var devices = _engine.devices.getAllDevices();
-
-            return devices.map((d) => {
-                return { uniqueId: d.uniqueId,
-                         name: d.name || "Unknown device",
-                         description: d.description || "Description not available",
-                         kind: d.kind,
-                         ownerTier: d.ownerTier,
-                         version: d.constructor.metadata.version || 0,
-                         isTransient: d.isTransient,
-                         isOnlineAccount: d.hasKind('online-account'),
-                         isDataSource: d.hasKind('data-source'),
-                         isThingEngine: d.hasKind('thingengine-system') };
-            });
-        }, () => []);
+            return _engine.getDeviceInfos();
+        });
     }
 
     getDeviceInfo(uniqueId) {
         return _waitReady.then(() => {
-            var d = _engine.devices.getDevice(uniqueId);
-            if (d === undefined)
-                throw new Error('Invalid device ' + uniqueId);
-
-            return { uniqueId: d.uniqueId,
-                     name: d.name || "Unknown device",
-                     description: d.description || "Description not available",
-                     kind: d.kind,
-                     ownerTier: d.ownerTier,
-                     version: d.constructor.metadata.version || 0,
-                     isTransient: d.isTransient,
-                     isOnlineAccount: d.hasKind('online-account'),
-                     isDataSource: d.hasKind('data-source'),
-                     isThingEngine: d.hasKind('thingengine-system') };
+            return _engine.getDeviceInfo(uniqueId);
         });
     }
 
     checkDeviceAvailable(uniqueId) {
         return _waitReady.then(() => {
-            var d = _engine.devices.getDevice(uniqueId);
-            if (d === undefined)
-                return -1;
-
-            return d.checkAvailable();
+            return _engine.checkDeviceAvailable(uniqueId);
         });
     }
 
     getAppInfos() {
         return _waitReady.then(() => {
-            var apps = _engine.apps.getAllApps();
-
-            return apps.map((a) => {
-                var app = { uniqueId: a.uniqueId,
-                            name: a.name || "Some app",
-                            description: a.description || a.name || "Some app",
-                            icon: a.icon || null,
-                            isRunning: a.isRunning,
-                            isEnabled: a.isEnabled,
-                            error: a.error };
-                return app;
-            });
+            return _engine.getAppInfos();
         });
     }
 
     deleteApp(uniqueId) {
         return _waitReady.then(() => {
-            var app = _engine.apps.getApp(uniqueId);
-            if (app === undefined)
-                return false;
-
-            return _engine.apps.removeApp(app).then(() => true);
+            return _engine.deleteApp(uniqueId);
         });
     }
 
     setCloudId(cloudId, authToken) {
-        if (_engine.devices.hasDevice('thingengine-own-cloud'))
-            return false;
-        if (!this._platform.setAuthToken(authToken))
-            return false;
-
-        // we used to call loadOneDevice() with thingengine kind, tier: cloud here
-        // but is incompatible with syncing the developer key (and causes
-        // spurious device database writes)
-        // instead we set the platform state and reopen the connection
-        this._platform.getSharedPreferences().set('cloud-id', cloudId);
-        _engine._tiers.reopenOne('cloud');
-        return true;
+        return _engine.setCloudId(cloudId, authToken);
     }
 
     setServerAddress(serverHost, serverPort, authToken) {
-        if (_engine.devices.hasDevice('thingengine-own-server'))
-            return false;
-        if (authToken !== null) {
-            if (!this._platform.setAuthToken(authToken))
-                return false;
-        }
-
-        _engine.devices.loadOneDevice({ kind: 'org.thingpedia.builtin.thingengine',
-                                        tier: 'server',
-                                        host: serverHost,
-                                        port: serverPort,
-                                        own: true }, true);
-        return true;
+        return _engine.addServerAddress(serverHost, serverPort, authToken);
     }
 
     getAllPermissions() {
-        return _engine.permissions.getAllPermissions().map((p) => ({
-            uniqueId: p.uniqueId,
-            description: p.description
-        }));
+        return _engine.getAllPermissions();
     }
 
     revokePermission(uniqueId) {
-        return _engine.permissions.removePermission(uniqueId);
+        return _engine.revokePermission(uniqueId);
     }
 }
 
