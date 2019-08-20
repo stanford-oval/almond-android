@@ -85,15 +85,16 @@ ajv@^6.5.5:
     json-schema-traverse "^0.4.1"
     uri-js "^4.2.2"
 
-almond-dialog-agent@~1.4.0:
-  version "1.4.1"
-  resolved "https://registry.yarnpkg.com/almond-dialog-agent/-/almond-dialog-agent-1.4.1.tgz#4bc3a42ab908855e151990d7665883c601573794"
-  integrity sha512-ulpKrbM9VKWVKi9ed6Cin528qWR5xUUXGLxAJ+y7Tdz5vQofn/faqMzy/Kv5gJKYSm4R8BlMYPaQHQ2ONjJ5Hw==
+almond-dialog-agent@~1.6.0:
+  version "1.6.0"
+  resolved "https://registry.yarnpkg.com/almond-dialog-agent/-/almond-dialog-agent-1.6.0.tgz#7b38811d9c4a773272c76d0cdfb88eeafd4e1935"
+  integrity sha512-T+q8NwUx8Ye7L/GZGxNMPEceBwQQ8PsK5yQAHKIB+H3wwcvxW4x7ITodIbGmKKFx0lQLfzm/9FaFKPVDq1QHQw==
   dependencies:
     adt "~0.7.2"
     consumer-queue "^1.0.0"
-    thingpedia "^2.3.0"
-    thingtalk "~1.7.2"
+    qs "^6.7.0"
+    thingpedia "~2.5.0"
+    thingtalk "~1.8.0"
     uuid "^3.1.0"
 
 another-json@^0.2.0:
@@ -1797,11 +1798,6 @@ os-homedir@^1.0.0, os-homedir@^1.0.1:
   resolved "https://registry.yarnpkg.com/os-homedir/-/os-homedir-1.0.2.tgz#ffbc4988336e0e833de0c168c7ef152121aa7fb3"
   integrity sha1-/7xJiDNuDoM94MFox+8VISGqf7M=
 
-p-finally@^1.0.0:
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/p-finally/-/p-finally-1.0.0.tgz#3fbcfb15b899a44123b34b6dcc18b724336a2cae"
-  integrity sha1-P7z7FbiZpEEjs0ttzBi3JDNqLK4=
-
 pako@~1.0.5:
   version "1.0.10"
   resolved "https://registry.yarnpkg.com/pako/-/pako-1.0.10.tgz#4328badb5086a426aa90f541977d4955da5c9732"
@@ -1970,6 +1966,11 @@ q@^1.5.0:
   version "1.5.1"
   resolved "https://registry.yarnpkg.com/q/-/q-1.5.1.tgz#7e32f75b41381291d04611f1bf14109ac00651d7"
   integrity sha1-fjL3W0E4EpHQRhHxvxQQmsAGUdc=
+
+qs@^6.7.0:
+  version "6.8.0"
+  resolved "https://registry.yarnpkg.com/qs/-/qs-6.8.0.tgz#87b763f0d37ca54200334cd57bb2ef8f68a1d081"
+  integrity sha512-tPSkj8y92PfZVbinY1n84i1Qdx75lZjMQYx9WZhnkofyxzw2r7Ho39G3/aEvSUdebxpnnM4LZJCtvE/Aq3+s9w==
 
 qs@~6.5.2:
   version "6.5.2"
@@ -2260,8 +2261,7 @@ sprintf-js@~1.0.2:
   integrity sha1-BOaSb2YolTVPPdAVIDYzuFcpfiw=
 
 sqlite3@^4.0.2, "sqlite3@github:gcampax/node-sqlite3":
-  version "4.0.2+android"
-  uid "85f47107b66c2c91596baa653f0d10e6b1114e41"
+  version "4.0.2"
   resolved "https://codeload.github.com/gcampax/node-sqlite3/tar.gz/85f47107b66c2c91596baa653f0d10e6b1114e41"
 
 sshpk@^1.7.0:
@@ -2433,10 +2433,10 @@ text-table@^0.2.0, text-table@~0.2.0:
   resolved "https://registry.yarnpkg.com/text-table/-/text-table-0.2.0.tgz#7f5ee823ae805207c00af2df4a84ec3fcfa570b4"
   integrity sha1-f17oI66AUgfACvLfSoTsP8+lcLQ=
 
-thingengine-core@~1.5.0:
-  version "1.5.0"
-  resolved "https://registry.yarnpkg.com/thingengine-core/-/thingengine-core-1.5.0.tgz#9230ca7e5e3103f90ea0dfb7068f3335e6a3a079"
-  integrity sha512-ktZmMhXSFWMYkA/BjWCD8PrtElJBVwLgqFTIjcj820LymqW9sDOxrmuLglyoP/7iy7xue0wNyNjfOtx06KkUag==
+thingengine-core@~1.6.0:
+  version "1.6.0"
+  resolved "https://registry.yarnpkg.com/thingengine-core/-/thingengine-core-1.6.0.tgz#fde75f367cd52abddf86cfb8a4a3262e0f8d3dcf"
+  integrity sha512-drxss6qjI9Gu6voL0PDfD6MUPsNuM/3o7EZZi4KoB25PeR8vtUC4P7y/Rs3mRO7Ggu09LQm4gpWnHeIZeryngQ==
   dependencies:
     adt "^0.7.2"
     consumer-queue "^1.0.1"
@@ -2445,21 +2445,11 @@ thingengine-core@~1.5.0:
     matrix-js-sdk "0.9.2"
     q "^1.5.0"
     sqlite3 "^4.0.2"
-    thingpedia "^2.2.1"
-    thingpedia-client "^0.2.4"
+    thingpedia "~2.5.0"
     thingpedia-discovery "^1.0.0"
-    thingtalk "~1.7.0"
+    thingtalk "~1.8.0"
     uuid "^3.1.0"
     ws "^7.0.0"
-
-thingpedia-client@^0.2.4:
-  version "0.2.5"
-  resolved "https://registry.yarnpkg.com/thingpedia-client/-/thingpedia-client-0.2.5.tgz#f7b68a60fa5b6a4f44f310d88b5d66aa32752c4f"
-  integrity sha512-ExJznZ6BUsu+Y5qRmJv8yuhjgJt8LtMq6UQ9/7+sZVJpOUkKWKvB0SVq9WTR5INGdj2OWqvSwG954/+gmk4yhg==
-  dependencies:
-    thingpedia "^2.3.0"
-    thingtalk "~1.7.0"
-    tmp "^0.1.0"
 
 thingpedia-discovery@^1.0.0:
   version "1.0.0"
@@ -2468,22 +2458,22 @@ thingpedia-discovery@^1.0.0:
   dependencies:
     node-ssdp "^2.7.2"
 
-thingpedia@^2.2.1, thingpedia@^2.3.0:
-  version "2.4.0"
-  resolved "https://registry.yarnpkg.com/thingpedia/-/thingpedia-2.4.0.tgz#a4bd953848e87fb55dfcdc56e231810c22b58bcc"
-  integrity sha512-AVgQwYBH16pU7OcE5mhsFs3oHZ9EsJG0mqGohNZWLVEHsdiWxoahaMVRQFypXpxlcyF/ksCQ8I/0U3qWmdDJXQ==
+thingpedia@~2.5.0:
+  version "2.5.0"
+  resolved "https://registry.yarnpkg.com/thingpedia/-/thingpedia-2.5.0.tgz#7ff8ffea9d5d06099a2390ca438ce6abf2c1bb9a"
+  integrity sha512-NQyujS6VLzh9cw1sLLn4wqEnFAh8PhbqYOM26RyCdD2HCgAHhJl84Lrcbh5Y3BkKbLZTZ4RsohTLgVpG+eMRKg==
   dependencies:
     feedparser "^2.2.9"
     ip "~1.1.0"
     oauth "~0.9.14"
-    p-finally "^1.0.0"
-    thingtalk "^1.7.0"
+    thingtalk "~1.8.0"
+    tmp "^0.1.0"
     xml2js "^0.4.17"
 
-thingtalk@^1.7.0, thingtalk@~1.7.0, thingtalk@~1.7.2:
-  version "1.7.2"
-  resolved "https://registry.yarnpkg.com/thingtalk/-/thingtalk-1.7.2.tgz#cbe63961cea371a319d6768aef4a615a66c7da0a"
-  integrity sha512-wji0XMvbIReQ7j/edED9POEmcLZlEAc7NlhBjguMSVNzu7+zjtcXFGGst+PMlNeYqndTpr8fbglTUISmdAuPRw==
+thingtalk@~1.8.0:
+  version "1.8.0"
+  resolved "https://registry.yarnpkg.com/thingtalk/-/thingtalk-1.8.0.tgz#fb62e486cffa607328664e4886af9e9b4cfb34ef"
+  integrity sha512-kwxKNVRMEVB/2NM2vgxMI1Zc5u4u0z0uv7lmvGk2uEt3fLnzYAWLIoElDcW9HczNqChG5p5YfZAvkziTMsyPNg==
   dependencies:
     adt "~0.7.2"
     byline "^5.0.0"
