@@ -80,9 +80,9 @@ ajv@^6.5.5:
     uri-js "^4.2.2"
 
 almond-dialog-agent@~1.6.0:
-  version "1.6.0"
-  resolved "https://registry.yarnpkg.com/almond-dialog-agent/-/almond-dialog-agent-1.6.0.tgz#7b38811d9c4a773272c76d0cdfb88eeafd4e1935"
-  integrity sha512-T+q8NwUx8Ye7L/GZGxNMPEceBwQQ8PsK5yQAHKIB+H3wwcvxW4x7ITodIbGmKKFx0lQLfzm/9FaFKPVDq1QHQw==
+  version "1.6.1"
+  resolved "https://registry.yarnpkg.com/almond-dialog-agent/-/almond-dialog-agent-1.6.1.tgz#03d22b5d6858b461ec504b747851ae802495b982"
+  integrity sha512-ZeZaSi0/+22L0X6dMbGJCchL9pGj6lwcwUN7SDxOtcal+m0NCygoR6I7rOm2wmj0juDNF1mgdVp1HaaRnBIx5A==
   dependencies:
     adt "~0.7.2"
     consumer-queue "^1.0.0"
@@ -425,9 +425,9 @@ buffer-xor@^1.0.3:
   integrity sha1-JuYe0UIvtw3ULm42cp7VHYVf6Nk=
 
 buffer@^5.0.2:
-  version "5.4.0"
-  resolved "https://registry.yarnpkg.com/buffer/-/buffer-5.4.0.tgz#33294f5c1f26e08461e528b69fa06de3c45cbd8c"
-  integrity sha512-Xpgy0IwHK2N01ncykXTy6FpCWuM+CJSHoPVBLyNqyrWxsedpLvwsYUhf0ME3WRFNUhos0dMamz9cOS/xRDtU5g==
+  version "5.4.2"
+  resolved "https://registry.yarnpkg.com/buffer/-/buffer-5.4.2.tgz#2012872776206182480eccb2c0fba5f672a2efef"
+  integrity sha512-iy9koArjAFCzGnx3ZvNA6Z0clIbbFgbdWQ0mKD3hO0krOrZh8UgA6qMKcZvwLJxS+D6iVR76+5/pV56yMNYTag==
   dependencies:
     base64-js "^1.0.2"
     ieee754 "^1.1.4"
@@ -702,9 +702,16 @@ decompress-response@^3.3.0:
     mimic-response "^1.0.0"
 
 deep-equal@^1.0.1:
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/deep-equal/-/deep-equal-1.0.1.tgz#f5d260292b660e084eff4cdbc9f08ad3247448b5"
-  integrity sha1-9dJgKStmDghO/0zbyfCK0yR0SLU=
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/deep-equal/-/deep-equal-1.1.0.tgz#3103cdf8ab6d32cf4a8df7865458f2b8d33f3745"
+  integrity sha512-ZbfWJq/wN1Z273o7mUSjILYqehAktR2NVoSrOukDkU9kg2v/Uv89yU4Cvz8seJeAmtN5oqiefKq8FPuXOboqLw==
+  dependencies:
+    is-arguments "^1.0.4"
+    is-date-object "^1.0.1"
+    is-regex "^1.0.4"
+    object-is "^1.0.1"
+    object-keys "^1.1.1"
+    regexp.prototype.flags "^1.2.0"
 
 deep-extend@^0.6.0:
   version "0.6.0"
@@ -715,6 +722,13 @@ deep-is@~0.1.3:
   version "0.1.3"
   resolved "https://registry.yarnpkg.com/deep-is/-/deep-is-0.1.3.tgz#b369d6fb5dbc13eecf524f91b070feedc357cf34"
   integrity sha1-s2nW+128E+7PUk+RsHD+7cNXzzQ=
+
+define-properties@^1.1.2:
+  version "1.1.3"
+  resolved "https://registry.yarnpkg.com/define-properties/-/define-properties-1.1.3.tgz#cf88da6cbee26fe6db7094f61d870cbd84cee9f1"
+  integrity sha512-3MqfYKj2lLzdMSf8ZIZE/V+Zuy+BgD6f164e8K2w7dgnpKArBDerGYpM46IYYcjnkdPNMjPk9A6VFB8+3SKlXQ==
+  dependencies:
+    object-keys "^1.0.12"
 
 defined@^1.0.0:
   version "1.0.0"
@@ -826,9 +840,9 @@ end-of-stream@^1.0.0, end-of-stream@^1.1.0:
     once "^1.4.0"
 
 es5-ext@^0.10.35, es5-ext@^0.10.46, es5-ext@^0.10.50, es5-ext@~0.10.14:
-  version "0.10.50"
-  resolved "https://registry.yarnpkg.com/es5-ext/-/es5-ext-0.10.50.tgz#6d0e23a0abdb27018e5ac4fd09b412bc5517a778"
-  integrity sha512-KMzZTPBkeQV/JcSQhI5/z6d9VWJ3EnQ194USTUwIYZ2ZbpN8+SGXQKt1h68EX44+qt+Fzr8DO17vnxrw7c3agw==
+  version "0.10.51"
+  resolved "https://registry.yarnpkg.com/es5-ext/-/es5-ext-0.10.51.tgz#ed2d7d9d48a12df86e0299287e93a09ff478842f"
+  integrity sha512-oRpWzM2WcLHVKpnrcyB7OW8j/s67Ba04JCm0WnNv3RiABSvs7mrQlutB8DBv793gKcp0XENR8Il8WxGTlZ73gQ==
   dependencies:
     es6-iterator "~2.0.3"
     es6-symbol "~3.1.1"
@@ -1227,7 +1241,7 @@ has-unicode@^2.0.0:
   resolved "https://registry.yarnpkg.com/has-unicode/-/has-unicode-2.0.1.tgz#e0e6fe6a28cf51138855e086d1691e771de2a8b9"
   integrity sha1-4Ob+aijPUROIVeCG0Wkedx3iqLk=
 
-has@^1.0.0:
+has@^1.0.0, has@^1.0.1:
   version "1.0.3"
   resolved "https://registry.yarnpkg.com/has/-/has-1.0.3.tgz#722d7cbfc1f6aa8241f16dd814e011e1f41e8796"
   integrity sha512-f2dvO0VU6Oej7RkWJGrehjbzMAjFp5/VKPp5tTpWIV4JHHZK1/BxbFRtf/siA2SWTe09caDmVtYYzWEIbBS4zw==
@@ -1385,10 +1399,20 @@ ip@^1.0.1, ip@^1.1.5, ip@~1.1.0:
   resolved "https://registry.yarnpkg.com/ip/-/ip-1.1.5.tgz#bdded70114290828c0a039e72ef25f5aaec4354a"
   integrity sha1-vd7XARQpCCjAoDnnLvJfWq7ENUo=
 
+is-arguments@^1.0.4:
+  version "1.0.4"
+  resolved "https://registry.yarnpkg.com/is-arguments/-/is-arguments-1.0.4.tgz#3faf966c7cba0ff437fb31f6250082fcf0448cf3"
+  integrity sha512-xPh0Rmt8NE65sNzvyUmWgI1tz3mKq74lGA0mL8LYZcoIzKOzDh6HmrYm3d18k60nHerC8A9Km8kYu87zfSFnLA==
+
 is-buffer@^1.1.0:
   version "1.1.6"
   resolved "https://registry.yarnpkg.com/is-buffer/-/is-buffer-1.1.6.tgz#efaa2ea9daa0d7ab2ea13a97b2b8ad51fefbe8be"
   integrity sha512-NcdALwpXkTm5Zvvbk7owOUSvVvBKDgKP5/ewfXEznmQFfs4ZRmanOeKBTjRVjka3QFoN6XJ+9F3USqfHqTaU5w==
+
+is-date-object@^1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/is-date-object/-/is-date-object-1.0.1.tgz#9aa20eb6aeebbff77fbd33e74ca01b33581d3a16"
+  integrity sha1-mqIOtq7rv/d/vTPnTKAbM1gdOhY=
 
 is-fullwidth-code-point@^1.0.0:
   version "1.0.0"
@@ -1422,6 +1446,13 @@ is-property@^1.0.0, is-property@^1.0.2:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/is-property/-/is-property-1.0.2.tgz#57fe1c4e48474edd65b09911f26b1cd4095dda84"
   integrity sha1-V/4cTkhHTt1lsJkR8msc1Ald2oQ=
+
+is-regex@^1.0.4:
+  version "1.0.4"
+  resolved "https://registry.yarnpkg.com/is-regex/-/is-regex-1.0.4.tgz#5517489b547091b0930e095654ced25ee97e9491"
+  integrity sha1-VRdIm1RwkbCTDglWVM7SXul+lJE=
+  dependencies:
+    has "^1.0.1"
 
 is-resolvable@^1.0.0:
   version "1.1.0"
@@ -1749,6 +1780,16 @@ object-assign@^4.0.1, object-assign@^4.1.0, object-assign@^4.1.1:
   resolved "https://registry.yarnpkg.com/object-assign/-/object-assign-4.1.1.tgz#2109adc7965887cfc05cbbd442cac8bfbb360863"
   integrity sha1-IQmtx5ZYh8/AXLvUQsrIv7s2CGM=
 
+object-is@^1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/object-is/-/object-is-1.0.1.tgz#0aa60ec9989a0b3ed795cf4d06f62cf1ad6539b6"
+  integrity sha1-CqYOyZiaCz7Xlc9NBvYs8a1lObY=
+
+object-keys@^1.0.12, object-keys@^1.1.1:
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/object-keys/-/object-keys-1.1.1.tgz#1c47f272df277f3b1daf061677d9c82e2322c60e"
+  integrity sha512-NuAESUOUMrlIXOfHKzD6bpPu3tYt3xvjNdRIQ+FeT0lNb4K8WR70CaDxhuNguS2XG+GjkyMwOzsN5ZktImfhLA==
+
 once@^1.3.0, once@^1.3.1, once@^1.4.0:
   version "1.4.0"
   resolved "https://registry.yarnpkg.com/once/-/once-1.4.0.tgz#583b1aa775961d4b113ac17d9c50baef9dd76bd1"
@@ -2049,6 +2090,13 @@ regenerator-runtime@^0.11.0:
   version "0.11.1"
   resolved "https://registry.yarnpkg.com/regenerator-runtime/-/regenerator-runtime-0.11.1.tgz#be05ad7f9bf7d22e056f9726cee5017fbf19e2e9"
   integrity sha512-MguG95oij0fC3QV3URf4V2SDYGJhJnJGqvIIgdECeODCT98wSWDAJ94SSuVpYQUoTcGUIL6L4yNB7j1DFFHSBg==
+
+regexp.prototype.flags@^1.2.0:
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/regexp.prototype.flags/-/regexp.prototype.flags-1.2.0.tgz#6b30724e306a27833eeb171b66ac8890ba37e41c"
+  integrity sha512-ztaw4M1VqgMwl9HlPpOuiYgItcHlunW0He2fE6eNfT6E/CF2FtYi9ofOYe4mKntstYk0Fyh/rDRBdS3AnxjlrA==
+  dependencies:
+    define-properties "^1.1.2"
 
 request@^2.53.0:
   version "2.88.0"
@@ -2445,16 +2493,16 @@ thingengine-core@~1.6.0:
     ws "^7.0.0"
 
 thingpedia-discovery@^1.0.0:
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/thingpedia-discovery/-/thingpedia-discovery-1.0.0.tgz#8f56f22419cc20ddce638ade986410066fc707dc"
-  integrity sha1-j1byJBnMIN3OY4remGQQBm/HB9w=
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/thingpedia-discovery/-/thingpedia-discovery-1.0.1.tgz#8464cdc84cdecc52361440e0085f8f8c24eb77f6"
+  integrity sha512-MEkVRi0WX47oxsWrQPCxQ1J+TkBJRJuZNTCxzYN8buY3kVR2vP4siU6ssV5u9i+S1UBadJVJKy7DtCH+Kd+q/A==
   dependencies:
     node-ssdp "^2.7.2"
 
 thingpedia@~2.5.0:
-  version "2.5.0"
-  resolved "https://registry.yarnpkg.com/thingpedia/-/thingpedia-2.5.0.tgz#7ff8ffea9d5d06099a2390ca438ce6abf2c1bb9a"
-  integrity sha512-NQyujS6VLzh9cw1sLLn4wqEnFAh8PhbqYOM26RyCdD2HCgAHhJl84Lrcbh5Y3BkKbLZTZ4RsohTLgVpG+eMRKg==
+  version "2.5.1"
+  resolved "https://registry.yarnpkg.com/thingpedia/-/thingpedia-2.5.1.tgz#92c7ea9f9c566d9cc4e9c7a57ff7b387f4dc2a3d"
+  integrity sha512-h+b/Ya2Ua701+GDP0jDtt0agdTiZUerxwvqCn1ba9OIkLgPQ+eOp5Kq41gaz8wUWu/1gODz8d1txJ5QKWc3XAQ==
   dependencies:
     feedparser "^2.2.9"
     ip "~1.1.0"
