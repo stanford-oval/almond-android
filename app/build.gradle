@@ -22,8 +22,8 @@ android {
         applicationId "edu.stanford.thingengine.engine"
         minSdkVersion 21
         targetSdkVersion 28
-        versionCode 1101
-        versionName '1.10.1'
+        versionCode 1102
+        versionName '1.10.2'
         manifestPlaceholders = [HOCKEYAPP_APP_ID: "d6e09574c0f9434e8e20e8d8f2234285"]
         buildConfigField "String", "THINGPEDIA_URL", "\"" + THINGPEDIA_URL + "\""
         buildConfigField "String", "SEMPRE_URL", "\"" + SEMPRE_URL + "\""
