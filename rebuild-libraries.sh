@@ -23,7 +23,7 @@ export OUT=${OUT:-./app/src/main/jniLibs}
 
 download_all() {
 test -d ${download}/node || git clone https://github.com/stanford-oval/node.git ${download}/node
-(cd ${download}/node ; git checkout 74941eb33c983b2a1a4d6bfc3311bcfb44958357 )
+(cd ${download}/node ; git checkout aa64251a506e9aa8548af65cbe3cc36087437b0e )
 
 }
 

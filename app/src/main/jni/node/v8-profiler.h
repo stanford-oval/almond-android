@@ -273,6 +273,16 @@ class V8_EXPORT CpuProfile {
   void Delete();
 };
 
+enum CpuProfilingMode {
+  // In the resulting CpuProfile tree, intermediate nodes in a stack trace
+  // (from the root to a leaf) will have line numbers that point to the start
+  // line of the function, rather than the line of the callsite of the child.
+  kLeafNodeLineNumbers,
+  // In the resulting CpuProfile tree, nodes are separated based on the line
+  // number of their callsite in their parent.
+  kCallerLineNumbers,
+};
+
 /**
  * Interface for controlling CPU profiling. Instance of the
  * profiler can be created using v8::CpuProfiler::New method.
@@ -308,6 +318,13 @@ class V8_EXPORT CpuProfiler {
    *
    * |record_samples| parameter controls whether individual samples should
    * be recorded in addition to the aggregated tree.
+   */
+  void StartProfiling(Local<String> title, CpuProfilingMode mode,
+                      bool record_samples = false);
+  /**
+   * The same as StartProfiling above, but the CpuProfilingMode defaults to
+   * kLeafNodeLineNumbers mode, which was the previous default behavior of the
+   * profiler.
    */
   void StartProfiling(Local<String> title, bool record_samples = false);
 
@@ -389,7 +406,7 @@ class V8_EXPORT HeapGraphNode {
     kRegExp = 6,         // RegExp.
     kHeapNumber = 7,     // Number stored in the heap.
     kNative = 8,         // Native object (not from V8 heap).
-    kSynthetic = 9,      // Synthetic object, usualy used for grouping
+    kSynthetic = 9,      // Synthetic object, usually used for grouping
                          // snapshot items together.
     kConsString = 10,    // Concatenated string. A pair of pointers to strings.
     kSlicedString = 11,  // Sliced string. A fragment of another string.
@@ -784,7 +801,7 @@ class V8_EXPORT HeapProfiler {
   /**
    * Returns the sampled profile of allocations allocated (and still live) since
    * StartSamplingHeapProfiler was called. The ownership of the pointer is
-   * transfered to the caller. Returns nullptr if sampling heap profiler is not
+   * transferred to the caller. Returns nullptr if sampling heap profiler is not
    * active.
    */
   AllocationProfile* GetAllocationProfile();
