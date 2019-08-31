@@ -96,3 +96,5 @@ cp ${build}/node/out/Release/lib.target/libnode.so ${OUT}/${android_arch}/
 download_all
 build_for_arch arm
 build_for_arch x86
+build_for_arch arm64
+build_for_arch x86_64
