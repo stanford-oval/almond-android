@@ -123,11 +123,9 @@ public:
 };
 
 struct GlobalState {
+    AAssetManager *asset_manager;
     CallQueue queue;
     NativeCallQueue native_queue;
-    v8::Global<v8::Object> launcher_module;
-    bool terminate;
-
     JavaInvoker java_invoker;
 };
 

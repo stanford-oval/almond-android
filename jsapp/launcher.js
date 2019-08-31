@@ -7,7 +7,6 @@
 // See COPYING for details
 "use strict";
 
-process._eval = null;
 var launcher = process._linkedBinding('android-launcher');
 
 var callbacks = new Map;
@@ -32,7 +31,6 @@ console.error = function(...args) {
 console.warn = function(...args) {
     return launcher.warn(util.format.apply(null, args) + '\n');
 };
-process.reallyExit = launcher.exit;
 
 module.exports = {
     registerCallback(fn, callback) {

@@ -64,6 +64,17 @@ v8_to_string(const Local <v8::String> &s) {
     return stdstring;
 }
 
+std::basic_string<char>
+v8_to_utf8(const Local <v8::String> &s) {
+    int length = s->Utf8Length();
+    char *buffer = new char[length];
+
+    s->WriteUtf8(buffer, -1, nullptr, v8::String::NO_NULL_TERMINATION);
+    std::basic_string<char> stdstring = std::basic_string<char>(buffer, (size_t) length);
+    delete[] buffer;
+    return stdstring;
+}
+
 v8::Local <v8::Value>
 java_exception_to_v8(Isolate *isolate, JNIEnv *env, jthrowable throwable) {
     jclass Throwable = env->FindClass("java/lang/Throwable");

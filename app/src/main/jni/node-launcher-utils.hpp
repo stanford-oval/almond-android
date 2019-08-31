@@ -39,6 +39,7 @@ jstring string_to_jstring(JNIEnv *env, const std::u16string &str);
 
 v8::Local<v8::String> string_to_v8(v8::Isolate *isolate, const std::u16string &s);
 std::basic_string<char16_t> v8_to_string(const v8::Local<v8::String> &s);
+std::basic_string<char> v8_to_utf8(const v8::Local<v8::String> &s);
 
 v8::Local<v8::Value> java_exception_to_v8(v8::Isolate *isolate, JNIEnv *env, jthrowable throwable);
 v8::Local<v8::Value> exception_to_v8(v8::Isolate *isolate, const std::u16string &error_msg);

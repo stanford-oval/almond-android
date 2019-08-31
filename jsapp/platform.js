@@ -388,7 +388,6 @@ module.exports = {
     // This function should be called by the platform integration
     // code, after stopping the engine
     exit: function() {
-        return process.exit();
     },
 
     // Get the ThingPedia developer key, if one is configured
