@@ -2,24 +2,27 @@
   "name": "thingengine-android",
   "version": "1.10.0",
   "private": true,
+  "scripts": {
+    "lint": "eslint ."
+  },
   "dependencies": {
-    "almond-dialog-agent": "~1.4.0",
-    "bufferutil": "^3.0.4",
+    "almond-dialog-agent": "~1.6.0",
+    "bufferutil": "^4.0.1",
     "node-gettext": "^2.0.0",
     "q": "^1.5.0",
     "smtlib": "^0.1.1",
     "sqlite3": "github:gcampax/node-sqlite3",
-    "thingengine-core": "~1.5.0",
-    "thingpedia": "^2.2.1",
+    "thingengine-core": "~1.6.0",
+    "thingpedia": "~2.5.0",
     "thingpedia-discovery": "^1.0.0",
-    "thingtalk": "~1.7.2",
-    "utf-8-validate": "^4.0.1"
+    "thingtalk": "~1.8.0",
+    "utf-8-validate": "^5.0.2"
   },
   "devDependencies": {
     "browserify": "^14.4.0",
-    "eslintify": "^3.1.0",
-    "gettext-parser": "^1.2.2",
-    "sourceify": "^0.1.0"
+    "eslint": "^6.0.0",
+    "gettext-parser": "^4.0.0",
+    "sourceify": "^1.0.0"
   },
   "resolutions": {
     "sqlite3": "github:gcampax/node-sqlite3"

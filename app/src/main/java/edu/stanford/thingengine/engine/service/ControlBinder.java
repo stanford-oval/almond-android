@@ -43,8 +43,8 @@ public class ControlBinder extends IThingEngine.Stub {
         return (boolean)NodeJSLauncher.invokeSync("Control_setServerAddress", host, port, authToken);
     }
 
-    public boolean handleOAuth2Callback(String kind, JSONObject req) throws Exception {
-        return (boolean)NodeJSLauncher.invokeSync("Control_handleOAuth2Callback", kind, req);
+    public boolean handleOAuth2Callback(String kind, String requestUri, JSONObject session) throws Exception {
+        return (boolean)NodeJSLauncher.invokeSync("Control_handleOAuth2Callback", kind, requestUri, session);
     }
 
     public JSONArray startOAuth2(String kind) throws Exception {
