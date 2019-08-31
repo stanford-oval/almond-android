@@ -4,7 +4,6 @@
   "private": true,
   "dependencies": {
     "almond-dialog-agent": "~1.6.0",
-    "bufferutil": "^3.0.4",
     "node-gettext": "^2.0.0",
     "q": "^1.5.0",
     "smtlib": "^0.1.1",
@@ -12,8 +11,7 @@
     "thingengine-core": "~1.6.0",
     "thingpedia": "~2.5.0",
     "thingpedia-discovery": "^1.0.0",
-    "thingtalk": "~1.8.0",
-    "utf-8-validate": "^4.0.1"
+    "thingtalk": "~1.8.0"
   },
   "devDependencies": {
     "browserify": "^14.4.0",
