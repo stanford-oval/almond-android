@@ -159,7 +159,7 @@ module.exports = {
         this._timezone = _platformApi.getTimezone();
         _prefs = new AndroidSharedPreferences();
 
-        var locale = this._locale.split(/[-_\.@]/);
+        var locale = this._locale.split(/[-_.@]/);
         var attempt = locale.join('_');
         while (!_locales[attempt] && locale.length > 0) {
             locale.pop();
