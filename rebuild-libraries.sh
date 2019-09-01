@@ -23,7 +23,7 @@ export OUT=${OUT:-./app/src/main/jniLibs}
 
 download_all() {
 test -d ${download}/node || git clone https://github.com/stanford-oval/node.git ${download}/node
-(cd ${download}/node ; git checkout aa64251a506e9aa8548af65cbe3cc36087437b0e )
+(cd ${download}/node ; git fetch ; git checkout aa64251a506e9aa8548af65cbe3cc36087437b0e )
 
 }
 
@@ -100,3 +100,7 @@ build_for_arch arm
 build_for_arch x86
 build_for_arch arm64
 build_for_arch x86_64
+
+tar cJf prebuilt.tar.xz ${OUT}/*/*
+hash=`sha256sum prebuilt.tar.xz | cut -f1 -d' '`
+mv prebuilt.tar.xz ${hash}.tar.xz
