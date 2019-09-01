@@ -29,7 +29,7 @@ before_install:
 install:
 - "./download-ndk.sh"
 - export ANDROID_NDK_HOME=~/Android/android-ndk-r19c
-- "( cd app ; ./download-prebuilt-binaries.sh )"
+- "./download-prebuilt-binaries.sh"
 - echo y | sdkmanager 'cmake;3.6.4111459'
 - echo y | sdkmanager 'lldb;3.0'
 - export PATH=./node_modules/.bin:$PATH
