@@ -45,7 +45,7 @@ case $arch in
     x86_64)
         clang_triple=x86_64-linux-android21
         binutils_triple=x86_64-linux-android
-        nodejs_cpu=ia32
+        nodejs_cpu=x64
         android_arch=x86_64
         ;;
     arm64)
@@ -101,6 +101,6 @@ build_for_arch x86
 build_for_arch arm64
 build_for_arch x86_64
 
-tar cJf prebuilt.tar.xz ${OUT}/*/*
+tar -I"xz -T0" -cf prebuilt.tar.xz ${OUT}/*/*
 hash=`sha256sum prebuilt.tar.xz | cut -f1 -d' '`
 mv prebuilt.tar.xz ${hash}.tar.xz
