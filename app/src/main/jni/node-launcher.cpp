@@ -67,7 +67,6 @@
 #include <jni.h>
 #include <node.h>
 #include <uv.h>
-#include <libplatform/libplatform.h>
 #include <node_buffer.h>
 
 #include <android/log.h>
@@ -96,19 +95,6 @@ using v8::FunctionCallbackInfo;
 
 namespace node_sqlite3 {
 extern node::node_module module;
-}
-
-// HACK
-namespace node {
-namespace tracing {
-
-class TraceEventHelper {
-public:
-    static v8::TracingController* GetTracingController();
-    static void SetTracingController(v8::TracingController* controller);
-};
-
-}
 }
 
 namespace thingengine_node_launcher {
@@ -346,46 +332,6 @@ void JavaInvoker::CompletePromise(jlong promiseId, const v8::Maybe<std::u16strin
         fn->Reject(exception_to_v8(isolate, error_msg.FromJust()));
 }
 
-static bool ShouldAbortOnUncaughtException(Isolate *isolate) {
-    // FIXME for now we never abort for uncaught exceptions
-    return false;
-}
-
-static int
-loop(node::Environment *env, Isolate *isolate, uv_loop_t *event_loop, v8::Platform *platform) {
-    SealHandleScope seal(isolate);
-    bool more;
-    do {
-        v8::platform::PumpMessageLoop(platform, isolate);
-        more = (bool) uv_run(event_loop, UV_RUN_ONCE);
-
-        if (!more) {
-            v8::platform::PumpMessageLoop(platform, isolate);
-            EmitBeforeExit(env);
-
-            // Emit `beforeExit` if the loop became alive either after emitting
-            // event, or after running some callbacks.
-            more = (bool) uv_loop_alive(event_loop);
-            if (uv_run(event_loop, UV_RUN_NOWAIT) != 0)
-                more = true;
-        }
-    } while (more && !global_state.terminate);
-
-    global_state.launcher_module.Reset();
-
-    int exit_code;
-    if (!global_state.terminate) {
-        exit_code = EmitExit(env);
-    } else {
-        Isolate::Scope isolate_scope(isolate);
-        HandleScope handle_scope(isolate);
-        exit_code = node::GetProcessObject(env)->Get(
-                OneByteString(isolate, "exitCode"))->Int32Value();
-    }
-    RunAtExit(env);
-    return exit_code;
-}
-
 class ArrayBufferAllocator : public v8::ArrayBuffer::Allocator {
 public:
     ArrayBufferAllocator() {}
@@ -408,21 +354,6 @@ private:
     uint32_t zero_fill_field_ = 1;  // Boolean but exposed as uint32 to JS land.
 };
 
-static std::unique_ptr<char[]>
-read_full_asset(AAsset *asset) {
-    off64_t length = AAsset_getLength64(asset);
-
-    std::unique_ptr<char[]> buffer(new char[length]);
-    off64_t off = 0;
-
-    while (off < length) {
-        int read = AAsset_read(asset, &buffer[off], (size_t) (length - off));
-        off += read;
-    }
-
-    AAsset_close(asset);
-    return buffer;
-}
 
 template<typename T, void (*fn)(T*)>
 class free_func {
@@ -433,11 +364,19 @@ public:
 };
 
 static void
-start_node(JavaVM *vm, AAsset *app_code, jobject jClassLoader) {
-    static const char *argv[] = {"node", nullptr};
-    int argc = 1;
-    int exec_argc;
-    const char **exec_argv;
+start_node(JavaVM *vm, AAssetManager *asset_manager, jobject jClassLoader) {
+    // NOTE: for some reason (unknown to me), libuv enforces that the arguments
+    // passed to node::Start are a true argv buffer, that, is they are contiguous
+    // in memory
+    static const char *argvbuffer =
+            "node\0-e\0"
+            "const __launcher = process._linkedBinding('android-launcher');"
+            "__launcher.init();"
+            "eval(__launcher.readAssetSync('app.js').toString());";
+    global_state.asset_manager = asset_manager;
+
+    const char *argv[] = {argvbuffer, argvbuffer+5, argvbuffer+8, nullptr};
+    int argc = 3;
 
     JNIEnv *jnienv;
     vm->AttachCurrentThread(&jnienv, nullptr);
@@ -446,55 +385,9 @@ start_node(JavaVM *vm, AAsset *app_code, jobject jClassLoader) {
 
     node_module_register(&launcher_module);
     node_module_register(&node_sqlite3::module);
-    node::Init(&argc, const_cast<const char **>(argv), &exec_argc, &exec_argv);
 
-    std::unique_ptr<v8::Platform> platform(v8::platform::CreateDefaultPlatform());
-    V8::InitializePlatform(platform.get());
-    node::tracing::TraceEventHelper::SetTracingController(new v8::TracingController());
-    V8::Initialize();
-
-    std::unique_ptr<ArrayBufferAllocator> array_buffer_allocator(new ArrayBufferAllocator());
-    Isolate::CreateParams params;
-    params.array_buffer_allocator = array_buffer_allocator.get();
-    params.code_event_handler = nullptr;
-    Isolate *isolate = Isolate::New(params);
-    global_state.queue.Init(isolate);
-
-    {
-        Locker locker(isolate);
-        Isolate::Scope isolate_scope(isolate);
-        HandleScope handle_scope(isolate);
-        std::unique_ptr<node::IsolateData, free_func<node::IsolateData, node::FreeIsolateData>>
-                isolate_data(node::CreateIsolateData(isolate, uv_default_loop()));
-
-        Local<Context> context = Context::New(isolate);
-
-        // where the magic happens!
-        Context::Scope context_scope(context);
-        node::Environment *env = node::CreateEnvironment(isolate_data.get(), context,
-                                                         argc, argv, exec_argc, exec_argv);
-        Local<Object> process = node::GetProcessObject(env);
-        std::unique_ptr<char[]> code_buffer = read_full_asset(app_code);
-        process->DefineOwnProperty(context, OneByteString(isolate, "_eval"),
-                                   String::NewFromUtf8(isolate, code_buffer.get()),
-                                   v8::PropertyAttribute::None).FromJust();
-        code_buffer = nullptr;
-        node::LoadEnvironment(env);
-        //assert(!global_state.launcher_module.IsEmpty());
-
-        isolate->SetAbortOnUncaughtExceptionCallback(ShouldAbortOnUncaughtException);
-        log_info("nodejs", "NodeJS initialized");
-
-        int exit_code = loop(env, isolate, uv_default_loop(), platform.get());
-        log_info("nodejs", "NodeJS code exited with code %d", exit_code);
-
-        FreeEnvironment(env);
-    }
-
-    isolate->Dispose();
-    V8::Dispose();
-    V8::ShutdownPlatform();
-    delete[] exec_argv;
+    int exit_code = node::Start(argc, (char**)argv);
+    log_info("nodejs", "NodeJS code exited with code %d", exit_code);
 
     global_state.java_invoker.Deinit();
     vm->DetachCurrentThread();
@@ -587,11 +480,10 @@ Java_edu_stanford_thingengine_nodejs_NodeJSLauncher_launchNodeNative(JNIEnv *env
                                                                      jobject jAssetManager,
                                                                      jobject jClassLoader) {
     AAssetManager *assetManager = AAssetManager_fromJava(env, jAssetManager);
-    AAsset *asset = AAssetManager_open(assetManager, "app.js", AASSET_MODE_STREAMING);
 
     JavaVM *vm;
     env->GetJavaVM(&vm);
-    std::thread(start_node, vm, asset, env->NewGlobalRef(jClassLoader)).detach();
+    std::thread(start_node, vm, assetManager, env->NewGlobalRef(jClassLoader)).detach();
     return nullptr;
 }
 

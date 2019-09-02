@@ -20,6 +20,8 @@
 
 #include <vector>
 #include <android/log.h>
+#include <android/asset_manager.h>
+#include <node_buffer.h>
 
 #include "node-launcher-module.hpp"
 #include "node-launcher-marshal.hpp"
@@ -57,10 +59,6 @@ static void console_warn(const FunctionCallbackInfo<Value> &args) {
     String::Utf8Value msg(args[0]->ToString());
     log_warn("nodejs", "%s", *msg);
     args.GetReturnValue().SetUndefined();
-}
-
-static void process_exit(const FunctionCallbackInfo<Value> &args) {
-    global_state.terminate = true;
 }
 
 static void set_async_receiver(const FunctionCallbackInfo<Value> &args) {
@@ -103,13 +101,37 @@ static void call_java_sync(const FunctionCallbackInfo<Value> &args) {
         args.GetReturnValue().Set(ret_value.ToJavaScript(args.GetIsolate()));
 }
 
-static void register_module(Local<Object> exports, Local<Value>, void *) {
-    global_state.launcher_module = v8::Global<Object>(exports->GetIsolate(), exports);
+static void init(const FunctionCallbackInfo<Value>& args) {
+    global_state.queue.Init(args.GetIsolate());
+}
 
+static void read_asset_sync(const FunctionCallbackInfo<Value>& args) {
+    auto assetname = v8_to_utf8(args[0].As<String>());
+
+    AAsset *asset = AAssetManager_open(global_state.asset_manager, assetname.c_str(), AASSET_MODE_STREAMING);
+    off64_t length = AAsset_getLength64(asset);
+
+    char* buffer = new char[length];
+    off64_t off = 0;
+
+    while (off < length) {
+        int read = AAsset_read(asset, &buffer[off], (size_t) (length - off));
+        off += read;
+    }
+
+    AAsset_close(asset);
+
+    auto nodebuffer = node::Buffer::New(args.GetIsolate(), buffer, length).ToLocalChecked();
+    args.GetReturnValue().Set(nodebuffer);
+}
+
+
+static void register_module(Local<Object> exports, Local<Value>, void *) {
+    NODE_SET_METHOD(exports, "init", init);
+    NODE_SET_METHOD(exports, "readAssetSync", read_asset_sync);
     NODE_SET_METHOD(exports, "log", console_log);
     NODE_SET_METHOD(exports, "error", console_error);
     NODE_SET_METHOD(exports, "warn", console_warn);
-    NODE_SET_METHOD(exports, "exit", process_exit);
     NODE_SET_METHOD(exports, "setAsyncReceiver", set_async_receiver);
     NODE_SET_METHOD(exports, "callJavaAsync", call_java_async);
     NODE_SET_METHOD(exports, "callJavaSync", call_java_sync);

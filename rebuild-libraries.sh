@@ -23,7 +23,7 @@ export OUT=${OUT:-./app/src/main/jniLibs}
 
 download_all() {
 test -d ${download}/node || git clone https://github.com/stanford-oval/node.git ${download}/node
-(cd ${download}/node ; git checkout 74941eb33c983b2a1a4d6bfc3311bcfb44958357 )
+(cd ${download}/node ; git fetch ; git checkout aa64251a506e9aa8548af65cbe3cc36087437b0e )
 
 }
 
@@ -31,22 +31,26 @@ build_for_arch() {
 arch=$1
 case $arch in
     arm)
-        triple=arm-linux-androideabi
+        clang_triple=armv7a-linux-androideabi21
+        binutils_triple=arm-linux-androideabi
         nodejs_cpu=arm
         android_arch=armeabi-v7a
         ;;
     x86)
-        triple=i686-linux-android
+        clang_triple=i686-linux-android21
+        binutils_triple=i686-linux-android
         nodejs_cpu=ia32
         android_arch=x86
         ;;   
     x86_64)
-        triple=x86_64-linux-android
+        clang_triple=x86_64-linux-android21
+        binutils_triple=x86_64-linux-android
         nodejs_cpu=ia32
         android_arch=x86_64
         ;;
     arm64)
-        triple=aarch64-linux-android
+        clang_triple=aarch64-linux-android21
+        binutils_triple=aarch64-linux-android
         nodejs_cpu=arm64
         android_arch=arm64-v8a
         ;;
@@ -55,7 +59,8 @@ case $arch in
         exit 1
 esac
 
-# Step 1: make the toolchain
+# Step 1: prepare the toolchain
+
 mkdir -p ${this_dir}/build-$arch
 mkdir -p ${this_dir}/build-$arch/prefix
 mkdir -p ${this_dir}/build-$arch/prefix/include
@@ -63,22 +68,19 @@ mkdir -p ${this_dir}/build-$arch/build
 prefix=${this_dir}/build-$arch/prefix
 build=${this_dir}/build-$arch/build
 
-test -d ${this_dir}/build-$arch/toolchain || ${ANDROID_NDK_ROOT}/build/tools/make_standalone_toolchain.py --arch ${arch} --api 21 --stl libc++ --install-dir ${this_dir}/build-$arch/toolchain
-touch ${prefix}/include/fpu_control.h
-# the python in the toolchain is broken, remove it
-rm -fr ${this_dir}/build-$arch/toolchain/bin/python* ${this_dir}/build-$arch/toolchain/lib/python2.7 ${this_dir}/build-$arch/toolchain/lib/libpython2.7.a
-
-export PATH=`pwd`/build-$arch/toolchain/bin:${prefix}/bin:${base_PATH}
+export PATH=${ANDROID_NDK_ROOT}/toolchains/llvm/prebuilt/linux-x86_64/bin:${base_PATH}
 export CPATH="${prefix}/include"
 export LDFLAGS="-L${prefix}/lib -Wl,--build-id=sha1"
 
-# Step 2: node
-export CC=${this_dir}/build-$arch/toolchain/bin/$triple-clang
-export CXX=${this_dir}/build-$arch/toolchain/bin/$triple-clang++
-export LINK=${this_dir}/build-$arch/toolchain/bin/$triple-clang++
-export AR=${this_dir}/build-$arch/toolchain/bin/$triple-ar
-export STRIP=${this_dir}/build-$arch/toolchain/bin/$triple-strip
-export LD=${this_dir}/build-$arch/toolchain/bin/$triple-ld
+export CC=$clang_triple-clang
+export CXX=$clang_triple-clang++
+export LINK=$clang_triple-clang++
+export AR=$binutils_triple-ar
+export STRIP=$binutils_triple-strip
+export LD=$binutils_triple-ld
+
+# Step 2: build node
+
 export GYP_DEFINES="target_arch=${arch} v8_target_arch=${nodejs_cpu} android_target_arch=${arch} host_os=linux OS=android"
 
 test -d ${build}/node || git clone ${download}/node ${build}/node
@@ -96,3 +98,9 @@ cp ${build}/node/out/Release/lib.target/libnode.so ${OUT}/${android_arch}/
 download_all
 build_for_arch arm
 build_for_arch x86
+build_for_arch arm64
+build_for_arch x86_64
+
+tar cJf prebuilt.tar.xz ${OUT}/*/*
+hash=`sha256sum prebuilt.tar.xz | cut -f1 -d' '`
+mv prebuilt.tar.xz ${hash}.tar.xz

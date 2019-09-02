@@ -104,6 +104,7 @@ class String;
 class StringObject;
 class Symbol;
 class SymbolObject;
+class PrimitiveArray;
 class Private;
 class Uint32;
 class Utils;
@@ -139,6 +140,7 @@ template<typename T> class ReturnValue;
 
 namespace internal {
 class Arguments;
+class DeferredHandles;
 class Heap;
 class HeapObject;
 class Isolate;
@@ -977,6 +979,48 @@ class V8_EXPORT Data {
   Data();
 };
 
+/**
+ * This is an unfinished experimental feature, and is only exposed
+ * here for internal testing purposes. DO NOT USE.
+ *
+ * A container type that holds relevant metadata for module loading.
+ *
+ * This is passed back to the embedder as part of
+ * HostImportDynamicallyCallback for module loading.
+ */
+class V8_EXPORT ScriptOrModule {
+ public:
+  /**
+   * The name that was passed by the embedder as ResourceName to the
+   * ScriptOrigin. This can be either a v8::String or v8::Undefined.
+   */
+  Local<Value> GetResourceName();
+
+  /**
+   * The options that were passed by the embedder as HostDefinedOptions to
+   * the ScriptOrigin.
+   */
+  Local<PrimitiveArray> GetHostDefinedOptions();
+};
+
+/**
+ * This is an unfinished experimental feature, and is only exposed
+ * here for internal testing purposes. DO NOT USE.
+ *
+ * An array to hold Primitive values. This is used by the embedder to
+ * pass host defined options to the ScriptOptions during compilation.
+ *
+ * This is passed back to the embedder as part of
+ * HostImportDynamicallyCallback for module loading.
+ *
+ */
+class V8_EXPORT PrimitiveArray {
+ public:
+  static Local<PrimitiveArray> New(Isolate* isolate, int length);
+  int Length() const;
+  void Set(int index, Local<Primitive> item);
+  Local<Primitive> Get(int index);
+};
 
 /**
  * The optional attributes of ScriptOrigin.
@@ -1026,13 +1070,17 @@ class ScriptOrigin {
       Local<Value> source_map_url = Local<Value>(),
       Local<Boolean> resource_is_opaque = Local<Boolean>(),
       Local<Boolean> is_wasm = Local<Boolean>(),
-      Local<Boolean> is_module = Local<Boolean>());
+      Local<Boolean> is_module = Local<Boolean>() /*,
+      // Backed out for ABI compatibility with V8 6.2
+      Local<PrimitiveArray> host_defined_options = Local<PrimitiveArray>() */);
 
   V8_INLINE Local<Value> ResourceName() const;
   V8_INLINE Local<Integer> ResourceLineOffset() const;
   V8_INLINE Local<Integer> ResourceColumnOffset() const;
   V8_INLINE Local<Integer> ScriptID() const;
   V8_INLINE Local<Value> SourceMapUrl() const;
+  // Backed out for ABI compatibility with V8 6.2
+  // V8_INLINE Local<PrimitiveArray> HostDefinedOptions() const;
   V8_INLINE ScriptOriginOptions Options() const { return options_; }
 
  private:
@@ -1042,6 +1090,8 @@ class ScriptOrigin {
   ScriptOriginOptions options_;
   Local<Integer> script_id_;
   Local<Value> source_map_url_;
+  // Backed out for ABI compatibility with V8 6.2
+  // Local<PrimitiveArray> host_defined_options_;
 };
 
 /**
@@ -1169,8 +1219,8 @@ class V8_EXPORT Module {
   V8_WARN_UNUSED_RESULT MaybeLocal<Value> Evaluate(Local<Context> context);
 
   /**
-   * Returns the namespace object of this module. The module must have
-   * been successfully instantiated before and must not be errored.
+   * Returns the namespace object of this module.
+   * The module's status must be kEvaluated.
    */
   Local<Value> GetModuleNamespace();
 };
@@ -1288,6 +1338,7 @@ class V8_EXPORT ScriptCompiler {
     Local<Integer> resource_column_offset;
     ScriptOriginOptions resource_options;
     Local<Value> source_map_url;
+    // Local<PrimitiveArray> host_defined_options;
 
     // Cached data from previous compilation (if a kConsume*Cache flag is
     // set), or hold newly generated cache data (kProduce*Cache flags) are
@@ -1725,7 +1776,16 @@ class V8_EXPORT StackFrame {
 
 
 // A StateTag represents a possible state of the VM.
-enum StateTag { JS, GC, COMPILER, OTHER, EXTERNAL, IDLE };
+enum StateTag {
+  JS,
+  GC,
+  COMPILER,
+  OTHER,
+  EXTERNAL,
+  IDLE,
+  PARSER,
+  BYTECODE_COMPILER
+};
 
 // A RegisterState represents the current state of registers used
 // by the sampling profiler API.
@@ -2442,7 +2502,8 @@ enum class NewStringType {
  */
 class V8_EXPORT String : public Name {
  public:
-  static const int kMaxLength = (1 << 28) - 16;
+  static const int kMaxLength =
+      sizeof(void*) == 4 ? (1 << 28) - 16 : (1 << 30) - 1 - 24;
 
   enum Encoding {
     UNKNOWN_ENCODING = 0x1,
@@ -2761,7 +2822,9 @@ class V8_EXPORT String : public Name {
    */
   class V8_EXPORT Utf8Value {
    public:
-    explicit Utf8Value(Local<v8::Value> obj);
+    V8_DEPRECATE_SOON("Use Isolate version",
+                      explicit Utf8Value(Local<v8::Value> obj));
+    Utf8Value(Isolate* isolate, Local<v8::Value> obj);
     ~Utf8Value();
     char* operator*() { return str_; }
     const char* operator*() const { return str_; }
@@ -2784,7 +2847,9 @@ class V8_EXPORT String : public Name {
    */
   class V8_EXPORT Value {
    public:
-    explicit Value(Local<v8::Value> obj);
+    V8_DEPRECATE_SOON("Use Isolate version",
+                      explicit Value(Local<v8::Value> obj));
+    Value(Isolate* isolate, Local<v8::Value> obj);
     ~Value();
     uint16_t* operator*() { return str_; }
     const uint16_t* operator*() const { return str_; }
@@ -4107,9 +4172,7 @@ class V8_EXPORT WasmCompiledModule : public Object {
   // supports move semantics, and does not support copy semantics.
   class TransferrableModule final {
    public:
-    TransferrableModule(TransferrableModule&& src)
-        : compiled_code(std::move(src.compiled_code)),
-          wire_bytes(std::move(src.wire_bytes)) {}
+    TransferrableModule(TransferrableModule&& src);
     TransferrableModule(const TransferrableModule& src) = delete;
 
     TransferrableModule& operator=(TransferrableModule&& src);
@@ -4169,6 +4232,41 @@ class V8_EXPORT WasmCompiledModule : public Object {
   static void CheckCast(Value* obj);
 };
 
+// TODO(mtrofin): when streaming compilation is done, we can rename this
+// to simply WasmModuleObjectBuilder
+class V8_EXPORT WasmModuleObjectBuilderStreaming final {
+ public:
+  WasmModuleObjectBuilderStreaming(Isolate* isolate);
+  // The buffer passed into OnBytesReceived is owned by the caller.
+  void OnBytesReceived(const uint8_t*, size_t size);
+  void Finish();
+  void Abort(Local<Value> exception);
+  Local<Promise> GetPromise();
+
+  ~WasmModuleObjectBuilderStreaming();
+
+ private:
+  typedef std::pair<std::unique_ptr<const uint8_t[]>, size_t> Buffer;
+
+  WasmModuleObjectBuilderStreaming(const WasmModuleObjectBuilderStreaming&) =
+      delete;
+  WasmModuleObjectBuilderStreaming(WasmModuleObjectBuilderStreaming&&);
+  WasmModuleObjectBuilderStreaming& operator=(
+      const WasmModuleObjectBuilderStreaming&) = delete;
+  WasmModuleObjectBuilderStreaming& operator=(
+      WasmModuleObjectBuilderStreaming&&);
+  Isolate* isolate_ = nullptr;
+
+  // We don't need the static Copy API, so the default
+  // NonCopyablePersistentTraits would be sufficient, however,
+  // MSVC eagerly instantiates the Copy.
+  // We ensure we don't use Copy, however, by compiling with the
+  // defaults everywhere else.
+  Persistent<Promise, CopyablePersistentTraits<Promise>> promise_;
+  std::vector<Buffer> received_buffers_;
+  size_t total_size_ = 0;
+};
+
 class V8_EXPORT WasmModuleObjectBuilder final {
  public:
   WasmModuleObjectBuilder(Isolate* isolate) : isolate_(isolate) {}
@@ -4185,9 +4283,7 @@ class V8_EXPORT WasmModuleObjectBuilder final {
   // Disable copy semantics *in this implementation*. We can choose to
   // relax this, albeit it's not clear why.
   WasmModuleObjectBuilder(const WasmModuleObjectBuilder&) = delete;
-  WasmModuleObjectBuilder(WasmModuleObjectBuilder&& src)
-      : received_buffers_(std::move(src.received_buffers_)),
-        total_size_(src.total_size_) {}
+  WasmModuleObjectBuilder(WasmModuleObjectBuilder&&);
   WasmModuleObjectBuilder& operator=(const WasmModuleObjectBuilder&) = delete;
   WasmModuleObjectBuilder& operator=(WasmModuleObjectBuilder&&);
 
@@ -4448,6 +4544,12 @@ class V8_EXPORT ArrayBufferView : public Object {
  */
 class V8_EXPORT TypedArray : public ArrayBufferView {
  public:
+  /*
+   * The largest typed array size that can be constructed using New.
+   */
+  static const size_t kMaxLength =
+      sizeof(void*) == 4 ? (1u << 30) - 1 : (1u << 31) - 1;
+
   /**
    * Number of elements in this typed array
    * (e.g. for Int16Array, |ByteLength|/2).
@@ -5044,7 +5146,6 @@ typedef void (*NamedPropertyDeleterCallback)(
     Local<String> property,
     const PropertyCallbackInfo<Boolean>& info);
 
-
 /**
  * Returns an array containing the names of the properties the named
  * property getter intercepts.
@@ -5167,7 +5268,6 @@ typedef void (*GenericNamedPropertyQueryCallback)(
  */
 typedef void (*GenericNamedPropertyDeleterCallback)(
     Local<Name> property, const PropertyCallbackInfo<Boolean>& info);
-
 
 /**
  * Returns an array containing the names of the properties the named
@@ -6106,8 +6206,8 @@ typedef void (*DeprecatedCallCompletedCallback)();
  * embedder to load a module. This is used as part of the dynamic
  * import syntax.
  *
- * The referrer is the name of the file which calls the dynamic
- * import. The referrer can be used to resolve the module location.
+ * The referrer contains metadata about the script/module that calls
+ * import.
  *
  * The specifier is the name of the module that should be imported.
  *
@@ -6117,10 +6217,13 @@ typedef void (*DeprecatedCallCompletedCallback)();
  * The Promise returned from this function is forwarded to userland
  * JavaScript. The embedder must resolve this promise with the module
  * namespace object. In case of an exception, the embedder must reject
- * this promise with the exception.
+ * this promise with the exception. If the promise creation itself
+ * fails (e.g. due to stack overflow), the embedder must propagate
+ * that exception by returning an empty MaybeLocal.
  */
 typedef MaybeLocal<Promise> (*HostImportModuleDynamicallyCallback)(
-    Local<Context> context, Local<String> referrer, Local<String> specifier);
+    Local<Context> context, Local<ScriptOrModule> referrer,
+    Local<String> specifier);
 
 /**
  * PromiseHook with type kInit is called when a new promise is
@@ -6469,7 +6572,7 @@ struct JitCodeEvent {
   struct line_info_t {
     // PC offset
     size_t offset;
-    // Code postion
+    // Code position
     size_t pos;
     // The position type.
     PositionType position_type;
@@ -6748,7 +6851,7 @@ class V8_EXPORT Isolate {
      * deserialization. This array and its content must stay valid for the
      * entire lifetime of the isolate.
      */
-    intptr_t* external_references;
+    const intptr_t* external_references;
 
     /**
      * Whether calling Atomics.wait (a function that may block) is allowed in
@@ -6894,6 +6997,7 @@ class V8_EXPORT Isolate {
     kAssigmentExpressionLHSIsCallInStrict = 37,
     kPromiseConstructorReturnedUndefined = 38,
     kConstructorNonUndefinedPrimitiveReturn = 39,
+    kLabeledExpressionStatement = 40,
 
     // If you add new values here, you'll also need to update Chromium's:
     // UseCounter.h, V8PerIsolateData.cpp, histograms.xml
@@ -7102,6 +7206,12 @@ class V8_EXPORT Isolate {
    */
   V8_INLINE int64_t
       AdjustAmountOfExternalAllocatedMemory(int64_t change_in_bytes);
+
+  /**
+   * This is a Node.js 8.x specific version of the function that uses
+   * CheckMemoryPressure.
+   */
+  int64_t AdjustAmountOfExternalAllocatedMemoryCustom(int64_t change_in_bytes);
 
   /**
    * Returns the number of phantom handles without callbacks that were reset
@@ -7328,8 +7438,8 @@ class V8_EXPORT Isolate {
           DeprecatedCallCompletedCallback callback));
 
   /**
-   * Experimental: Set the PromiseHook callback for various promise
-   * lifecycle events.
+   * Set the PromiseHook callback for various promise lifecycle
+   * events.
    */
   void SetPromiseHook(PromiseHook hook);
 
@@ -7666,6 +7776,7 @@ class V8_EXPORT Isolate {
   friend class PersistentValueMapBase;
 
   void ReportExternalAllocationLimitReached();
+  void CheckMemoryPressure();
 };
 
 class V8_EXPORT StartupData {
@@ -7685,7 +7796,7 @@ typedef bool (*EntropySource)(unsigned char* buffer, size_t length);
  * ReturnAddressLocationResolver is used as a callback function when v8 is
  * resolving the location of a return address on the stack. Profilers that
  * change the return address on the stack can use this to resolve the stack
- * location to whereever the profiler stashed the original return address.
+ * location to wherever the profiler stashed the original return address.
  *
  * \param return_addr_location A location on stack where a machine
  *    return address resides.
@@ -8112,7 +8223,7 @@ class V8_EXPORT SnapshotCreator {
    * \param external_references a null-terminated array of external references
    *        that must be equivalent to CreateParams::external_references.
    */
-  SnapshotCreator(intptr_t* external_references = nullptr,
+  SnapshotCreator(const intptr_t* external_references = nullptr,
                   StartupData* existing_blob = nullptr);
 
   ~SnapshotCreator();
@@ -8915,6 +9026,8 @@ class Internals {
   static const int kExternalMemoryOffset = 4 * kApiPointerSize;
   static const int kExternalMemoryLimitOffset =
       kExternalMemoryOffset + kApiInt64Size;
+  static const int kExternalMemoryAtLastMarkCompactOffset =
+      kExternalMemoryLimitOffset + kApiInt64Size;
   static const int kIsolateRootsOffset = kExternalMemoryLimitOffset +
                                          kApiInt64Size + kApiInt64Size +
                                          kApiPointerSize + kApiPointerSize;
@@ -9458,7 +9571,9 @@ ScriptOrigin::ScriptOrigin(Local<Value> resource_name,
                            Local<Integer> script_id,
                            Local<Value> source_map_url,
                            Local<Boolean> resource_is_opaque,
-                           Local<Boolean> is_wasm, Local<Boolean> is_module)
+                           Local<Boolean> is_wasm, Local<Boolean> is_module /*,
+                           // Backed out for ABI compatibility with V8 6.2
+                           Local<PrimitiveArray> host_defined_options */)
     : resource_name_(resource_name),
       resource_line_offset_(resource_line_offset),
       resource_column_offset_(resource_column_offset),
@@ -9468,10 +9583,16 @@ ScriptOrigin::ScriptOrigin(Local<Value> resource_name,
                !is_wasm.IsEmpty() && is_wasm->IsTrue(),
                !is_module.IsEmpty() && is_module->IsTrue()),
       script_id_(script_id),
-      source_map_url_(source_map_url) {}
+      source_map_url_(source_map_url) /*,
+      // Backed out for ABI compatibility with V8 6.2
+      host_defined_options_(host_defined_options) */ {}
 
 Local<Value> ScriptOrigin::ResourceName() const { return resource_name_; }
 
+// Backed out for ABI compatibility with V8 6.2
+// Local<PrimitiveArray> ScriptOrigin::HostDefinedOptions() const {
+//   return host_defined_options_;
+// }
 
 Local<Integer> ScriptOrigin::ResourceLineOffset() const {
   return resource_line_offset_;
@@ -9488,7 +9609,6 @@ Local<Integer> ScriptOrigin::ScriptID() const { return script_id_; }
 
 Local<Value> ScriptOrigin::SourceMapUrl() const { return source_map_url_; }
 
-
 ScriptCompiler::Source::Source(Local<String> string, const ScriptOrigin& origin,
                                CachedData* data)
     : source_string(string),
@@ -9497,8 +9617,9 @@ ScriptCompiler::Source::Source(Local<String> string, const ScriptOrigin& origin,
       resource_column_offset(origin.ResourceColumnOffset()),
       resource_options(origin.Options()),
       source_map_url(origin.SourceMapUrl()),
+      // Backed out for ABI compatibility with V8 6.2
+      // host_defined_options(origin.HostDefinedOptions()),
       cached_data(data) {}
-
 
 ScriptCompiler::Source::Source(Local<String> string,
                                CachedData* data)
@@ -10135,11 +10256,17 @@ int64_t Isolate::AdjustAmountOfExternalAllocatedMemory(
   typedef internal::Internals I;
   int64_t* external_memory = reinterpret_cast<int64_t*>(
       reinterpret_cast<uint8_t*>(this) + I::kExternalMemoryOffset);
-  const int64_t external_memory_limit = *reinterpret_cast<int64_t*>(
+  int64_t* external_memory_limit = reinterpret_cast<int64_t*>(
       reinterpret_cast<uint8_t*>(this) + I::kExternalMemoryLimitOffset);
   const int64_t amount = *external_memory + change_in_bytes;
+
   *external_memory = amount;
-  if (change_in_bytes > 0 && amount > external_memory_limit) {
+
+  if (change_in_bytes < 0) {
+    *external_memory_limit += change_in_bytes;
+  }
+
+  if (change_in_bytes > 0 && amount > *external_memory_limit) {
     ReportExternalAllocationLimitReached();
   }
   return *external_memory;

@@ -160,7 +160,6 @@ async function main() {
         console.error(error.stack);
     } finally {
         console.log('Cleaning up');
-        //platform.exit();
     }
 }
 
