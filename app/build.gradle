@@ -16,8 +16,9 @@ android {
     compileSdkVersion 28
     buildToolsVersion '28.0.3'
 
-    String THINGPEDIA_URL = "https://thingpedia.stanford.edu/thingpedia"
-    String SEMPRE_URL = "https://almond-nl.stanford.edu"
+    String THINGPEDIA_URL = "https://almond-dev.stanford.edu/thingpedia"
+    String SEMPRE_URL = "https://nlp-staging.almond.stanford.edu/@org.schema.all"
+    String ALMOND_URL = "https://almond-dev.stanford.edu"
     defaultConfig {
         applicationId "edu.stanford.thingengine.engine"
         minSdkVersion 21
@@ -27,6 +28,7 @@ android {
         manifestPlaceholders = [HOCKEYAPP_APP_ID: "d6e09574c0f9434e8e20e8d8f2234285"]
         buildConfigField "String", "THINGPEDIA_URL", "\"" + THINGPEDIA_URL + "\""
         buildConfigField "String", "SEMPRE_URL", "\"" + SEMPRE_URL + "\""
+        buildConfigField "String", "ALMOND_URL", "\"" + ALMOND_URL + "\""
 
         externalNativeBuild {
             cmake {
@@ -51,7 +53,7 @@ android {
     }
 
     def execTask = project.tasks.create("buildJs", Exec)
-    execTask.commandLine "./build_js.sh", "./src/main/assets/", THINGPEDIA_URL, SEMPRE_URL
+    execTask.commandLine "./build_js.sh", "./src/main/assets/", THINGPEDIA_URL, SEMPRE_URL, ALMOND_URL
 
     applicationVariants.all { variant ->
         variant.mergeResources.dependsOn(execTask)

@@ -32,6 +32,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import edu.stanford.thingengine.engine.BuildConfig;
 import edu.stanford.thingengine.engine.CloudAuthInfo;
 import edu.stanford.thingengine.engine.R;
 import edu.stanford.thingengine.engine.service.ControlBinder;
@@ -89,7 +90,15 @@ public class ThingpediaWebsiteActivity extends Activity {
         }
     }
 
-    private static final Set<String> ALLOWED_HOSTS = new HashSet<>(Arrays.asList("thingengine.stanford.edu", "thingpedia.stanford.edu", "almond.stanford.edu", "sabrina.stanford.edu"));
+    private static final Set<String> ALLOWED_HOSTS = new HashSet<>();
+    static {
+        if (BuildConfig.ALMOND_URL.equals("https://almond.stanford.edu")) {
+            ALLOWED_HOSTS.addAll(Arrays.asList("thingengine.stanford.edu", "thingpedia.stanford.edu", "almond.stanford.edu", "sabrina.stanford.edu"));
+        } else {
+            Uri url = Uri.parse(BuildConfig.ALMOND_URL);
+            ALLOWED_HOSTS.add(url.getAuthority());
+        }
+    }
 
     private class WebViewClient extends android.webkit.WebViewClient {
         @Override
@@ -155,7 +164,7 @@ public class ThingpediaWebsiteActivity extends Activity {
         view.getSettings().setJavaScriptEnabled(true);
         view.setWebChromeClient(new WebChromeClient());
         view.setWebViewClient(new WebViewClient());
-        view.loadUrl("https://almond.stanford.edu/user/login?auth=app");
+        view.loadUrl(BuildConfig.ALMOND_URL + "/user/login?auth=app");
     }
 
     private void showConfirmDialog(boolean success) {

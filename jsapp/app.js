@@ -91,6 +91,7 @@ class AppControlChannel extends ControlChannel {
     }
 
     setCloudId(cloudId, authToken) {
+        console.log('setCloudId', cloudId);
         return _engine.setCloudId(cloudId, authToken);
     }
 
@@ -120,7 +121,11 @@ async function main() {
         const AssistantDispatcher = require('./assistant');
 
         console.log('Creating engine...');
-        _engine = new Engine(global.platform, { thingpediaUrl: Config.THINGPEDIA_URL });
+        console.log('cloudSyncUrl', Config.ALMOND_URL);
+        _engine = new Engine(global.platform, {
+            thingpediaUrl: Config.THINGPEDIA_URL,
+            cloudSyncUrl: Config.ALMOND_URL
+        });
 
         _ad = new AssistantDispatcher(_engine);
         global.platform.setAssistant(_ad);
