@@ -19,7 +19,7 @@
     "utf-8-validate": "^5.0.2"
   },
   "devDependencies": {
-    "browserify": "^14.4.0",
+    "browserify": "*",
     "eslint": "^6.0.0",
     "gettext-parser": "^4.0.0",
     "sourceify": "^1.0.0"
