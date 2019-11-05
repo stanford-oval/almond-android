@@ -123,6 +123,8 @@ public class AssistantAPI extends JavascriptAPI implements AssistantCommandHandl
 
     private void sendRDL(JSONObject rdl, String icon) {
         mService.getAssistant().dispatch(new AssistantMessage.RDL(AssistantMessage.Direction.FROM_SABRINA, icon, rdl));
+        if (rdl.has("pictureUrl"))
+          mService.getAssistant().dispatch(new AssistantMessage.Picture(AssistantMessage.Direction.FROM_SABRINA, icon, rdl.getString("pictureUrl")));
     }
 
     private void sendChoice(int idx, String what, String title, String text) {
