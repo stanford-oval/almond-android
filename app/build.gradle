@@ -16,9 +16,9 @@ android {
     compileSdkVersion 28
     buildToolsVersion '28.0.3'
 
-    String THINGPEDIA_URL = "https://almond-dev.stanford.edu/thingpedia"
-    String SEMPRE_URL = "https://nlp-staging.almond.stanford.edu/@org.schema.all"
-    String ALMOND_URL = "https://almond-dev.stanford.edu"
+    String THINGPEDIA_URL = "https://thingpedia.stanford.edu/thingpedia"
+    String SEMPRE_URL = "https://almond-nl.almond.stanford.edu"
+    String ALMOND_URL = "https://almond.stanford.edu"
     defaultConfig {
         applicationId "edu.stanford.thingengine.engine"
         minSdkVersion 21
