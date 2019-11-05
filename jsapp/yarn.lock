@@ -2197,9 +2197,9 @@ text-table@^0.2.0:
   integrity sha1-f17oI66AUgfACvLfSoTsP8+lcLQ=
 
 thingengine-core@~1.7.0-alpha.1:
-  version "1.7.0-alpha.1"
-  resolved "https://registry.yarnpkg.com/thingengine-core/-/thingengine-core-1.7.0-alpha.1.tgz#a5b8aa3424bacd67e69588e821be7b1dea8a8a05"
-  integrity sha512-qaHQUZacwb0vIvwNLJYpXZkRm99TDlWg8LasXOHEd+sqyYyHNP6zHuTbMP1SkvRd3QUvuP+VH/6Hi/ywkpml4Q==
+  version "1.7.0-beta.1"
+  resolved "https://registry.yarnpkg.com/thingengine-core/-/thingengine-core-1.7.0-beta.1.tgz#97ba9e2431b8847e3af6b823698623a2ef429a60"
+  integrity sha512-L33u9BcszjztCK3QHzZziTVCstkBLH8jOMDqHbXTv4nC62wSssx3tuAXeiyjt6N7Sg/k4NiNlEqbmE90inO7Ag==
   dependencies:
     adt "^0.7.2"
     consumer-queue "^1.0.1"
@@ -2234,9 +2234,9 @@ thingpedia@~2.5.0:
     xml2js "^0.4.17"
 
 thingpedia@~2.6.0-alpha.1:
-  version "2.6.0-alpha.1"
-  resolved "https://registry.yarnpkg.com/thingpedia/-/thingpedia-2.6.0-alpha.1.tgz#bd49a6b68df29646840477e33402038df0edfd61"
-  integrity sha512-kw3qZKaseH8xf5f5Ss/3HulK/M4r88s60tMnS+bRIS0eLHJdqNP+YKNmT4IiEOvYlT/iV1yUYON5iDYE9z1vZA==
+  version "2.6.0-alpha.2"
+  resolved "https://registry.yarnpkg.com/thingpedia/-/thingpedia-2.6.0-alpha.2.tgz#c54636c2c5ca96504eb9bcd489dc6f66996f4371"
+  integrity sha512-2E8Du8Ev6XU0p9vZljmalAsLnE5mvMHoOc7WNMSAEap8aW1sHe+sxwvkuHnu3z14VlCeMFNi7iZ3hwlW/44Fdg==
   dependencies:
     feedparser "^2.2.9"
     ip "~1.1.0"
@@ -2246,9 +2246,9 @@ thingpedia@~2.6.0-alpha.1:
     xml2js "^0.4.17"
 
 thingtalk@~1.8.0, thingtalk@~1.9.0-alpha.1, thingtalk@~1.9.0-alpha.4:
-  version "1.9.0-alpha.4"
-  resolved "https://registry.yarnpkg.com/thingtalk/-/thingtalk-1.9.0-alpha.4.tgz#dbb0d4d05a9fcf24be874a8c2e283fa618a4fb49"
-  integrity sha512-0Tm5fOJZxqnQgMBuRF6zPWZWg0xvVevSJiwtiF1RxS/XsAjESVpO7QZXlILrkvkx8GfMz0/KJxyh8RpvJ97Hpg==
+  version "1.9.0-beta.1"
+  resolved "https://registry.yarnpkg.com/thingtalk/-/thingtalk-1.9.0-beta.1.tgz#f7d5fbd457f199814cf33cb8732f51640a39b2ab"
+  integrity sha512-1idMnmj7ecyfNPjpr/5JDTdwnMsfevGDp8smXac/z4SKUvlgUa4W60AnyKN4aKxMmnm2nvkteWrs+EupnYrOww==
   dependencies:
     adt "~0.7.2"
     byline "^5.0.0"
@@ -2421,9 +2421,9 @@ verror@1.10.0:
     extsprintf "^1.2.0"
 
 vm-browserify@^1.0.0:
-  version "1.1.0"
-  resolved "https://registry.yarnpkg.com/vm-browserify/-/vm-browserify-1.1.0.tgz#bd76d6a23323e2ca8ffa12028dc04559c75f9019"
-  integrity sha512-iq+S7vZJE60yejDYM0ek6zg308+UZsdtPExWP9VZoCFCz1zkJoXFnAX7aZfd/ZwrkidzdUZL0C/ryW+JwAiIGw==
+  version "1.1.2"
+  resolved "https://registry.yarnpkg.com/vm-browserify/-/vm-browserify-1.1.2.tgz#78641c488b8e6ca91a75f511e7a3b32a86e5dda0"
+  integrity sha512-2ham8XPWTONajOR0ohOKOHXkm3+gaBmGut3SRuu75xLd/RRaY6vqgh8NBYYk7+RW3u5AtzPQZG8F10LHkl0lAQ==
 
 which@^1.2.9:
   version "1.3.1"
