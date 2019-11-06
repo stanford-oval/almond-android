@@ -19,6 +19,7 @@ projectdir=".."
 
 thingpedia_url="$2"
 sempre_url="$3"
+almond_url="$4"
 
 install_deps() {
   yarn --frozen-lockfile
@@ -40,8 +41,8 @@ done
 
 node -e "console.log(JSON.stringify(fs.readFileSync(process.argv[1]).toString()))" ./data/thingengine.phone.tt > data/thingengine.phone.tt.json
 
-printf '"use strict";\nmodule.exports.SEMPRE_URL = "%s";\nmodule.exports.THINGPEDIA_URL = "%s";\n' "${sempre_url}" "${thingpedia_url}" > ./config.js
+printf '"use strict";\nmodule.exports.SEMPRE_URL = "%s";\nmodule.exports.THINGPEDIA_URL = "%s";\nmodule.exports.ALMOND_URL = "%s";\n' "${sempre_url}" "${thingpedia_url}" "${almond_url}" > ./config.js
 
 yarn lint
-node ./node_modules/.bin/browserify -t --node -e app.js -o $outputdir/app.js
+yarn run browserify -t --node -e app.js -o $outputdir/app.js
 node -c $outputdir/app.js
