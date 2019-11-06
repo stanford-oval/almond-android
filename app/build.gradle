@@ -17,7 +17,7 @@ android {
     buildToolsVersion '28.0.3'
 
     String THINGPEDIA_URL = "https://thingpedia.stanford.edu/thingpedia"
-    String SEMPRE_URL = "https://almond-nl.almond.stanford.edu"
+    String SEMPRE_URL = "https://almond-nl.stanford.edu"
     String ALMOND_URL = "https://almond.stanford.edu"
     defaultConfig {
         applicationId "edu.stanford.thingengine.engine"
