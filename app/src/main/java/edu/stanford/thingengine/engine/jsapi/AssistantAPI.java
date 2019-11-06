@@ -7,6 +7,7 @@
 package edu.stanford.thingengine.engine.jsapi;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import edu.stanford.thingengine.engine.service.AssistantCommandHandler;
@@ -121,7 +122,7 @@ public class AssistantAPI extends JavascriptAPI implements AssistantCommandHandl
         mService.getAssistant().dispatch(new AssistantMessage.Picture(AssistantMessage.Direction.FROM_SABRINA, icon, url));
     }
 
-    private void sendRDL(JSONObject rdl, String icon) {
+    private void sendRDL(JSONObject rdl, String icon) throws JSONException {
         mService.getAssistant().dispatch(new AssistantMessage.RDL(AssistantMessage.Direction.FROM_SABRINA, icon, rdl));
         if (rdl.has("pictureUrl"))
           mService.getAssistant().dispatch(new AssistantMessage.Picture(AssistantMessage.Direction.FROM_SABRINA, icon, rdl.getString("pictureUrl")));
