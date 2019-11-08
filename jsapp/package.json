@@ -6,16 +6,16 @@
     "lint": "eslint ."
   },
   "dependencies": {
-    "almond-dialog-agent": "~1.7.0-beta.1",
+    "almond-dialog-agent": "~1.7.1",
     "bufferutil": "^4.0.1",
     "node-gettext": "^2.0.0",
     "q": "^1.5.0",
     "smtlib": "^0.1.1",
     "sqlite3": "github:gcampax/node-sqlite3",
-    "thingengine-core": "~1.7.0-alpha.1",
-    "thingpedia": "~2.6.0-alpha.1",
+    "thingengine-core": "~1.7.0",
+    "thingpedia": "~2.6.0",
     "thingpedia-discovery": "^1.0.0",
-    "thingtalk": "~1.9.0-alpha.4",
+    "thingtalk": "~1.9.0",
     "utf-8-validate": "^5.0.2"
   },
   "devDependencies": {
